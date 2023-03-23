@@ -1,0 +1,20 @@
+[Unit]
+Description=gunicorn
+After=syslog.target
+Requires=redis.service
+
+[Service]
+ExecStart=/path/to/venv/bin/gunicorn asgi:app -w 4 -k uvicorn.workers.UvicornWorker --bind=unix:///path/to/gunicorn.sock --forwarded-allow-ips="*" --error-logfile="/path/to/gunicorn.log" --capture-output --max-requests=1000 --max-requests-jitter=15
+WorkingDirectory=/path/to/project/root
+RuntimeDirectory=/path/to/project/root
+User=...
+Group=...
+Restart=always
+KillSignal=SIGQUIT
+Type=notify
+StandardError=syslog
+NotifyAccess=all
+Environment="STARLETTE_SETTINGS_MODULE=core.settings"
+
+[Install]
+WantedBy=multi-user.target

@@ -1,9 +1,10 @@
 ## Structured concurrency
 
-Asyncio-way is built around calling `asyncio.Task`'s and juggling callbacks.
-In asyncio-paradigm, all tasks are on the same "level", i.e. there are no explicit
-parent or child tasks, even though tasks may spawn other tasks. Context propagation
-and tracebacks are not available in this paradigm.
+Standard Python implementation of asynchronous programming, asyncio, is designed around 
+calling `asyncio.Task`'s and juggling callbacks.
+In `asyncio`-paradigm, all tasks are on the same "level", i.e. there are no explicit
+parent or child tasks, even though tasks may spawn other tasks. Strict context propagation
+and tracebacks are not feasible in this paradigm.
 
 Structured concurrency is a specific, stricter way to write asynchronous programs.
 It disallows callbacks and requires that all spawned tasks are explicitly bound
