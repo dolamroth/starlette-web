@@ -1,45 +1,31 @@
-# starlette-web
-Simple components for web-app, based on "starlette" framework.
+## starlette-web
 
+`starlette-web` is a native-asynchronous web-framework, based on Starlette and inspired by Django and its ecosystem.
+It aims to provide most of the relevant features of Django in async-all-the-way setting.
 
-### Project Description
+Its priorities, from most important to least important, are as follows:
 
-#### Target 
-This is a simple moving part of common components from [podcast web-application](https://github.com/DmitryBurnaev/podcast-service)
-Common parts are related to starlette web-framework and can be used for building web-applications.
+- **Providing a single ecosystem** - all parts of framework are aimed to work well together and follow same ideas. 
+  In a way, this goes against idea of mini-frameworks like Starlette, which favor a lot of contrib plug-ins, 
+  written by different authors.
+- **Robustness** - `starlette-web` is written with **anyio** and tries to follow principles of structured concurrency.
+- **Feature completeness** - while the aim is not to cover all the Django ecosystem 
+  (especially, because a lot of it is legacy), many useful libraries are included.
+- **Cross-platform support** - most of the features are supported for both POSIX and Windows systems. 
+  However, a number of contrib modules aim specifically at certain OS, and obviously it's mostly Linux. 
+- **Speed** - while framework is being used in multiple projects without speed issues, it is not properly benchmarked.
+  Probably, it is slower than all other async Python frameworks, though not by a large amount.
 
+starlette-web uses **SQLAlchemy** as its database toolkit and ORM.
 
-## Environment Variables
+The framework is not well suited for novice users. It assumes prior knowledge of Django and async development in Python.
 
-### REQUIRED Variables
+## Examples of usage
 
-| argument              |                    description                    |                 example |
-|:----------------------|:-------------------------------------------------:|------------------------:|
-| SECRET_KEY            |           Django secret key (security)            |    _abc3412j345j1f2d3f_ |
-| SITE_URL              |     URL address to the UI-part of the web APP     | https://web.project.com |
-| DB_HOST               |             PostgreSQL database host              |               127.0.0.1 |
-| DB_PORT               |             PostgreSQL database port              |                    5432 |
-| DB_NAME               |             PostgreSQL database name              |                 podcast |
-| DB_USERNAME           |           PostgreSQL database username            |                 podcast |
-| DB_PASSWORD           |           PostgreSQL database password            |         podcast_asf2342 |
+A sample instruction to start a new project is given in `docs/howto/startup` section. 
+See tests for more examples of usage.
 
-### OPTIONAL Variables
+## Code borrowing
 
-| argument          |                    description                    |             default |
-|:------------------|:-------------------------------------------------:|--------------------:|
-| APP_DEBUG         |               Run app in debug mode               |               False |
-| LOG_LEVEL         |        Allows to set current logging level        |               DEBUG |
-| REDIS_HOST        |                    Redis host                     |           localhost |
-| REDIS_PORT        |                    Redis port                     |                6379 |
-| REDIS_DB          |                     Redis db                      |                   0 |
-| DB_NAME_TEST      |         Custom name for DB name for tests         | `DB_NAME` + `_test` |
-| DB_ECHO           |         Sending all db queries to stdout          |               False |
-| CONSTANCE_BACKEND |        Backend class for constance storage        |                     |
-| CONSTANCE_CONFIG  |                  Constants                        |                     |
-
-
-* * *
-
-### License
-
-This product is released under the MIT license. See LICENSE for details.
+starlette-web borrows/adopts a lot of code from other open-source Python libraries. 
+List of libraries is given in the `docs/licences` section, with links to repositories and licences.

@@ -80,7 +80,7 @@ For Redis, use redis Streams which support acknowledgment:
 - https://redis.io/commands/xack/
 - https://github.com/encode/broadcaster/blob/3cfcc8b41339862b1f5d50f42ab027bcae92d78c/broadcaster/_backends/redis_stream.py
 
-## Known issues
+## Limitations
 
 Channels cannot be instantiated project-wise, in the same way as caches.
 In `channels`, the channel layer is instantiated for the whole duration of `async with` block,

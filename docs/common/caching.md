@@ -34,12 +34,9 @@ value = await caches['default'].async_get('key')
 await caches['default'].async_set('key', value, timeout=10)
 ```
 
-Default cache is available as `starlette_web.common.caches.cache`.
-
 ## Locks
 
-In addition to Django-like cache backend, 
-BaseCache implementation provides named locks (mutexes).
+In addition to Django-like cache backend, BaseCache implementation provides named locks (mutexes).
 Example of usage:
 
 ```python
