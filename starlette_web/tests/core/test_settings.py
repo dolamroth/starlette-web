@@ -6,7 +6,7 @@ from starlette_web.common.http.exceptions import ImproperlyConfigured
 
 def test_settings():
     value = settings.APPLICATION_CLASS
-    assert value == "starlette_web.tests.app.TestStarletteApplication"
+    assert value == "starlette_web.common.app.BaseStarletteApplication"
 
     with pytest.raises(ImproperlyConfigured) as err:
         _ = settings.INEXISTENT_SETTING

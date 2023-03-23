@@ -29,7 +29,6 @@ Common parts are related to starlette web-framework and can be used for building
 |:------------------|:-------------------------------------------------:|--------------------:|
 | APP_DEBUG         |               Run app in debug mode               |               False |
 | LOG_LEVEL         |        Allows to set current logging level        |               DEBUG |
-| SENTRY_DSN        | Sentry dsn (if not set, error logs won't be sent) |                     |
 | REDIS_HOST        |                    Redis host                     |           localhost |
 | REDIS_PORT        |                    Redis port                     |                6379 |
 | REDIS_DB          |                     Redis db                      |                   0 |

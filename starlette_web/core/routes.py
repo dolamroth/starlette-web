@@ -7,7 +7,6 @@ from starlette_web.contrib.auth.routes import routes as auth_routes
 from starlette_web.contrib.admin import admin, AdminMount
 from starlette_web.tests.views import (
     HealthCheckAPIView,
-    SentryCheckAPIView,
     BaseWebsocketTestEndpoint,
     CancellationWebsocketTestEndpoint,
     AuthenticationWebsocketTestEndpoint,
@@ -24,7 +23,6 @@ routes = [
     AdminMount("/admin", app=admin.get_app(), name="admin"),
     Mount("/static", app=StaticFiles(directory=settings.STATIC["ROOT_DIR"]), name="static"),
     Route("/health_check/", HealthCheckAPIView),
-    Route("/sentry_check/", SentryCheckAPIView),
     WebSocketRoute("/ws/test_websocket_base", BaseWebsocketTestEndpoint),
     WebSocketRoute("/ws/test_websocket_cancel", CancellationWebsocketTestEndpoint),
     WebSocketRoute("/ws/test_websocket_auth", AuthenticationWebsocketTestEndpoint),

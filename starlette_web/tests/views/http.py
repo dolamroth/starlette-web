@@ -4,7 +4,6 @@ from marshmallow import Schema, fields
 
 from starlette_web.contrib.auth.models import User
 from starlette_web.common.http.base_endpoint import BaseHTTPEndpoint
-from starlette_web.common.http.exceptions import BaseApplicationError
 from starlette_web.common.http.statuses import ResponseStatus
 
 
@@ -63,25 +62,3 @@ class HealthCheckAPIView(BaseHTTPEndpoint):
         return self._response(
             data=response_data, status_code=result_status, response_status=response_status
         )
-
-
-class SentryCheckAPIView(BaseHTTPEndpoint):
-    """Simple checker sentry config (raise err + logger)."""
-
-    auth_backend = None
-
-    async def get(self, request):  # noqa
-        """
-        description: Health check of Sentry logger
-        responses:
-          500:
-            description: Application error
-        tags: ["Health check"]
-        """
-        logger.error("Error check sentry")
-        try:
-            1 / 0
-        except ZeroDivisionError as err:
-            logger.exception(f"Test exc for sentry: {err}")
-
-        raise BaseApplicationError("Oops!")

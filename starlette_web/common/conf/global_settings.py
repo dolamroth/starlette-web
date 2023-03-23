@@ -1,14 +1,16 @@
 # Core application settings
 
 APP_DEBUG = False
-APPLICATION_CLASS = "starlette_web.tests.app.TestStarletteApplication"
+APPLICATION_CLASS = "starlette_web.common.app.BaseStarletteApplication"
 
 SECRET_KEY = ""
 INSTALLED_APPS = []
 MIDDLEWARES = []
 
-LOG_LEVEL = "INFO"
 LOGGING = {}
+
+# Used in contrib.auth
+SITE_URL = "http://localhost:80"
 
 # TODO: for future support of i18n
 LANGUAGE_CODE = "en-us"

@@ -93,7 +93,6 @@ CHANNEL_LAYERS = {
 }
 
 SITE_URL = config("SITE_URL", default="") or "https://web.project.com"
-SENTRY_DSN = config("SENTRY_DSN", default=None)
 
 LOG_LEVEL = config("LOG_LEVEL", default="INFO")
 LOGGING = {

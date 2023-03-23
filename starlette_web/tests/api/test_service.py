@@ -20,12 +20,3 @@ class TestHealthCheckAPIView(BaseTestAPIView):
             "services": {"postgres": "down"},
             "errors": ["Couldn't connect to DB: RuntimeError 'Oops'"],
         }
-
-
-class TestSentryCheckAPIView(BaseTestAPIView):
-    url = "/sentry_check/"
-
-    def test_sentry__ok(self, client):
-        response = client.get(self.url)
-        response_data = self.assert_fail_response(response, status_code=500)
-        assert response_data == {"error": "Something went wrong", "details": "Oops!"}

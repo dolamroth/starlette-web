@@ -278,13 +278,6 @@ REFERENCE_SCHEMA = {
                 "tags": ["Health check"],
             }
         },
-        "/sentry_check/": {
-            "get": {
-                "description": "Health check of Sentry logger",
-                "responses": {"500": {"description": "Application error"}},
-                "tags": ["Health check"],
-            }
-        },
     },
     "openapi": "3.0.2",
     "components": {
