@@ -5,15 +5,53 @@ import re
 from typing import Any, Optional, Dict, Sequence, AsyncContextManager, List
 
 import anyio
+from anyio.lowlevel import checkpoint
 
 from starlette_web.common.caches.base import BaseCache, CacheError
+from starlette_web.common.caches.base_lock import BaseLock
 from starlette_web.common.http.exceptions import ImproperlyConfigured
 from starlette_web.common.utils.regex import redis_pattern_to_re_pattern
 
 
 _caches: Dict[str, Dict[str, Any]] = {}
 _expire_info: Dict[str, Dict[str, float]] = {}
-_locks: Dict[str, anyio.Lock] = {}
+_locks: Dict[str, Dict[str, float]] = {}
+
+
+class _AsyncLocalMemoryLock(BaseLock):
+    def __init__(
+        self,
+        name: str,
+        timeout: Optional[float] = None,
+        blocking_timeout: Optional[float] = None,
+        **kwargs,
+    ) -> None:
+        super().__init__(name=name, timeout=timeout, blocking_timeout=blocking_timeout, **kwargs)
+        self._manager_lock = kwargs["manager_lock"]
+        self._cache_name = kwargs["cache_name"]
+        global _locks
+        _locks.setdefault(self._cache_name, {})
+        self._cache_lock = _locks[self._cache_name]
+
+    async def _acquire(self):
+        if self._is_acquired:
+            return
+
+        while True:
+            await checkpoint()
+            async with self._manager_lock:
+                if self._cache_lock.get(self._name, -1) < anyio.current_time():
+                    self._cache_lock[self._name] = anyio.current_time() + self._timeout
+                    self._acquire_event.set()
+                    return
+
+    async def _release(self):
+        if not self._is_acquired:
+            return
+
+        async with self._manager_lock:
+            self._cache_lock[self._name] = -1
+            self._is_acquired = False
 
 
 class LocalMemoryCache(BaseCache):
@@ -24,11 +62,12 @@ class LocalMemoryCache(BaseCache):
 
         super().__init__(options)
         self._manager_lock = anyio.Lock()
+        self._locking_manager_lock = anyio.Lock()
 
         global _caches, _locks, _expire_info
         self._cache = _caches.setdefault(self.name, {})
         self._expire_info = _expire_info.setdefault(self.name, {})
-        self._lock = _locks.setdefault(self.name, anyio.Lock())
+        self._lock = _locks.setdefault(self.name, {})
 
     async def async_get(self, key: str) -> Any:
         async with self._manager_lock:
@@ -100,6 +139,11 @@ class LocalMemoryCache(BaseCache):
         blocking_timeout: Optional[float] = None,
         **kwargs,
     ) -> AsyncContextManager:
-        # A stub, that returns same lock for any parameters
-        # Use anyio.Lock directly instead
-        return self._lock
+        return _AsyncLocalMemoryLock(
+            name=name,
+            timeout=timeout,
+            blocking_timeout=blocking_timeout,
+            manager_lock=self._locking_manager_lock,
+            cache_name=self.name,
+            **kwargs,
+        )
