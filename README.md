@@ -22,6 +22,8 @@ Its priorities, from most important to least important, are as follows:
 
 The framework is not well suited for novice users. It assumes prior knowledge of Django and async development in Python.
 
+<u>The framework is in active development stage, so expect some breaking changes.</u>
+
 ## Installation, usage and supported features
 
 Installation and deploy instructions are in [docs/howto](docs/howto/startup/README.md) section.

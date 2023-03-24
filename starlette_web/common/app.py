@@ -1,13 +1,14 @@
 import inspect
 import logging
 import logging.config
-from typing import List, Union, Dict, Callable, Type, TypeVar
+from typing import List, Union, Dict, Callable, Type, TypeVar, Optional
 
 from sqlalchemy.orm import sessionmaker
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
 from starlette.requests import Request
 from starlette.routing import Route, Mount, WebSocketRoute
+from starlette.types import Lifespan
 from webargs_starlette import WebargsHTTPException
 
 from starlette_web.common.caches import caches
@@ -80,6 +81,9 @@ class BaseStarletteApplication:
             WebargsHTTPException: WebargsHTTPExceptionHandler(),
         }
 
+    def get_lifespan(self) -> Optional[Lifespan["AppClass"]]:
+        return None
+
     def get_app(self, **kwargs) -> AppClass:
         object.__getattribute__(settings, "_setup")()
         self.pre_app_init()
@@ -89,12 +93,12 @@ class BaseStarletteApplication:
             exception_handlers=self.get_exception_handlers(),
             debug=self.get_debug(),
             middleware=self.get_middlewares(),
+            lifespan=self.get_lifespan(),
             **kwargs,
         )
 
         self._setup_logging(app)
         self._setup_caches(app)
-        self._manage_event_handlers(app)
 
         self.post_app_init(app)
         return app
@@ -105,18 +109,6 @@ class BaseStarletteApplication:
     def _setup_caches(self, app: AppClass):
         for conn_name in settings.CACHES:
             _ = caches[conn_name]
-
-    def _manage_event_handlers(self, app: AppClass):
-        shutdown_handlers = []
-
-        for startup_handler, shutdown_handler in self._event_handlers:
-            app.add_event_handler("startup", startup_handler)
-            shutdown_handlers.append(shutdown_handler)
-
-        # Take care of nesting event handlers, which may provide
-        # context-manager cancel scopes, which must be properly nested LIFO
-        for shutdown_handler in shutdown_handlers[::-1]:
-            app.add_event_handler("shutdown", shutdown_handler)
 
 
 def get_app(**kwargs) -> AppClass:

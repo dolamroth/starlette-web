@@ -97,7 +97,6 @@ class Admin(BaseAdmin):
             exc.status_code = 500
             exc.detail = str(exc)
 
-        # TODO: examine, why template is not shown, when error occurs
         return self.templates.TemplateResponse(
             "error.html",
             {"request": request, "exc": exc},
