@@ -26,13 +26,13 @@ The framework is not well suited for novice users. It assumes prior knowledge of
 
 ## Installation, usage and supported features
 
-Installation and deploy instructions are in [docs/howto](docs/howto/startup/README.md) section.
+Installation and deploy instructions are in [docs/howto](./docs/howto/README.md) section.
 
-For supported features, see [docs/README.md](docs/README.md) section.
+For supported features, see [docs/README.md](./docs/README.md) section.
 
 See tests for more examples of usage.
 
 ## Code borrowing
 
 starlette-web borrows/adopts a lot of code from other open-source Python libraries. 
-List of libraries is given in the [docs](docs/borrowing.md), with links to repositories and licences.
+List of libraries is given in the [docs](./docs/borrowing.md), with links to repositories and licences.
