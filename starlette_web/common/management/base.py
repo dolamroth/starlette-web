@@ -6,7 +6,7 @@ from argparse import ArgumentParser
 from functools import partial
 from typing import Optional, List, Type, Dict, Coroutine, Any, Callable
 
-from starlette_web.common.app import get_app
+from starlette_web.common.app import get_app, WebApp
 from starlette_web.common.conf import settings
 from starlette_web.common.http.exceptions import BaseApplicationError
 from starlette_web.common.utils import import_string
@@ -39,7 +39,7 @@ class BaseCommand:
 
     def __init__(self, app):
         self.parser: Optional[CommandParser] = None
-        self.app = app
+        self.app: WebApp = app
 
     def create_parser(self, argv, called_from_command_line=True):
         parser = CommandParser(
@@ -58,11 +58,8 @@ class BaseCommand:
         raise NotImplementedError
 
     async def _handle_wrapper(self, **options):
-        try:
-            await self.app.router.startup()
+        async with self.app.router.lifespan_context(self.app):
             await self.handle(**options)
-        finally:
-            await self.app.router.shutdown()
 
     def prepare_command_function(
         self,
@@ -90,7 +87,11 @@ class BaseCommand:
 def list_commands() -> Dict[str, str]:
     command_files = {}
 
-    for app in settings.INSTALLED_APPS:
+    installed_apps = settings.INSTALLED_APPS
+    if "starlette_web.common" not in installed_apps:
+        installed_apps = ["starlette_web.common"] + installed_apps
+
+    for app in installed_apps:
         for module_info in pkgutil.iter_modules(
             [os.sep.join([app.replace(".", os.sep), "management", "commands"])]
         ):

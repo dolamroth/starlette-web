@@ -82,6 +82,31 @@ class BaseStarletteApplication:
         }
 
     def get_lifespan(self) -> Optional[Lifespan["AppClass"]]:
+        """
+        This method returns None or AsyncContextManager,
+        that is instantiated with application instance
+        and yields either None or State (dict, typeddict)
+        See example of state here https://www.starlette.io/lifespan/
+
+        If you need to open multiple async context managers within lifespan context,
+        consider using contextlib.AsyncExitStack
+        # https://anyio.readthedocs.io/en/stable/cancellation.html#avoiding-cancel-scope-stack-corruption  # flake8: noqa
+
+        >>> class AppLifespan:
+        >>>     def __init__(self, app: WebApp):
+        >>>         self.app = app
+        >>>
+        >>>     async def __aenter__(self):
+        >>>         print("START")
+        >>>         return {}
+        >>>
+        >>>     async def __aexit__(self, exc_type, exc_val, exc_tb):
+        >>>         print("END")
+        >>>         return False
+        >>>
+        >>> return AppLifespan
+        """
+
         return None
 
     def get_app(self, **kwargs) -> AppClass:
