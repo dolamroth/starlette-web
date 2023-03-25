@@ -26,9 +26,14 @@ starlette_web brings a number of features atop base starlette.
 - See github issues/milestones for planned features: 
   https://github.com/dolamroth/starlette-web/milestones
 
+### Not planned features
+
+- FileField, ImageField (see [docs/notes](./notes/orm_filefield_challenges.md) for explanation)
+
 ## Additional notes, articles and links
 
 - [docs/notes](./notes) section contains various notes and best practices
 - See blog of Nathaniel Smith for articles about structured concurrency: https://vorpus.org/blog/archives.html
 - See GINO docs for articles about using asynchronous ORM: https://python-gino.org/docs/en/1.0/explanation/async.html
-- Project wiki also has an unsorted bunch of articles/discussions on various topics: https://github.com/dolamroth/starlette-web/wiki
+- [Project wiki](https://github.com/dolamroth/starlette-web/wiki) also has an unsorted bunch of 
+  articles/discussions on various topics
