@@ -29,15 +29,19 @@ class Channel:
         self._task_group_handler = None
 
     async def __aenter__(self) -> "Channel":
+        await self.connect()
         self._task_group_handler = anyio.create_task_group()
         self._task_group = await self._task_group_handler.__aenter__()
-        await self.connect()
+        self._task_group.start_soon(self._listener)
         return self
 
     async def __aexit__(self, *args: Any, **kwargs: Any):
         self._subscribers.clear()
         self._task_group.cancel_scope.cancel()
+        del self._task_group
+
         retval = await self._task_group_handler.__aexit__(*args)
+        del self._task_group_handler
 
         with anyio.fail_after(self.EXIT_MAX_DELAY, shield=True):
             await self.disconnect()
@@ -46,7 +50,6 @@ class Channel:
 
     async def connect(self) -> None:
         await self._channel_layer.connect()
-        self._task_group.start_soon(self._listener)
 
     async def disconnect(self) -> None:
         await self._channel_layer.disconnect()

@@ -141,6 +141,9 @@ class ChatWebsocketTestEndpoint(BaseWSEndpoint):
             # We have to use explicit await here, instead of calling self.task_group.spawn_soon
             # since otherwise this _background_handler will close, call _unregister and close
             # the task_group altogether, since no other tasks are spawned at this moment
+
+            # NOTE: it can be actually circumvented easily
+            # by registering an additional task_id for listener
             await self._run_dialogue(websocket)
 
         else:

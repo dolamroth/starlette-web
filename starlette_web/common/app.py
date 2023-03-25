@@ -90,7 +90,8 @@ class BaseStarletteApplication:
 
         If you need to open multiple async context managers within lifespan context,
         consider using contextlib.AsyncExitStack
-        # https://anyio.readthedocs.io/en/stable/cancellation.html#avoiding-cancel-scope-stack-corruption  # flake8: noqa
+        # flake8: noqa
+        # https://anyio.readthedocs.io/en/stable/cancellation.html#avoiding-cancel-scope-stack-corruption
 
         >>> class AppLifespan:
         >>>     def __init__(self, app: WebApp):

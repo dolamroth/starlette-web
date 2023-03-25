@@ -7,7 +7,7 @@ There are multiple built-ins to do that:
   after user's request. This is well-suited for short async task like sending SMS, emails or queries to outer APIs.
   Spawning short processes within background task is possible with `anyio.to_process`.
 - `starlette_web` allows you to spawn background tasks in WebsocketEndpoint, bounding them to parent `anyio.TaskGroup`.
-  There are intended as background tasks with the same lifespan, as websocket connection, i.e. for listeners/publishers.
+  These are intended as background tasks with the same lifespan, as websocket connection, i.e. for listeners/publishers.
 - `starlette_web` also provides a `contrib.scheduler` module to allow running periodic tasks with the help of OS builtin
   scheduler. Implementations for POSIX crontab and Windows Task Scheduler 2.0 are provided.
 
@@ -41,11 +41,15 @@ There are also outer libraries, which provide different options to run scheduled
 - Supports database storages, Redis and some other.
 - Works with anyio.
 
+**Note**: If you are going to use it, note that starlette supports lifespan tasks since `0.26.0`,
+so you don't have to add middleware as per docs: https://apscheduler.readthedocs.io/en/master/integrations.html
+Simply inherit `starlette_web.common.app.BaseStarletteApplication` and re-define method `get_lifespan`.
+
 ### [aiotasks](https://github.com/cr0hn/aiotasks)
 - Celery-like job queue for async tasks.
 - Has limited functionality.
 - Works with asyncio.
-- **Not recommended**, last updated in 2017.
+- **Not recommended**, has not got releases since 2017.
 
 ### [celery-pool-asyncio](https://github.com/kai3341/celery-pool-asyncio)
 - Monkey-patches celery to use a separate pool class, which accepts async functions as tasks. 
@@ -54,5 +58,5 @@ There are also outer libraries, which provide different options to run scheduled
 - **Not recommended** unless you know what you are doing.
 
 ### Custom task broker with ThreadPool/ProcessPool
-- Has no drawbacks :)
-- In case of multiprocessing, you may consider to use a [fork with better serialization](https://github.com/uqfoundation/multiprocess)
+- This approach has no drawbacks :)
+- In case of multiprocessing, you may consider using a [fork with better serialization](https://github.com/uqfoundation/multiprocess)
