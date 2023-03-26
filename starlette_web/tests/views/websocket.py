@@ -7,11 +7,12 @@ from marshmallow.validate import OneOf
 from starlette.types import Scope, Receive, Send
 from starlette.websockets import WebSocket, WebSocketDisconnect
 
+from starlette_web.common.authorization.permissions import IsAuthenticatedPermission
 from starlette_web.common.conf import settings
 from starlette_web.common.caches import caches
 from starlette_web.common.channels.base import Channel
 from starlette_web.common.ws.base_endpoint import BaseWSEndpoint
-from starlette_web.common.authorization.permissions import IsAuthenticatedPermission
+from starlette_web.common.utils.crypto import get_random_string
 from starlette_web.contrib.auth.backend import JWTAuthenticationBackend
 from starlette_web.contrib.redis.channel_layers import RedisPubSubChannelLayer
 
@@ -133,18 +134,18 @@ class ChatWebsocketTestEndpoint(BaseWSEndpoint):
                 logger.debug("No initialized channels detected. Quit handler")
                 return
 
+        room = "chatroom"
+
         if data["request_type"] == "publish":
-            await self._channels.publish("chatroom", data["message"])
+            await self._channels.publish(room, data["message"])
 
         elif data["request_type"] == "connect":
-            # TODO: examine anyio KeyError due to WeakRef
-            # We have to use explicit await here, instead of calling self.task_group.spawn_soon
-            # since otherwise this _background_handler will close, call _unregister and close
-            # the task_group altogether, since no other tasks are spawned at this moment
-
-            # NOTE: it can be actually circumvented easily
-            # by registering an additional task_id for listener
-            await self._run_dialogue(websocket)
+            # In test endpoint, unregister checks that there are any tasks left,
+            # before closing the channel. Since this parent task will close
+            # as soon it spawns dialogue task, we need to register the latter.
+            dialogue_task_id = get_random_string(50)
+            self._tasks.add(dialogue_task_id)
+            self.task_group.start_soon(self._run_dialogue, websocket, room, dialogue_task_id)
 
         else:
             raise WebSocketDisconnect(code=1005, reason="Invalid request type")
@@ -159,16 +160,17 @@ class ChatWebsocketTestEndpoint(BaseWSEndpoint):
                 await self._channels_wrap.__aexit__(None, None, None)
                 self._channels_init = False
 
-    async def _run_dialogue(self, websocket: WebSocket):
+    async def _run_dialogue(self, websocket: WebSocket, room: str, dialogue_task_id: str):
         try:
             async with self._manager_lock:
                 if self._response_handler_init:
                     return
                 self._response_handler_init = True
 
-            async with self._channels.subscribe("chatroom") as subscriber:
+            async with self._channels.subscribe(room) as subscriber:
                 async for event in subscriber:
                     await websocket.send_json(event.message)
         finally:
+            self._tasks.discard(dialogue_task_id)
             async with self._manager_lock:
                 self._response_handler_init = False

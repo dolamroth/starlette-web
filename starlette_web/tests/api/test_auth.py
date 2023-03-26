@@ -1,5 +1,6 @@
 import base64
 import json
+import os
 import uuid
 from datetime import datetime, timedelta
 
@@ -588,7 +589,13 @@ class TestRefreshTokenAPIView(BaseTestAPIView):
 
         assert user_session_1.refreshed_at == upd_user_session_1.refreshed_at
         assert user_session_1.refresh_token == upd_user_session_1.refresh_token
-        assert user_session_1.refreshed_at < upd_user_session_2.refreshed_at
+
+        if os.name == "nt":
+            # Windows has less time ticks, than Linux,
+            # so sometimes these 2 times are equal up to milliseconds
+            assert user_session_1.refreshed_at <= upd_user_session_2.refreshed_at
+        else:
+            assert user_session_1.refreshed_at < upd_user_session_2.refreshed_at
 
     def test_refresh_token__user_inactive__fail(self, client, user, dbs):
         user_session = self._prepare_token(dbs, user)
