@@ -4,7 +4,7 @@ starlette_web brings a number of features atop base starlette.
 
 ### Common features
 
-- ORM (via SQLAlchemy.ORM)
+- ORM (via SQLAlchemy.ORM), model helper methods
 - Admin panel (via `starlette_admin`)
 - [Extended support for OpenAPI](./contrib/apispec.md)
 - [Caches](./common/caching.md)

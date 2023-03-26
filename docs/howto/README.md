@@ -1,6 +1,6 @@
 ## Installation
 
-Latest version:
+Get latest version:
 
 ```bash
 python -m pip install https://github.com/dolamroth/starlette-web/archive/refs/heads/main.zip#egg=starlette_web
@@ -29,7 +29,7 @@ All but "development" and "testing" are recommended for production.
 
 ## Setup
 
-### TODO:
+See [docs/howto/setup](./setup/README.md)
 
 ## Deployment
 
