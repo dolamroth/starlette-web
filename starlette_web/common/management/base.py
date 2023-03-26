@@ -58,8 +58,8 @@ class BaseCommand:
         raise NotImplementedError
 
     async def _handle_wrapper(self, **options):
-        async with self.app.router.lifespan_context(self.app):
-            await self.handle(**options)
+        async with self.app.router.lifespan_context(self.app) as state:
+            await self.handle(_lifespan_state=state, **options)
 
     def prepare_command_function(
         self,
