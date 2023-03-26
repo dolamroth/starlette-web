@@ -5,9 +5,10 @@ It aims to provide most of the relevant features of Django in async-all-the-way 
 
 Its priorities, from most important to least important, are as follows:
 
-- **Providing a single ecosystem** - all parts of framework are aimed to work well together and follow same ideas. 
+- **Providing a strict ecosystem** - all parts of framework are aimed to work well together and follow same ideas. 
   In a way, this goes against idea of mini-frameworks like Starlette, which favor a lot of contrib plug-ins, 
   written by different authors.
+  Developer must follow the conventions of the framework in most cases.
 - **Robustness** - `starlette_web` is written with **anyio** and aims to follow principles of structured concurrency.
 - **Feature completeness** - while the aim is not to cover all the Django ecosystem 
   (especially, because a lot of it is legacy), many useful libraries are included.

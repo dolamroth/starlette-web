@@ -40,7 +40,6 @@ class BaseHTTPEndpoint(HTTPEndpoint):
     app = None
     request: Request
     db_session: AsyncSession
-    db_model: ClassVar[DBModel]
     request_schema: ClassVar[Type[Schema]]
     response_schema: ClassVar[Type[Schema]]
     auth_backend: ClassVar[Type[BaseAuthenticationBackend]] = NoAuthenticationBackend

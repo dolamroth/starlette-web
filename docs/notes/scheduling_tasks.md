@@ -52,8 +52,8 @@ Simply inherit `starlette_web.common.app.BaseStarletteApplication` and re-define
 - **Not recommended**, has not got releases since 2017.
 
 ### [celery-pool-asyncio](https://github.com/kai3341/celery-pool-asyncio)
-- Monkey-patches celery to use a separate pool class, which accepts async functions as tasks. 
-  Other celery features remain. 
+- Monkey-patches celery to use a separate pool class, which accepts async functions as tasks.
+  Other celery features remain.
 - Original repository frozen, the latest release from fork is dated May 2020.
 - **Not recommended** unless you know what you are doing.
 
