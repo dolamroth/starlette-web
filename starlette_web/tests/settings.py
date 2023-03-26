@@ -1,12 +1,10 @@
 # flake8: noqa
 
-import sys
 from pathlib import Path
 
 from starlette.config import Config
 from starlette.datastructures import Secret
 
-# TODO: change default project path when running startproject
 PROJECT_ROOT_DIR = Path(__file__).parent.parent.parent
 
 config = Config(PROJECT_ROOT_DIR / ".env")
@@ -14,7 +12,7 @@ config = Config(PROJECT_ROOT_DIR / ".env")
 APP_DEBUG = config("APP_DEBUG", cast=bool, default=False)
 SECRET_KEY = config("SECRET_KEY", cast=Secret, default="project-secret")
 
-TEST_MODE = "test" in sys.argv[0]
+TEST_MODE = True
 
 INSTALLED_APPS = [
     "starlette_web.contrib.staticfiles",
@@ -27,9 +25,7 @@ INSTALLED_APPS = [
 ]
 
 DB_ECHO = config("DB_ECHO", cast=bool, default=False)
-DB_NAME = config("DB_NAME", default="web_project")
-if TEST_MODE:
-    DB_NAME = config("DB_NAME_TEST", default="web_project_test")
+DB_NAME = config("DB_NAME_TEST", default="web_project_test")
 
 # TODO: refactor database-specific settings with respect to sqlalchemy.create_engine / asyncpg
 DATABASE = {
@@ -53,7 +49,7 @@ DATABASE_DSN = config(
     default="{driver}://{username}:{password}@{host}:{port}/{database}".format(**DATABASE),
 )
 
-ROUTES = "starlette_web.core.routes.routes"
+ROUTES = "starlette_web.tests.routes.routes"
 
 FILECACHE_DIR = PROJECT_ROOT_DIR / "filecache"
 FILECACHE_DIR.mkdir(exist_ok=True)

@@ -6,7 +6,7 @@ from starlette_web.common.management.base import fetch_command_by_name, CommandE
 
 
 if __name__ == "__main__":
-    settings_module = "starlette_web.tests.settings"
+    settings_module = "core.settings"
 
     sys_argv = list(sys.argv).copy()
     for arg in sys_argv.copy():

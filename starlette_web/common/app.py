@@ -42,7 +42,13 @@ class WebApp(Starlette):
         }
         super().__init__(*args, **starlette_init_kwargs)
 
-        self.session_maker = make_session_maker(use_pool=use_pool)
+        # TODO: think about multiple database support
+        if settings.DATABASE_DSN:
+            self.session_maker = make_session_maker(use_pool=use_pool)
+        else:
+            def _not_implemented():
+                raise NotImplementedError("settings.DATABASE_DSN is not configured")
+            self.session_maker = _not_implemented
 
 
 class BaseStarletteApplication:
@@ -73,7 +79,11 @@ class BaseStarletteApplication:
         return settings.MIDDLEWARES
 
     def get_routes(self) -> List[Union[WebSocketRoute, Route, Mount]]:
-        return import_string(settings.ROUTES)
+        routes_setting = settings.ROUTES
+        if routes_setting is None:
+            return []
+
+        return import_string(routes_setting)
 
     def get_exception_handlers(self) -> Dict[Type[Exception], ExceptionHandlerType]:
         return {
@@ -130,7 +140,8 @@ class BaseStarletteApplication:
         return app
 
     def _setup_logging(self, app: AppClass):
-        logging.config.dictConfig(settings.LOGGING)
+        if settings.LOGGING:
+            logging.config.dictConfig(settings.LOGGING)
 
     def _setup_caches(self, app: AppClass):
         for conn_name in settings.CACHES:

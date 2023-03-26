@@ -6,6 +6,7 @@ APPLICATION_CLASS = "starlette_web.common.app.BaseStarletteApplication"
 SECRET_KEY = ""
 INSTALLED_APPS = []
 MIDDLEWARES = []
+ROUTES = None
 
 LOGGING = {}
 
@@ -20,6 +21,10 @@ LANGUAGE_CODE = "en-us"
 DB_ASYNC_SESSION_CLASS = "sqlalchemy.ext.asyncio.AsyncSession"
 DB_USE_CONNECTION_POOL_FOR_MANAGEMENT_COMMANDS = False
 DB_POOL_RECYCLE = 3600
+DB_ECHO = False
+
+# Must be overridden in user-defined settings
+DATABASE_DSN = None
 
 # Common.cache
 

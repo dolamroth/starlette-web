@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from importlib import import_module
 
 from starlette_web.common.conf import settings
 from starlette_web.common.conf.base_app_config import BaseAppConfig
@@ -25,7 +26,8 @@ class AppManager:
         for installed_app in settings.INSTALLED_APPS:
             try:
                 AppConfig = import_string(installed_app + ".apps.AppConfig")
-                assert BaseAppConfig in AppConfig.__mro__
+                if BaseAppConfig not in AppConfig.__mro__:
+                    raise AssertionError
             except (SystemError, ImportError, AssertionError) as exc:
                 raise ImproperlyConfigured(
                     details=f"App {installed_app} must define apps.AppConfig class, inherited "
@@ -60,6 +62,14 @@ class AppManager:
         self.register_apps()
         for app_config in self.app_configs.values():
             app_config.perform_checks()
+
+    def import_models(self):
+        self.register_apps()
+        for installed_app in settings.INSTALLED_APPS:
+            try:
+                import_module(installed_app + ".models")
+            except (SystemError, ImportError):
+                pass
 
 
 app_manager = AppManager()
