@@ -25,7 +25,7 @@ RUN chown -R web:web /web-project
 
 RUN mkdir -p static
 
-ENV STARLETTE_SETTINGS_MODULE=starlette_web.core.settings
+ENV STARLETTE_SETTINGS_MODULE=starlette_web.tests.settings
 COPY command.py .
 RUN python command.py collectstatic
 
