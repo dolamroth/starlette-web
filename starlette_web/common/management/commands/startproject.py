@@ -41,7 +41,7 @@ class Command(BaseCommand):
             defaults_dir / "core",
             project_dir / "core",
         )
-        for filename in ["command.py", "asgi.py"]:
+        for filename in ["command.py", "asgi.py", "__init__.py"]:
             shutil.copy(
                 defaults_dir / filename,
                 project_dir / filename,
@@ -71,6 +71,11 @@ DB_ECHO=false
                 secret_key="",
             )
             file.writelines(content.strip() + "\n")
+
+        # Setup base directories
+
+        (project_dir / "static").mkdir()
+        (project_dir / "templates").mkdir()
 
         # Setup alembic
         os.chdir(project_dir)

@@ -84,6 +84,34 @@ class BaseCommand:
         await coroutine
 
 
+def _get_app_path_by_name(app: str) -> str:
+    """
+    Lookup possible locations for management commands.
+    Firstly, local project directories are checked.
+    If respective module was not found,
+    trying to seek in virtual environment.
+    """
+    module_name, _, module_rest = app.partition(".")
+    found_local_module = None
+    for module_info in pkgutil.iter_modules([module_name]):
+        if module_info.ispkg:
+            found_local_module = module_info.name
+
+    app_path = app.replace(".", os.sep)
+
+    if not found_local_module:
+        try:
+            venv_module = __import__(module_name)
+            prefix = os.path.dirname(venv_module.__path__[0]).strip(os.sep)
+        except (OSError, SystemError, ImportError, IndexError):
+            prefix = ""
+
+        if prefix:
+            app_path = prefix.strip(os.sep) + os.sep + app_path.strip(os.sep)
+
+    return app_path
+
+
 def list_commands() -> Dict[str, str]:
     command_files = {}
 
@@ -92,18 +120,20 @@ def list_commands() -> Dict[str, str]:
         installed_apps = ["starlette_web.common"] + installed_apps
 
     for app in installed_apps:
-        for module_info in pkgutil.iter_modules(
-            [os.sep.join([app.replace(".", os.sep), "management", "commands"])]
-        ):
+        modules = [os.sep.join([_get_app_path_by_name(app), "management", "commands"])]
+        for module_info in pkgutil.iter_modules(modules):
             if module_info.name.startswith("_") or module_info.ispkg:
                 continue
 
             if module_info.name in command_files:
-                raise CommandError(f'Command "{module_info.name}" is declared in multiple modules.')
+                raise CommandError(
+                    details=f"Command '{module_info.name}' is declared in multiple modules."
+                )
 
             command_files[module_info.name] = ".".join(
                 [app, "management", "commands", module_info.name, "Command"]
             )
+
     return command_files
 
 
