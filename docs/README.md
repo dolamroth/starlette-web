@@ -19,8 +19,9 @@ starlette_web brings a number of features atop base starlette.
 - Redis support
 - Authorization
 - Constance (based on `django-constance`)
-- Periodic task scheduler (based on `django-crontab`), 
-  that uses OS native scheduling mechanism (POSIX crontab, Windows Task Scheduler 2.0)
+- Periodic task scheduler (based on `django-crontab`), that uses OS native scheduling mechanism 
+  (POSIX crontab, Windows Task Scheduler 2.0). For additional scheduling schemes, 
+  please see [docs](./notes/scheduling_tasks.md).
 
 ### Planned features
 

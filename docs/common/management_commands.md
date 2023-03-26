@@ -27,7 +27,7 @@ From command line
 python command.py test_parser 1 2 3 --sum
 ```
 
-## Available commands
+## Core commands
 
 - startproject
 - startapp
@@ -53,4 +53,4 @@ The state of lifespan wrapper is available as `options["_lifespan_state"]`.
 
 ## Examples
 
-See `starlette_web.tests.management.commands` for more examples of usage.
+See `starlette_web.tests.management.commands` for more examples of using management commands.

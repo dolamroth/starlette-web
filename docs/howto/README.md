@@ -34,11 +34,3 @@ All but "development" and "testing" are recommended for production.
 ## Deployment
 
 See [docs/howto/deploy](./deploy/README.md)
-
-## Additional notes
-
-- If you don't need saving Redis data on disk, consider disabling persistence for extra speed: 
-  https://stackoverflow.com/a/28786320
-- If you use PostgreSQL and many workers for `starlette_web`, consider setting up a pgbouncer
-- If you have high RPS, consider setting `use_epoll` for nginx:
-  https://gist.github.com/DanielTheFirst/837210#file-nginx-conf-L21

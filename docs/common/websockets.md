@@ -13,7 +13,7 @@ Typical use-cases are:
 
 starlette_web provides `starlette_web.common.ws.base_endpoint.BaseWSEndpoint` class
 to handle all above-mentioned cases. The core idea is that on each receive from client,
-server spawns a background task to handle request, which may be finite or infinite.
+server spawns a background task handler, which may be finite or infinite.
 
 Overrideable methods:
 - `_background_handler`
@@ -27,6 +27,9 @@ or when `WebsocketDisconnect` exception is raised. Raising any exception within
 a task will cancel all cancel scope, so you may want to silence a non-CancelError
 exception within `_handle_background_task_exception`
 
+**Note**: by default, BaseWSEndpoint only accepts json and requires a `request_schema` to be defined.
+If you want to send raw bytestream, override `_validate` and/or `decode` methods.
+
 Receipts:
 - `infinitely push messages from server to client` - create a task registry as a set,
   add task_id on register, discard task_id on unregister; in handler, check that
@@ -39,7 +42,7 @@ Receipts:
   registration methods to monitor, which handlers do what, and pass data between
   receiving handlers and sending handler via local memory class-variable, 
   database or such.
-- for example of simple chat, see `starlette_web.tests.views.websocket.ChatWebsocketTestEndpoint` and
+- for an example of simple chat, see `starlette_web.tests.views.websocket.ChatWebsocketTestEndpoint` and
   `starlette_web.tests.contrib.test_websocket_chat`
 
 ## Synchronizing multiple tasks

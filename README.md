@@ -1,6 +1,7 @@
 ## starlette_web
 
-`starlette_web` is a native-asynchronous web-framework, based on Starlette and inspired by Django and its ecosystem.
+`starlette_web` is a native-asynchronous web-framework, based on [Starlette](https://www.starlette.io/) 
+and inspired by [Django](https://www.djangoproject.com/) and its ecosystem.
 It aims to provide most of the relevant features of Django in async-all-the-way setting.
 
 Its priorities, from most important to least important, are as follows:
