@@ -30,9 +30,7 @@ class RedisLock(AioredisLock):
                         client=self.redis,
                     )
 
-                async with anyio.create_task_group() as nursery:
-                    nursery.cancel_scope.deadline = anyio.current_time() + self.EXIT_MAX_DELAY
-                    nursery.cancel_scope.shield = True
-                    nursery.start_soon(close_task)
+                with anyio.fail_after(self.EXIT_MAX_DELAY, shield=True):
+                    await close_task()
         except (aioredis.RedisError, TimeoutError) as exc:
             raise CacheLockError from exc

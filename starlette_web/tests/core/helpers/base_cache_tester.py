@@ -73,26 +73,29 @@ class BaseCacheTester:
     def _run_cache_lock_test(self, cache: BaseCache):
         async def lock_checker():
             async with cache.lock("test_lock", timeout=0.5):
-                await anyio.sleep(0.1)
+                await anyio.sleep(0.2)
 
+        start_time = time.time()
         await_(lock_checker())
+        end_time = time.time()
+        assert abs(end_time - start_time - 0.2) < 0.1
 
     def _run_cache_mutual_lock_test(self, cache: BaseCache):
         async def lock_checker():
-            async with cache.lock("test_lock", timeout=0.2, blocking_timeout=0.1):
-                async with cache.lock("test_lock", timeout=0.2, blocking_timeout=0.1):
+            async with cache.lock("test_mutual_lock", timeout=0.2, blocking_timeout=0.1):
+                async with cache.lock("test_mutual_lock", timeout=0.2, blocking_timeout=0.1):
                     await anyio.sleep(0.2)
 
         with pytest.raises(CacheLockError):
             await_(lock_checker())
 
-    def _run_cache_timeouts_test(self, cache: BaseCache):
+    def _run_locks_timeouts_test(self, cache: BaseCache):
         timeout = 0.1
         number_of_tests = 4
         sleep_time = 0.2
 
         async def task_with_lock():
-            async with cache.lock("test_lock", blocking_timeout=2.0, timeout=timeout):
+            async with cache.lock("test_lock_timeout", blocking_timeout=2.0, timeout=timeout):
                 await anyio.sleep(sleep_time)
 
         start_time = time.time()
@@ -108,3 +111,23 @@ class BaseCacheTester:
 
         expected_runtime = (sleep_time + (number_of_tests - 1) * timeout)
         assert abs(run_time - expected_runtime) < 0.2
+
+    def _run_base_lock_cancellation(self, cache: BaseCache):
+        number_of_tests = 4
+        move_on_after = 0.2
+
+        async def locked_task():
+            with anyio.move_on_after(move_on_after):
+                async with cache.lock(
+                    "test_cancel_lock",
+                    blocking_timeout=3.0,
+                    timeout=3.0,
+                ):
+                    await anyio.sleep(3.0)
+
+        start_time = time.time()
+        with pytest.raises(CacheLockError):
+            await_(locked_task())
+        end_time = time.time()
+        run_time = end_time - start_time
+        assert abs(run_time - move_on_after) < 0.1

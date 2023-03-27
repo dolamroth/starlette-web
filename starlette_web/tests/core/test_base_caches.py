@@ -16,7 +16,10 @@ class TestFileCache(BaseCacheTester):
         self._run_cache_mutual_lock_test(caches["files"])
 
     def test_file_lock_correct_task_blocking(self):
-        self._run_cache_timeouts_test(caches["files"])
+        self._run_locks_timeouts_test(caches["files"])
+
+    def test_file_lock_cancellation(self):
+        self._run_base_lock_cancellation(caches["files"])
 
 
 class TestInMemoryCache(BaseCacheTester):
@@ -33,4 +36,7 @@ class TestInMemoryCache(BaseCacheTester):
         self._run_cache_mutual_lock_test(caches["locmem"])
 
     def test_locmem_lock_correct_task_blocking(self):
-        self._run_cache_timeouts_test(caches["locmem"])
+        self._run_locks_timeouts_test(caches["locmem"])
+
+    def test_file_lock_cancellation(self):
+        self._run_base_lock_cancellation(caches["locmem"])
