@@ -2,7 +2,7 @@
 
 - Django
   - core idea of monolithic framework, caches, json encoder, management commands, lazy settings, email senders, 
-    file storages, auth module, apps checks system, namings
+    file storages, auth module, apps checks system, crypto utils, data serializers, namings
   - https://github.com/django/django
   - https://github.com/django/django/blob/main/LICENSE (BSD 3-Clause)
 - Django Rest Framework

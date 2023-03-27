@@ -7,6 +7,11 @@ cross-process synchronization mechanism and pub-sub server.
 [Sample config for nginx](./nginx.conf) as well as 
 [sample systemd service for gunicorn](gunicorn.service) are provided.
 
+### Settings
+
+Environment variable `STARLETTE_SETTINGS_MODULE` must be set and point to settings file.
+By default, it is `core.settings` (resolving from project root).
+
 ### Additional notes
 
 - If you don't need saving Redis data on disk, consider disabling persistence for extra speed: 

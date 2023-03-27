@@ -2,7 +2,7 @@
 
 Management commands copy the [Django implementation](https://docs.djangoproject.com/en/4.1/howto/custom-management-commands/), 
 except that in `starlette_web` they have async handlers. They are designed to run isolated piece of execution
-and thus do not return.
+and thus do not return anything.
 
 ## Custom commands and usage
 
@@ -12,7 +12,7 @@ In order to use management commands, you have to add a respective application to
 
 You may then run command with its `%command_name%`: 
 
-From code
+- from code
 
 ```python3
 
@@ -21,7 +21,7 @@ from starlette_web.common.management.base import call_command
 await call_command("test_parser", ["1", "2", "3", "--sum"])
 ```
 
-From command line
+- from command line
 
 ```bash
 python command.py test_parser 1 2 3 --sum

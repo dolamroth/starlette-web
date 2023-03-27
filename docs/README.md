@@ -5,23 +5,24 @@ starlette_web brings a number of features atop base starlette.
 ### Common features
 
 - ORM (via SQLAlchemy.ORM), model helper methods
-- Admin panel (via `starlette_admin`)
-- [Extended support for OpenAPI](./contrib/apispec.md)
+- Admin panel (via [starlette_admin](https://github.com/jowilf/starlette-admin))
 - [Caches](./common/caching.md)
 - [Pub-sub channels](./common/channels.md) (based on `encode/broadcaster`)
 - Email senders
 - [Management commands](./common/management_commands.md)
 - Base [HTTP](./common/http.md) and [WebSocket](./common/websockets.md) endpoints
-- Authentication backend and permission classes (based on `djangorestframework`)
+- [Authentication backend and permission classes](./common/authorization_permissions.md)
+  (based on `djangorestframework`)
+- [Extended support for OpenAPI](./contrib/apispec.md)
 
 ### Contrib modules
 
 - Redis support
-- Authorization
-- Constance (based on `django-constance`)
-- Periodic task scheduler (based on `django-crontab`), that uses OS native scheduling mechanism 
-  (POSIX crontab, Windows Task Scheduler 2.0). For additional scheduling schemes, 
-  please see [docs](./notes/scheduling_tasks.md).
+- Authorization (based on `django.contrib.auth`)
+- [Constance](./contrib/constance.md) (based on `django-constance`)
+- [Periodic task scheduler](./contrib/scheduler.md) (based on `django-crontab`), 
+  that uses OS native scheduling mechanism (POSIX crontab, Windows Task Scheduler 2.0).
+  For additional scheduling schemes, please [see docs](./notes/scheduling_tasks.md).
 
 ### Planned features
 

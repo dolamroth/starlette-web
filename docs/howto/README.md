@@ -27,7 +27,7 @@ starlette-web has a lot of extra dependencies, most of which correspond to contr
 
 All but "development" and "testing" are recommended for production.
 
-## Setup
+## Setting-up
 
 See [docs/howto/setup](./setup/README.md)
 

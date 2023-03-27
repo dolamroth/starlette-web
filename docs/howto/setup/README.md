@@ -13,10 +13,13 @@ At this point, there should be a directory `%project_name%`, containing director
 `command.py`, `asgi.py`. 
 **This is your project root.** 
 Execute all commands from here.
-
 Directory `core` is central to your application and contains `settings.py` file.
-As to the latest version of `starlette_web`, you have to manually 
-re-define environment variable, linking to the settings file.
+
+### Settings
+
+Environment variable `STARLETTE_SETTINGS_MODULE` must be set with string value, 
+that points to the import location `settings.py`. By default, it is `core.settings` 
+(resolving from project root).
 
 ```bash
 export STARLETTE_SETTINGS_MODULE=core.settings  # Linux
@@ -39,6 +42,9 @@ DATABASE_DSN = "{driver}://{username}:{password}@{host}:{port}/{database}"
 ```
 
 Adjust this parameter to your preferences.
+
+At this point, `starlette_web` **only supports setting up a single database**.
+*Issue on multiple databases support is due to version 0.4.*
 
 ### Setting database migrations
 

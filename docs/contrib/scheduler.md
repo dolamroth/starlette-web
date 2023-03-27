@@ -8,13 +8,13 @@ It operates with system-wide task scheduler, so it has no outer dependencies to 
 
 For both runners, maximum frequency of running jobs is **1 per minute**.
 
-## Plugging-in
+### Plugging-in
 
 - Add `starlette_web.contrib.scheduler` to settings.INSTALLED_APPS
 - Configure list of periodic jobs and other settings (see below)
 - (Optionally) configure logger `starlette_web.contrib.scheduler`
 
-## Usage
+### Usage
 
 ```bash
 python command.py scheduler add
@@ -23,7 +23,7 @@ python command.py scheduler show
 python command.py scheduler run d41d8cd98f00b204e9800998ecf8427e  # run by OS-scheduler
 ```
 
-## Settings
+### Settings
 
 - `PERIODIC_JOBS_LIST` - list of periodic jobs entries. Each entry is a list with 5 elements:
   - crontab-like schedule pattern (including "@reboot")
