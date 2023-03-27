@@ -26,7 +26,11 @@ class TestRedisCache(BaseCacheTester):
     def test_redis_lock_cancellation(self):
         async def task_lock_cancel():
             with anyio.move_on_after(0.1):
-                async with caches["default"].lock("test_lock_cancel", timeout=100, blocking_timeout=2):
+                async with caches["default"].lock(
+                    "test_lock_cancel",
+                    timeout=100,
+                    blocking_timeout=2,
+                ):
                     await anyio.sleep(100)
 
         start_time = time.time()

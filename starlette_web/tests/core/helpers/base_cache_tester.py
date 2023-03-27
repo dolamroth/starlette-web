@@ -113,7 +113,6 @@ class BaseCacheTester:
         assert abs(run_time - expected_runtime) < 0.2
 
     def _run_base_lock_cancellation(self, cache: BaseCache):
-        number_of_tests = 4
         move_on_after = 0.2
 
         async def locked_task():
