@@ -1,6 +1,6 @@
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from typing import Type, Optional, List
+from typing import Optional, List
 
 import aiosmtplib
 import anyio
