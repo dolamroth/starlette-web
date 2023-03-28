@@ -21,7 +21,7 @@ from starlette_web.common.http.exception_handlers import (
 )
 from starlette_web.common.http.renderers import BaseRenderer
 from starlette_web.common.http.exceptions import BaseApplicationError
-from starlette_web.common.utils import import_string
+from starlette_web.common.utils import import_string, get_available_options
 
 
 AppClass = TypeVar("AppClass", bound=Starlette)
@@ -36,13 +36,13 @@ class WebApp(Starlette):
     def __init__(self, *args, **kwargs):
         use_pool = kwargs.pop("use_pool", True)
 
-        allowed_params = inspect.getfullargspec(Starlette.__init__).args
+        allowed_params = get_available_options(Starlette.__init__)
         starlette_init_kwargs = {
             key: value for key, value in kwargs.items() if key in allowed_params
         }
         super().__init__(*args, **starlette_init_kwargs)
 
-        # TODO: think about multiple database support
+        # TODO: multiple database support (planned to 0.4)
         if settings.DATABASE_DSN:
             self.session_maker = make_session_maker(use_pool=use_pool)
         else:

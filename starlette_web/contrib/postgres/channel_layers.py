@@ -11,6 +11,7 @@ from anyio.streams.memory import (
 from starlette_web.common.channels.event import Event
 from starlette_web.common.channels.layers.base import BaseChannelLayer
 from starlette_web.common.http.exceptions import ImproperlyConfigured, NotSupportedError
+from starlette_web.common.utils import get_available_options
 
 
 class PostgreSQLChannelLayer(BaseChannelLayer):
@@ -24,12 +25,10 @@ class PostgreSQLChannelLayer(BaseChannelLayer):
         self._receive_stream: Optional[MemoryObjectReceiveStream] = None
         self._send_stream: Optional[MemoryObjectSendStream] = None
 
-        _params = inspect.getfullargspec(asyncpg.connect)
-        _allowed_connect_params = _params.args + _params.kwonlyargs
         self._connection_options = {
             key: value
             for key, value in options.items()
-            if key in _allowed_connect_params
+            if key in get_available_options(asyncpg.connect)
         }
 
     async def connect(self) -> None:
