@@ -1,10 +1,12 @@
-import anyio
 import os
 import pkgutil
-from anyio._core._eventloop import T_Retval
 from argparse import ArgumentParser
+from difflib import get_close_matches
 from functools import partial
 from typing import Optional, List, Type, Dict, Coroutine, Any, Callable
+
+import anyio
+from anyio._core._eventloop import T_Retval
 
 from starlette_web.common.app import get_app, WebApp
 from starlette_web.common.conf import settings
@@ -155,8 +157,13 @@ def fetch_command_by_name(command_name: str) -> Type[BaseCommand]:
         except (ImportError, AssertionError) as exc:
             raise CommandError from exc
 
-    # TODO: search similarly named commands with ngrams or levenstein distance
-    raise CommandError(f'Command "{command_name}" not found.')
+    error_message = f"Command '{command_name}' not found."
+    possible_matches = get_close_matches(command_name, list(commands.keys()))
+    if possible_matches:
+        details = f"Did you mean \"{possible_matches[0]}\"?"
+    else:
+        details = ""
+    raise CommandError(message=error_message, details=details)
 
 
 async def call_command(command_name, command_args: List[str]):
