@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, TypedDict, Dict, Type
 
 from starlette_web.common.conf import settings
 from starlette_web.common.email.base_sender import BaseEmailSender
@@ -6,12 +6,18 @@ from starlette_web.common.http.exceptions import ImproperlyConfigured
 from starlette_web.common.utils.importing import import_string
 
 
+class EmailSenderSettings(TypedDict):
+    BACKEND: str
+    OPTIONS: Dict
+
+
 class EmailManager:
     sender: Optional[BaseEmailSender] = None
 
-    def _switch_to_email_sender_class(self, import_path: str):
+    def _switch_to_email_sender_class(self, sender_settings: EmailSenderSettings):
         try:
-            self.sender = import_string(import_path)()
+            backend: Type[BaseEmailSender] = import_string(sender_settings["BACKEND"])
+            self.sender = backend(**sender_settings["OPTIONS"])
         except (ImportError, SystemError, TypeError):
             raise ImproperlyConfigured(
                 "settings.EMAIL_SENDER is not a valid import path to a callable"

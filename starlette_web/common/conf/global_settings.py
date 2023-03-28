@@ -39,10 +39,7 @@ CACHES = {
 
 # Common.email
 
-# TODO: copy other email-relevant options in SMTPproto issue
-# https://github.com/django/django/blob/main/django/conf/global_settings.py#L190
 EMAIL_SENDER = None
-EMAIL_FROM = ""
 
 # Contrib.auth
 

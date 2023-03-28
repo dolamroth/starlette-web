@@ -8,7 +8,7 @@ starlette_web brings a number of features atop base starlette.
 - Admin panel (via [starlette_admin](https://github.com/jowilf/starlette-admin))
 - [Caches](./common/caching.md)
 - [Pub-sub channels](./common/channels.md) (based on `encode/broadcaster`)
-- Email senders
+- [Email senders](./common/email.md)
 - [Management commands](./common/management_commands.md)
 - Base [HTTP](./common/http.md) and [WebSocket](./common/websockets.md) endpoints
 - [Authentication backend and permission classes](./common/authorization_permissions.md)
