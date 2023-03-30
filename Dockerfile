@@ -17,7 +17,8 @@ RUN apt-get update \
 	&& rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p media
-RUN mkdir -p filestorage
+RUN mkdir -p filestorage/dir1/dir2
+RUN mkdir -p filestorage/dir1/dir3
 RUN mkdir -p static
 
 COPY starlette_web ./starlette_web
