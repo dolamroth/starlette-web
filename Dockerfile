@@ -16,7 +16,7 @@ RUN apt-get update \
 	&& apt-get clean \
 	&& rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p media
+RUN mkdir -p media/dir1/dir2
 RUN mkdir -p filestorage/dir1/dir2
 RUN mkdir -p filestorage/dir1/dir3
 RUN mkdir -p static
