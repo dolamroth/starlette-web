@@ -1,4 +1,4 @@
-from starlette_web.tests.api.test_base import BaseTestAPIView
+from starlette_web.tests.core.test_base import BaseTestAPIView
 
 REFERENCE_SCHEMA = {
     "info": {

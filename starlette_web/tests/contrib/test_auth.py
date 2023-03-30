@@ -17,7 +17,7 @@ from starlette_web.contrib.auth.utils import (
     TOKEN_TYPE_REFRESH,
     TOKEN_TYPE_ACCESS,
 )
-from starlette_web.tests.api.test_base import BaseTestAPIView
+from starlette_web.tests.core.test_base import BaseTestAPIView
 from starlette_web.tests.helpers import await_
 
 INVALID_SIGN_IN_DATA = [
