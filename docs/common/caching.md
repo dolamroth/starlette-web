@@ -45,3 +45,6 @@ from starlette_web.common.caches import caches
 async with caches['default'].lock('lock_name', blocking_timeout=None, timeout=1):
     ...
 ```
+
+**Important note**: custom locks in `starlette_web` have no deadlock detection, 
+so use `timeout` parameter to avoid deadlocking.
