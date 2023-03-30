@@ -57,9 +57,19 @@ class BaseLock:
         with anyio.move_on_after(self.EXIT_MAX_DELAY, shield=True):
             await self._release()
 
-        if self._task_group.cancel_scope.cancel_called:
+        if exc_type is not None and exc_type not in [
+            CacheLockError,
+            anyio.get_cancelled_exc_class(),
+        ]:
+            # The lock itself is supposed to always raise CacheLockError on any inner error.
+            # Furthermore, lock may be cancelled from outside with CancelledError.
+            # Any other error is propagated.
+            retval = False
+
+        elif self._task_group.cancel_scope.cancel_called:
             raise CacheLockError(
-                details=f"Could not acquire FileLock within {self._timeout} seconds."
+                message=f"Could not acquire FileLock within {self._timeout} seconds.",
+                details=str(sys.exc_info()[1]),
             ) from exc_val
 
         self._task_group = None

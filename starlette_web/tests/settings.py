@@ -54,6 +54,9 @@ ROUTES = "starlette_web.tests.routes.routes"
 FILECACHE_DIR = PROJECT_ROOT_DIR / "filecache"
 FILECACHE_DIR.mkdir(exist_ok=True)
 
+FILESTORAGE_DIR = PROJECT_ROOT_DIR / "filestorage"
+FILESTORAGE_DIR.mkdir(exist_ok=True)
+
 CACHES = {
     "default": {
         "BACKEND": "starlette_web.contrib.redis.RedisCache",
@@ -121,6 +124,13 @@ STATIC = {
     "ROOT_DIR": PROJECT_ROOT_DIR / "static",
     "URL": "/static/",
 }
+STATIC["ROOT_DIR"].mkdir(exist_ok=True)
+
+MEDIA = {
+    "ROOT_DIR": PROJECT_ROOT_DIR / "media",
+    "URL": "/media/",
+}
+MEDIA["ROOT_DIR"].mkdir(exist_ok=True)
 
 # TODO: Think about managing permissions
 APISPEC = {

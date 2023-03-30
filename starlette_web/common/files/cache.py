@@ -8,7 +8,7 @@ import tempfile
 import time
 from typing import AsyncContextManager, Optional, Sequence, Dict, Any, List, BinaryIO, Type
 
-from anyio.lowlevel import checkpoint
+from anyio.lowlevel import cancel_shielded_checkpoint
 
 from starlette_web.common.conf import settings
 from starlette_web.common.caches.base import BaseCache, CacheError
@@ -52,7 +52,7 @@ class FileCache(BaseCache):
         async with self._get_manager_lock():
             results = {}
             for key in keys:
-                await checkpoint()
+                await cancel_shielded_checkpoint()
                 results[key] = self._sync_get(key)
             return results
 
@@ -87,7 +87,7 @@ class FileCache(BaseCache):
     async def async_set_many(self, data: Dict[str, Any], timeout: Optional[float] = 120) -> None:
         async with self._get_manager_lock():
             for key, value in data.items():
-                await checkpoint()
+                await cancel_shielded_checkpoint()
                 self._sync_set(key, value, timeout)
 
     def _sync_set(self, key: str, value: Any, timeout: Optional[float] = 120) -> None:
@@ -132,7 +132,7 @@ class FileCache(BaseCache):
         async with self._get_manager_lock():
             _manager_lock_name = self._get_manager_lock_name()
             for file in Path(self.base_dir).iterdir():
-                await checkpoint()
+                await cancel_shielded_checkpoint()
                 if str(file) == _manager_lock_name:
                     continue
                 key = base64.b32decode(file.name.replace("8", "=").encode()).decode()
