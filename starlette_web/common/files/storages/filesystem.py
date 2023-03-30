@@ -35,7 +35,7 @@ class FilesystemStorage(BaseStorage):
             )
 
         try:
-            self.BASE_DIR.mkdir(exist_ok=True)
+            self.BASE_DIR.mkdir(exist_ok=True, parents=True)
         except OSError as exc:
             raise ImproperlyConfigured(details=str(exc)) from exc
 

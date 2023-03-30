@@ -16,14 +16,16 @@ RUN apt-get update \
 	&& apt-get clean \
 	&& rm -rf /var/lib/apt/lists/*
 
+RUN mkdir -p media
+RUN mkdir -p filestorage
+RUN mkdir -p static
+
 COPY starlette_web ./starlette_web
 COPY etc/run_tests.sh .
 COPY .coveragerc .
 COPY .flake8 .
 
 RUN chown -R web:web /web-project
-
-RUN mkdir -p static
 
 ENV STARLETTE_SETTINGS_MODULE=starlette_web.tests.settings
 COPY command.py .
