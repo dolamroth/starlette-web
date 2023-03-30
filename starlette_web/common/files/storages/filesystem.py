@@ -18,23 +18,17 @@ FDType = Union[BufferedReader, TextIOWrapper]
 
 
 class FilesystemStorage(BaseStorage):
-    blocking_timeout = 600
-    write_timeout = 300
-    directory_create_mode = 0o755
-    chunk_size = 64 * 1024
-
     def __init__(self, **options):
         super().__init__(**options)
-        self.BASE_DIR = Path(self.options.get("BASE_DIR"))
+        self.BASE_DIR = self.options.get("BASE_DIR")
         self._initialize_base_dir()
 
     def _initialize_base_dir(self):
         if self.BASE_DIR is None:
-            raise ImproperlyConfigured(
-                details="Storage must be inited with BASE_DIR."
-            )
+            raise ImproperlyConfigured(details="Storage must be inited with BASE_DIR.")
 
         try:
+            self.BASE_DIR = Path(self.BASE_DIR)
             self.BASE_DIR.mkdir(exist_ok=True, parents=True)
         except OSError as exc:
             raise ImproperlyConfigured(details=str(exc)) from exc
@@ -138,5 +132,5 @@ class MediaFileSystemStorage(FilesystemStorage):
         self._initialize_base_dir()
 
     async def get_url(self, path: str) -> str:
-        _path = path.split(os.sep)
+        _path = str(Path(path)).split(os.sep)
         return urljoin(settings.MEDIA["URL"], "/".join(_path))

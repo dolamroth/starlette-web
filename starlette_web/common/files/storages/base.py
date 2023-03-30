@@ -27,9 +27,19 @@ class BaseStorage(AsyncContextManager):
     >>>         await writer.write(b"12345")
     """
     EXIT_MAX_DELAY = 60
+    _blocking_timeout = 600
+    _write_timeout = 300
+    _directory_create_mode = 0o755
+    _chunk_size = 64 * 1024
 
     def __init__(self, **options):
         self.options = options
+        self.blocking_timeout = self.options.get("blocking_timeout", self._blocking_timeout)
+        self.write_timeout = self.options.get("write_timeout", self._write_timeout)
+        self.directory_create_mode = self.options.get(
+            "directory_create_mode", self._directory_create_mode
+        )
+        self.chunk_size = self.options.get("chunk_size", self._chunk_size)
 
     async def __aenter__(self) -> "BaseStorage":
         await self._connect()
