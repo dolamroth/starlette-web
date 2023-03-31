@@ -49,7 +49,7 @@ class CrontabScheduler(BasePeriodicTaskScheduler):
                                 "command.py",
                                 "scheduler",
                                 "run",
-                                self._hash_job(job),
+                                f"--jobhash={self._hash_job(job)}",
                                 "--settings=%s" % self.settings.SETTINGS_MODULE,
                                 self.settings.COMMAND_SUFFIX,
                             ],
