@@ -38,6 +38,29 @@ class TestFileSystemStorage:
         assert (Path(self.base_dir) / rel_path).is_file()
         assert value == b"Test"
 
+    def test_readline(self):
+        rel_path = "dir1/dir3/file5.txt"
+
+        with open(Path(self.base_dir) / rel_path, "wb") as file:
+            file.write(b"\n".join([
+                (b"Line " + str(i).encode())
+                for i in range(1000)
+            ]))
+
+        async def write_and_read_task():
+            _lines = []
+
+            async with FilesystemStorage(BASE_DIR=self.base_dir) as storage:
+                async with storage.reader(rel_path, "b") as _reader:
+                    async for line in _reader:
+                        _lines.append(line)
+
+            return _lines
+
+        lines = await_(write_and_read_task())
+        assert lines[0].strip(b"\r\n") == b"Line 0"
+        assert len(lines) == 1000
+
     def test_file_delete(self):
         rel_path = "dir1/dir2/file4.txt"
 

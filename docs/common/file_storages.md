@@ -22,6 +22,8 @@ async with MediaFileSystemStorage() as storage:
     async with storage.reader("/path/to/file", mode="b") as _reader:
         content = await _reader.read(1024)
         line = await _reader.readline()
+        async for line in _reader:
+            ...
 
     async with storage.writer("/path/to/file", mode="b", append=True) as _writer:
         await _writer.write(b"12345")

@@ -1,5 +1,6 @@
 import sys
-from typing import IO, Any, AnyStr, AsyncContextManager, List, Literal, Optional
+from typing import IO, Any, AnyStr, List, Literal, Optional
+from typing import AsyncContextManager, AsyncIterator
 
 import anyio
 
@@ -23,8 +24,8 @@ class BaseStorage(AsyncContextManager):
     >>>     async with storage.reader("/path/to/file", mode="b") as _reader:
     >>>         content = await _reader.read(1024)
     >>>
-    >>>     async with storage.writer("/path/to/file", mode="b") as writer:
-    >>>         await writer.write(b"12345")
+    >>>     async with storage.writer("/path/to/file", mode="b") as _writer:
+    >>>         await _writer.write(b"12345")
     """
     EXIT_MAX_DELAY = 60
     _blocking_timeout = 600
@@ -167,6 +168,10 @@ class _AsyncReader(_AsyncResourse):
 
     async def readline(self, size: int = -1) -> AnyStr:
         return await self._storage._readline(self._fd, size)
+
+    async def __aiter__(self) -> AsyncIterator[AnyStr]:
+        while line := (await self.readline()):
+            yield line
 
     async def close_task(self):
         try:
