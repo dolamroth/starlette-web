@@ -30,7 +30,6 @@ class BaseStorage(AsyncContextManager):
     _blocking_timeout = 600
     _write_timeout = 300
     _directory_create_mode = 0o755
-    _chunk_size = 64 * 1024
 
     def __init__(self, **options):
         self.options = options
@@ -39,7 +38,6 @@ class BaseStorage(AsyncContextManager):
         self.directory_create_mode = self.options.get(
             "directory_create_mode", self._directory_create_mode
         )
-        self.chunk_size = self.options.get("chunk_size", self._chunk_size)
 
     async def __aenter__(self) -> "BaseStorage":
         await self._connect()
