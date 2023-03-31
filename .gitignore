@@ -9,6 +9,5 @@ venv/
 /static/
 /media
 /templates/
-asgi.py
 starlette_web.egg-info/
 build/
