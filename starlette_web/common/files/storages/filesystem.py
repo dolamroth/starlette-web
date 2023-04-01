@@ -29,40 +29,39 @@ class FilesystemStorage(BaseStorage):
         except OSError as exc:
             raise ImproperlyConfigured(details=str(exc)) from exc
 
-    def _normalize_path(self, path: Union[str, Path]) -> str:
-        return str(self.BASE_DIR / str(Path(path)).strip(os.sep))
+    def _normalize_path(self, path: Union[str, Path]) -> anyio.Path:
+        return anyio.Path(str(self.BASE_DIR / str(Path(path)).strip(os.sep)))
 
     async def delete(self, path: str):
-        _path = self._normalize_path(path)
-        async with self.get_access_lock(_path, mode="w"):
-            _p = anyio.Path(_path)
-            if await _p.is_dir():
-                await _p.rmdir()
-            elif await _p.is_file():
-                await _p.unlink()
+        async with self.get_access_lock(path, mode="w"):
+            _path = self._normalize_path(path)
+            if await _path.is_dir():
+                await _path.rmdir()
+            elif await _path.is_file():
+                await _path.unlink()
 
     async def listdir(self, path: str) -> List[str]:
-        _path = self._normalize_path(path)
-        async with self.get_access_lock(_path, mode="r"):
+        async with self.get_access_lock(path, mode="r"):
+            _path = self._normalize_path(path)
             _paths = []
-            async for path in anyio.Path(_path).iterdir():
+            async for path in _path.iterdir():
                 _paths.append(path.name)
         return _paths
 
     async def exists(self, path: str) -> bool:
-        _path = self._normalize_path(path)
-        async with self.get_access_lock(_path, mode="r"):
-            return await anyio.Path(_path).exists()
+        async with self.get_access_lock(path, mode="r"):
+            _path = self._normalize_path(path)
+            return await _path.exists()
 
     async def size(self, path: str) -> int:
-        _path = self._normalize_path(path)
-        async with self.get_access_lock(_path, mode="r"):
-            return (await anyio.Path(_path).stat()).st_size
+        async with self.get_access_lock(path, mode="r"):
+            _path = self._normalize_path(path)
+            return (await _path.stat()).st_size
 
     async def get_mtime(self, path) -> float:
-        _path = self._normalize_path(path)
-        async with self.get_access_lock(_path):
-            return (await anyio.Path(_path).stat()).st_mtime
+        async with self.get_access_lock(path):
+            _path = self._normalize_path(path)
+            return (await _path.stat()).st_mtime
 
     async def _open(self, path: str, mode: MODE = "b", **kwargs) -> AsyncFile:
         _path = self._normalize_path(path)
@@ -88,7 +87,7 @@ class FilesystemStorage(BaseStorage):
         mode = kwargs.pop("mode", self.directory_create_mode)
         exist_ok = kwargs.pop("exist_ok", True)
         parents = kwargs.pop("parents", True)
-        await anyio.Path(_path).mkdir(exist_ok=exist_ok, parents=parents, mode=mode)
+        await _path.mkdir(exist_ok=exist_ok, parents=parents, mode=mode)
 
     async def _finalize_write(self, fd: AsyncFile) -> None:
         await fd.flush()
