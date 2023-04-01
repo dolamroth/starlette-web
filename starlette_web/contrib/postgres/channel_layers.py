@@ -8,6 +8,7 @@ from anyio.streams.memory import (
 )
 
 from starlette_web.common.channels.event import Event
+from starlette_web.common.channels.exceptions import ListenerClosed
 from starlette_web.common.channels.layers.base import BaseChannelLayer
 from starlette_web.common.http.exceptions import ImproperlyConfigured, NotSupportedError
 from starlette_web.common.utils import get_available_options
@@ -15,6 +16,7 @@ from starlette_web.common.utils import get_available_options
 
 class PostgreSQLChannelLayer(BaseChannelLayer):
     MAX_MESSAGE_BYTELEN = 8000
+    _connection_closed_flag = object()
 
     def __init__(self, **options) -> None:
         # Options must be valid kwargs for asyncpg.connect
@@ -35,6 +37,7 @@ class PostgreSQLChannelLayer(BaseChannelLayer):
             async with self._manager_lock:
                 self._send_stream, self._receive_stream = anyio.create_memory_object_stream()
                 self._conn = await asyncpg.connect(**self._connection_options)
+                self._conn.add_termination_listener(self._termination_listener)
         except ValueError as exc:
             raise ImproperlyConfigured(details=str(exc)) from exc
 
@@ -61,6 +64,9 @@ class PostgreSQLChannelLayer(BaseChannelLayer):
         await self._validate_message(message)
         await self._conn.execute("SELECT pg_notify($1, $2);", group, message)
 
+    async def _termination_listener(self, *args) -> None:
+        await self._send_stream.send(self._connection_closed_flag)
+
     async def _validate_message(self, message):
         # https://www.postgresql.org/docs/current/sql-notify.html
         if type(message) != str:
@@ -75,4 +81,7 @@ class PostgreSQLChannelLayer(BaseChannelLayer):
             )
 
     async def next_published(self) -> Event:
-        return await self._receive_stream.receive()
+        event: Event = await self._receive_stream.receive()
+        if event is self._connection_closed_flag:
+            raise ListenerClosed
+        return event

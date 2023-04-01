@@ -35,7 +35,7 @@ class TestChannelLayers:
         self.run_channels_test(channel_ctx)
         self.run_channels_test(channel_ctx)
 
-    def run_channels_test(self, channel_ctx):
+    def run_channels_test(self, channel_ctx: Channel):
         accepted_messages = []
 
         async def publisher_task(channel):
@@ -55,7 +55,7 @@ class TestChannelLayers:
             await anyio.sleep(0.1)
             raise Exception
 
-        async def subscriber_task(channel, messages_pool):
+        async def subscriber_task(channel: Channel, messages_pool):
             async with channel.subscribe("test_group") as subscriber:
                 async for message in subscriber:
                     messages_pool.append(message)
