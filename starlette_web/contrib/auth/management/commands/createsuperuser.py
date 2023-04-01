@@ -31,5 +31,4 @@ class Command(AuthCommandMixin, BaseCommand):
                 is_active=True,
             )
 
-            # TODO: use logging ?
             print(f"User {user} created successfully.")
