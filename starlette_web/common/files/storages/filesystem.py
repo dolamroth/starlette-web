@@ -98,8 +98,11 @@ class FilesystemStorage(BaseStorage):
         # Consider subclassing FileSystemStorage, to use
         # faster cross-process lock, i.e. Redis lock
         if mode == "w":
+            _path = Path(self._normalize_path(path))
+            _lockname = _path.parent / (_path.name + ".lock")
+
             return FileLock(
-                name=str(Path(path)).strip(os.sep).replace(os.sep, "_"),
+                name=str(_lockname),
                 timeout=self.write_timeout,
                 blocking_timeout=self.blocking_timeout,
             )
