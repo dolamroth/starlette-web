@@ -43,11 +43,13 @@ class PostgreSQLChannelLayer(BaseChannelLayer):
 
     async def disconnect(self) -> None:
         async with self._manager_lock:
-            await self._conn.close()
-            self._send_stream.close()
-            self._receive_stream.close()
-            self._send_stream = None
-            self._receive_stream = None
+            try:
+                await self._conn.close()
+            finally:
+                self._send_stream.close()
+                self._receive_stream.close()
+                self._send_stream = None
+                self._receive_stream = None
 
     async def subscribe(self, group: str) -> None:
         await self._conn.add_listener(group, self._listener)
