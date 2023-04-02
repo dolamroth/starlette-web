@@ -116,7 +116,7 @@ class WindowsTaskScheduler(BasePeriodicTaskScheduler):
                     f"command.py "
                     f"scheduler "
                     f"run "
-                    f"{job_hash} "
+                    f"--jobhash={job_hash} "
                     f"--settings={self.settings.SETTINGS_MODULE}"
                 ),
                 start_in=self.settings.RUN_DIRECTORY,

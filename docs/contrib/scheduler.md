@@ -59,3 +59,4 @@ python command.py scheduler run d41d8cd98f00b204e9800998ecf8427e  # run by OS-sc
 - `PERIODIC_JOBS_CRONTAB_LINE_PATTERN` (str, POSIX only) - by default `"%(time)s %(command)s # %(comment)s"`
 - `PERIODIC_JOBS_USERNAME` (str, Windows only) - by default `"System"`
 - `PERIODIC_JOBS_PASSWORD` (str, Windows only) - by default `None`
+- `PERIODIC_JOBS_BACKEND` (str) - path to override default backend class - by default `None`

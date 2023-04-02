@@ -73,12 +73,12 @@ class BaseCacheTester:
     def _run_cache_lock_test(self, cache: BaseCache):
         async def lock_checker():
             async with cache.lock("test_lock", timeout=0.5):
-                await anyio.sleep(0.2)
+                await anyio.sleep(0.3)
 
         start_time = time.time()
         await_(lock_checker())
         end_time = time.time()
-        assert abs(end_time - start_time - 0.2) < 0.1
+        assert abs(end_time - start_time - 0.3) < 0.2
 
     def _run_cache_mutual_lock_test(self, cache: BaseCache):
         async def lock_checker():

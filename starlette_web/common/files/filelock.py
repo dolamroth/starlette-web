@@ -5,11 +5,11 @@ import tempfile
 import time
 from typing import Any, Union, Optional
 
-from anyio.lowlevel import checkpoint
+from anyio.lowlevel import checkpoint, cancel_shielded_checkpoint
 from filelock import FileLock as StrictFileLock
 
 from starlette_web.common.conf import settings
-from starlette_web.common.caches.base_lock import BaseLock
+from starlette_web.common.caches.base_lock import BaseLock, CacheLockError
 
 
 class FileLock(BaseLock):
@@ -39,6 +39,9 @@ class FileLock(BaseLock):
                     if self._sync_acquire():
                         self._acquire_event.set()
                         return
+            except CacheLockError:
+                self._task_group.cancel_scope.cancel()
+                raise
             except OSError:
                 continue
 
@@ -47,7 +50,12 @@ class FileLock(BaseLock):
             return
 
         while True:
-            await checkpoint()
+            try:
+                await cancel_shielded_checkpoint()
+            except BaseException:  # noqa
+                self._sync_release()
+                raise
+
             try:
                 with self._get_manager_lock():
                     self._sync_release()
@@ -72,7 +80,10 @@ class FileLock(BaseLock):
 
             if ts not in self._stored_file_ts:
                 with open(self._name, "rb") as file:
-                    self._stored_file_ts[ts] = pickle.loads(file.read())
+                    try:
+                        self._stored_file_ts[ts] = pickle.loads(file.read())
+                    except pickle.PickleError as exc:
+                        raise CacheLockError(details=str(exc)) from exc
 
             # Timeout on other instance has not expired
             if self._stored_file_ts[ts] + ts > time.time():

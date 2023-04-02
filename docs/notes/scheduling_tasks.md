@@ -56,6 +56,8 @@ Simply inherit `starlette_web.common.app.BaseStarletteApplication` and re-define
   Other celery features remain.
 - Original repository frozen, the latest release from fork is dated May 2020.
 - **Not recommended** unless you know what you are doing.
+- **Note:** there is also [discussion](https://github.com/celery/celery/issues/7874) 
+  about reworking it and making it integral to celery 
 
 ### Custom task broker with ThreadPool/ProcessPool
 - This approach has no drawbacks :)

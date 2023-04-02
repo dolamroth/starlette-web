@@ -96,6 +96,13 @@ STATIC = {
     "ROOT_DIR": PROJECT_ROOT_DIR / "static",
     "URL": "/static",
 }
+STATIC["ROOT_DIR"].mkdir(exist_ok=True)
+
+MEDIA = {
+    "ROOT_DIR": PROJECT_ROOT_DIR / "media",
+    "URL": "/media/",
+}
+MEDIA["ROOT_DIR"].mkdir(exist_ok=True)
 
 APISPEC = {
     "CONFIG": dict(

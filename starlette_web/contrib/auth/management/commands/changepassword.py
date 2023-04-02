@@ -3,7 +3,6 @@ from starlette_web.contrib.auth.models import User
 from starlette_web.contrib.auth.management.auth_command_mixin import AuthCommandMixin
 
 
-# TODO: use logging ?
 class Command(AuthCommandMixin, BaseCommand):
     help = "Change a password of existing User (contrib.auth)"
 

@@ -7,6 +7,7 @@ from redis.exceptions import ConnectionError
 from starlette_web.common.channels.event import Event
 from starlette_web.common.channels.exceptions import ListenerClosed
 from starlette_web.common.channels.layers.base import BaseChannelLayer
+from starlette_web.common.utils.encoding import force_str
 from starlette_web.common.utils.serializers import BytesSerializer, PickleSerializer
 
 
@@ -36,12 +37,7 @@ class RedisPubSubChannelLayer(BaseChannelLayer):
         await self._pubsub.unsubscribe(group)
 
     async def publish(self, group: str, message: Any) -> None:
-        message = self._serializer.serialize(
-            {
-                "group": group,
-                "data": message,
-            }
-        )
+        message = self._serializer.serialize(message)
         await self.redis.publish(group, message)
 
     async def next_published(self) -> Event:
@@ -58,10 +54,7 @@ class RedisPubSubChannelLayer(BaseChannelLayer):
             if message is None:
                 continue
 
-            if hasattr(message, "__getitem__") and "data" in message:
-                message = message["data"]
-            else:
-                continue
-
-            message = self._serializer.deserialize(message)
-            return Event(group=message["group"], message=message["data"])
+            return Event(
+                group=force_str(message["channel"]),
+                message=self._serializer.deserialize(message["data"]),
+            )

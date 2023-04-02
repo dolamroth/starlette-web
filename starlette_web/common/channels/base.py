@@ -36,15 +36,16 @@ class Channel:
         return self
 
     async def __aexit__(self, *args: Any, **kwargs: Any):
-        self._subscribers.clear()
-        self._task_group.cancel_scope.cancel()
-        del self._task_group
+        try:
+            self._task_group.cancel_scope.cancel()
+            del self._task_group
 
-        retval = await self._task_group_handler.__aexit__(*args)
-        del self._task_group_handler
-
-        with anyio.fail_after(self.EXIT_MAX_DELAY, shield=True):
-            await self.disconnect()
+            retval = await self._task_group_handler.__aexit__(*args)
+            del self._task_group_handler
+        finally:
+            self._subscribers.clear()
+            with anyio.fail_after(self.EXIT_MAX_DELAY, shield=True):
+                await self.disconnect()
 
         return retval
 
@@ -68,11 +69,16 @@ class Channel:
                 for send_stream in subscribers_list:
                     nursery.start_soon(send_stream.send, event)
 
+        async with self._manager_lock:
+            for group in self._subscribers.keys():
+                for recv_channel in self._subscribers[group]:
+                    recv_channel.close()
+
     async def publish(self, group: str, message: Any) -> None:
         await self._channel_layer.publish(group, message)
 
     @asynccontextmanager
-    async def subscribe(self, group: str) -> AsyncIterator["Subscriber"]:
+    async def subscribe(self, group: str) -> AsyncGenerator["Subscriber", None]:
         send_stream, receive_stream = anyio.create_memory_object_stream()
 
         try:
@@ -104,7 +110,7 @@ class Subscriber:
     def __init__(self, receive_stream: MemoryObjectReceiveStream) -> None:
         self._receive_stream = receive_stream
 
-    async def __aiter__(self) -> Optional[AsyncGenerator]:
+    async def __aiter__(self) -> AsyncIterator[Event]:
         async with self._receive_stream:
             try:
                 while True:

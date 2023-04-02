@@ -1,9 +1,10 @@
-from typing import Sequence, Any, List, Dict, Type, Optional, AsyncContextManager, Union
+from typing import Sequence, Any, List, Dict, Type, Optional, AsyncContextManager
 
 from redis import asyncio as aioredis
 
 from starlette_web.common.caches.base import BaseCache, CacheError
 from starlette_web.common.http.exceptions import UnexpectedError
+from starlette_web.common.utils.encoding import force_str
 from starlette_web.common.utils.serializers import BytesSerializer, PickleSerializer
 from starlette_web.contrib.redis.redislock import RedisLock
 
@@ -51,7 +52,7 @@ class RedisCache(BaseCache):
         # Using KEYS is not recommended in production with high-load,
         # since it's a redis-blocking operation
         # If you have millions of keys, consider using redis.scan_iter instead
-        return [self._force_str(key) for key in (await self.redis.keys(pattern))]
+        return [force_str(key) for key in (await self.redis.keys(pattern))]
 
     @reraise_exception
     async def async_get_many(self, keys: Sequence[str]) -> Dict[str, Any]:
@@ -129,10 +130,3 @@ class RedisCache(BaseCache):
             sleep=0,
             **kwargs,
         )
-
-    @staticmethod
-    def _force_str(value: Union[bytes, str]) -> str:
-        try:
-            return value.decode()
-        except (UnicodeDecodeError, AttributeError):
-            return str(value)

@@ -52,18 +52,32 @@ class BaseLock:
             raise CacheLockError(details=str(exc)) from exc
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        self._acquire_event = None
-        retval = await self._task_group_wrapper.__aexit__(exc_type, exc_val, exc_tb)
-        with anyio.move_on_after(self.EXIT_MAX_DELAY, shield=True):
-            await self._release()
+        try:
+            with anyio.move_on_after(self.EXIT_MAX_DELAY, shield=True):
+                await self._release()
+        finally:
+            retval = await self._task_group_wrapper.__aexit__(exc_type, exc_val, exc_tb)
 
-        if self._task_group.cancel_scope.cancel_called:
-            raise CacheLockError(
-                details=f"Could not acquire FileLock within {self._timeout} seconds."
-            ) from exc_val
+        try:
+            if exc_type is not None and exc_type not in [
+                CacheLockError,
+                anyio.get_cancelled_exc_class(),
+            ]:
+                # The lock itself is supposed to always raise CacheLockError on any inner error.
+                # Furthermore, lock may be cancelled from outside with CancelledError.
+                # Any other error is propagated.
+                retval = False
 
-        self._task_group = None
-        self._task_group_wrapper = None
+            elif self._task_group.cancel_scope.cancel_called:
+                raise CacheLockError(
+                    message=f"Could not acquire FileLock within {self._timeout} seconds.",
+                    details=str(sys.exc_info()[1]),
+                ) from exc_val
+        finally:
+            self._acquire_event = None
+            self._task_group = None
+            self._task_group_wrapper = None
+
         return retval
 
     async def _acquire(self):

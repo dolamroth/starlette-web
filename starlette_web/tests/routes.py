@@ -22,6 +22,7 @@ routes = [
     Mount("/openapi", routes=apispec_routes),
     AdminMount("/admin", app=admin.get_app(), name="admin"),
     Mount("/static", app=StaticFiles(directory=settings.STATIC["ROOT_DIR"]), name="static"),
+    Mount("/media", app=StaticFiles(directory=settings.MEDIA["ROOT_DIR"]), name="media"),
     Route("/health_check/", HealthCheckAPIView),
     WebSocketRoute("/ws/test_websocket_base", BaseWebsocketTestEndpoint),
     WebSocketRoute("/ws/test_websocket_cancel", CancellationWebsocketTestEndpoint),
