@@ -1,8 +1,3 @@
-from openapi_spec_validator import validate_spec
-from openapi_spec_validator.validation.exceptions import (
-    OpenAPIValidationError,
-    OpenAPISpecValidatorError,
-)
 from traceback_with_variables import format_exc
 
 from starlette_web.common.conf import settings
@@ -15,7 +10,25 @@ from starlette_web.contrib.apispec.views import schemas
 class AppConfig(BaseAppConfig):
     app_name = "apispec"
 
+    def initialize(self):
+        try:
+            __import__("openapi_spec_validator")
+        except (SystemError, ImportError):
+            raise ImproperlyConfigured(
+                details=(
+                    "Extra dependency 'openapi_spec_validator' is required"
+                    " for starlette_web.contrib.apispec "
+                    "Install it via 'pip install starlette-web[apispec]'."
+                )
+            )
+
     def perform_checks(self):
+        from openapi_spec_validator import validate_spec
+        from openapi_spec_validator.validation.exceptions import (
+            OpenAPIValidationError,
+            OpenAPISpecValidatorError,
+        )
+
         routes = import_string(settings.ROUTES)
 
         try:
