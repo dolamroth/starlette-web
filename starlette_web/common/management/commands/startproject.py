@@ -85,8 +85,9 @@ DB_ECHO=false
             for line in file:
                 if line.strip() == "target_metadata = None":
                     lines += [
-                        "from starlette_web.common.database.model_base import ModelBase\n",
+                        "from starlette_web.common.conf import settings\n",
                         "from starlette_web.common.conf.app_manager import app_manager\n",
+                        "from starlette_web.common.database.model_base import ModelBase\n",
                         "app_manager.import_models()\n"
                         "target_metadata = ModelBase.metadata\n",
                     ]
