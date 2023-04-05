@@ -148,3 +148,31 @@ class TestChannelLayers:
         assert subscriber_1_flag == ["Message 0", "Message 1", "Message 2", "DONE"]
         assert subscriber_2_flag == ["Message 0", "Message 1", "Message 2", "DONE"]
         assert subscriber_3_flag == ["Message 0", "Message 1", "Message 2", "DONE"]
+
+    def test_immediate_subscriber_cleanup_on_exit(self):
+        async def task_coroutine():
+            _publisher_result = []
+
+            async def publisher_task(channel, _res):
+                await channel.publish("test_group", "Message")
+                await anyio.sleep(0.2)
+                _res.append(len(channel._subscribers))
+                _res.append(len(channel._channel_layer._subscribed))
+
+            async def subscriber_task(channel: Channel):
+                async with channel.subscribe("test_group") as subscriber:
+                    async for message in subscriber:
+                        # break immediately
+                        break
+
+            async with Channel(InMemoryChannelLayer()) as channels:
+                async with anyio.create_task_group() as task_group:
+                    task_group.start_soon(publisher_task, channels, _publisher_result)
+                    task_group.start_soon(subscriber_task, channels)
+                    task_group.start_soon(subscriber_task, channels)
+                    task_group.start_soon(subscriber_task, channels)
+
+            return _publisher_result
+
+        res = await_(task_coroutine())
+        assert res == [0, 0]
