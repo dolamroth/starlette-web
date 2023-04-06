@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Callable, ByteString
+from typing import Any, Callable, ByteString
 
 from starlette_web.common.caches import caches
 from starlette_web.common.conf import settings
