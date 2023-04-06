@@ -9,8 +9,13 @@ from starlette_web.common.utils.serializers import (
 
 
 class BaseConstanceBackend:
-    empty = object()
     serializer_class: Type[BytesSerializer] = PickleSerializer
+
+    class EmptyValue:
+        def __eq__(self, other):
+            return self.__class__ == other.__class__
+
+    empty = EmptyValue()
 
     def __init__(self):
         self.serializer: BytesSerializer = self.serializer_class()

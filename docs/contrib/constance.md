@@ -1,14 +1,17 @@
 ## About Constance
 
-Constance is a port of django-constance library for django, implemented as a contrib library.
+Constance is a port of `django-constance` library for django, implemented as a contrib library.
 It is a key-value storage for global project-level constants, which can use various underlying backends.
 
 ### Plugging-in
 
-- Define 2 settings in your settings.py-file:
-  - settings.CONSTANCE_BACKEND - `str` - a string with path to constance backend class
+- Define settings in your settings.py-file:
+  - settings.CONSTANCE_BACKEND - `str` - a string with path to constance backend class. 
+    If set to `None`, constance will not be initialized.
   - settings.CONSTANCE_CONFIG - `Dict[str, Tuple[Any, str, Type]]` - a dict, where keys are constant keys, 
     and value is a 3-value tuple (default value, description, type)
+  - (Optional) `CONSTANCE_DATABASE_CACHE_BACKEND` - string key of cache (which is defined in `settings.CACHES`),
+    by default is `None`, meaning cache is not used.
 
 If you are using `DatabaseBackend`, add `"starlette_web.contrib.constance.backends.database"` 
 to `settings.INSTALLED_APPS`.
@@ -26,6 +29,7 @@ INSTALLED_APPS = [
 ]
 
 CONSTANCE_BACKEND = "starlette_web.contrib.constance.backends.database.DatabaseBackend"
+CONSTANCE_DATABASE_CACHE_BACKEND = "default"
 
 CONSTANCE_CONFIG = {
     "TEST_CONSTANT_1": (1, "Test constant 1", int),

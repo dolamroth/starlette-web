@@ -60,8 +60,6 @@ alembic upgrade head  # analog of django migrate
 alembic downgrade -1 # backwards migration
 ```
 
-Helper management commands `makemigrations` and `migrate` are due to version `0.2`.
-
 Alembic migrations have multiple notable differences, compared to Django ORM migrations:
 
 - Only SQL-related field options are moved to migrations, not all like in Django ORM;
