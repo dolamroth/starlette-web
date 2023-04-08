@@ -60,6 +60,13 @@ alembic upgrade head  # analog of django migrate
 alembic downgrade -1 # backwards migration
 ```
 
+Helper management commands are available:
+
+```bash
+python command.py makemigrations [-n NAME] [--empty]
+python command.py migrate [revision_name/+M/-M]
+```
+
 Alembic migrations have multiple notable differences, compared to Django ORM migrations:
 
 - Only SQL-related field options are moved to migrations, not all like in Django ORM;
