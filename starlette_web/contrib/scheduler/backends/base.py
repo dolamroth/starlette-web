@@ -3,7 +3,7 @@ import hashlib
 import logging
 import os
 import tempfile
-from typing import List, Dict, Tuple, TypeAlias, Union
+from typing import List, Dict, Tuple, Union
 
 import anyio
 from filelock import FileLock
@@ -18,7 +18,7 @@ from starlette_web.contrib.scheduler.app_settings import Settings
 
 
 logger = logging.getLogger("starlette_web.contrib.scheduler")
-JSONType: TypeAlias = Union[
+JSONType = Union[
     Dict[str, "JSONType"],
     List["JSONType"],
     str,
