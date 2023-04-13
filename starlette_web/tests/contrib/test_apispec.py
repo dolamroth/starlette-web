@@ -393,9 +393,14 @@ REFERENCE_SCHEMA = {
 
 
 class TestOpenAPISchema(BaseTestAPIView):
-    url = "/openapi/schema/"
+    url = "/openapi"
 
-    def test_schema(self, client, user):
+    def test_schema(self, client):
         response = client.get(self.url)
         assert response.status_code == 200
         assert response.json() == REFERENCE_SCHEMA
+
+    def test_redoc(self, client):
+        response = client.get(self.url + "?format=redoc")
+        assert response.status_code == 200
+        assert b'<script src="/static/apispec/redoc.js"></script>' in response.content
