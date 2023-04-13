@@ -104,12 +104,12 @@ def _get_app_path_by_name(app: str) -> str:
     if not found_local_module:
         try:
             venv_module = __import__(module_name)
-            prefix = os.path.dirname(venv_module.__path__[0]).strip(os.sep)
+            prefix = os.path.dirname(venv_module.__path__[0]).rstrip(os.sep)
         except (OSError, SystemError, ImportError, IndexError):
             prefix = ""
 
         if prefix:
-            app_path = prefix.strip(os.sep) + os.sep + app_path.strip(os.sep)
+            app_path = prefix.rstrip(os.sep) + os.sep + app_path.lstrip(os.sep)
 
     return app_path
 
