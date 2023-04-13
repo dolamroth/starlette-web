@@ -3,15 +3,8 @@
 Get latest version:
 
 ```bash
-python -m pip install https://github.com/dolamroth/starlette-web/archive/refs/heads/main.zip#egg=starlette_web
-python -m pip install https://github.com/dolamroth/starlette-web/archive/refs/heads/main.zip#egg=starlette_web[postgres,redis]
-```
-
-Or download archive from https://github.com/dolamroth/starlette-web and install via
-
-```bash
-python -m pip install .
-python -m pip install .[postgres,redis]
+pip install starlette-web
+pip install starlette-web[postgres,redis,apispec,auth,scheduler]
 ```
 
 starlette-web has a lot of extra dependencies, most of which correspond to contrib modules:

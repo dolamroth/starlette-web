@@ -1,14 +1,15 @@
 from typing import Any, List, Dict
 
+from starlette_web.common.conf import settings
 from starlette_web.common.http.exceptions import (
     NotSupportedError,
     BaseApplicationError,
     UnexpectedError,
+    ImproperlyConfigured,
 )
 from starlette_web.common.utils import import_string
 from starlette_web.contrib.constance.backends.base import BaseConstanceBackend
-
-from starlette_web.common.conf import settings
+from starlette_web.contrib.constance.backends.caching_mixin import ConstanceCacheMixin
 
 
 # TODO: some kind of validation system, much like django.checks
@@ -72,7 +73,7 @@ class LazyConstance:
         if key not in settings.CONSTANCE_CONFIG:
             raise NotSupportedError
 
-        if value is self._backend.empty:
+        if value == self._backend.empty:
             return settings.CONSTANCE_CONFIG[key][0]
 
         return value
@@ -82,12 +83,32 @@ class LazyConstance:
             return
 
         try:
-            _backend_kls = import_string(settings.CONSTANCE_BACKEND)
+            _import_path = settings.CONSTANCE_BACKEND
+            if _import_path is None:
+                _backend_kls = None
+            else:
+                _backend_kls = import_string(_import_path)
         except (AttributeError, BaseApplicationError):
             _backend_kls = None
+        except (ImportError, SystemError):
+            raise ImproperlyConfigured(
+                details=f"Invalid constance class: {settings.CONSTANCE_BACKEND}"
+            )
+
+        try:
+            _cache_key = settings.CONSTANCE_DATABASE_CACHE_BACKEND
+        except (AttributeError, BaseApplicationError):
+            _cache_key = None
 
         if _backend_kls:
-            self._backend = _backend_kls()
+            if _cache_key:
+                self._backend = type(
+                    _backend_kls.__name__,
+                    (ConstanceCacheMixin, _backend_kls),
+                    {"_cache_key": _cache_key},
+                )()
+            else:
+                self._backend = _backend_kls()
 
         self._is_setup = True
 

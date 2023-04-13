@@ -58,6 +58,7 @@ def config():
         "TEST_CONSTANT_DATETIME": (datetime(2000, 1, 1), "Test constant datetime", datetime),
     }
     settings.CONSTANCE_BACKEND = "starlette_web.contrib.constance.backends.database.DatabaseBackend"
+    settings.CONSTANCE_DATABASE_CACHE_BACKEND = "locmem"
 
     base_config._setup()
     yield base_config

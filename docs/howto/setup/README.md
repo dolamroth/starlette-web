@@ -35,7 +35,7 @@ Example files `.env` and `.env.template` will be created upon running `startproj
 ### Configuring database
 
 By default, `settings.py` contains options for `postgresql+asyncpg`.
-The vital setting is `DATABASE_DSN`, which typically has the following format:
+The main setting is `DATABASE_DSN`, which typically has the following format:
 
 ```python
 DATABASE_DSN = "{driver}://{username}:{password}@{host}:{port}/{database}"
@@ -46,11 +46,32 @@ Adjust this parameter to your preferences.
 At this point, `starlette_web` **only supports setting up a single database**.
 *Issue on multiple databases support is due to version 0.4.*
 
+`settings.DATABASE` is required as to version `0.1.x`, but will be deprecated by `0.2`.
+
 ### Setting database migrations
 
 Database migrations are managed via `alembic`, this is a contrib migrations library for SQLAlchemy.
 After running `startproject`, in project root there will be `alembic.ini` file.
 Open it and edit setting `sqlalchemy.url`, setting it to the same value, as `settings.DATABASE_DSN`.
+
+```bash
+alembic revision -c "%new_revision_name%" --autogenerate  # analog of django makemigrations
+alembic upgrade head  # analog of django migrate
+alembic downgrade -1 # backwards migration
+```
+
+Helper management commands are available:
+
+```bash
+python command.py makemigrations [-n NAME] [--empty]
+python command.py migrate [revision_name/+M/-M]
+```
+
+Alembic migrations have multiple notable differences, compared to Django ORM migrations:
+
+- Only SQL-related field options are moved to migrations, not all like in Django ORM;
+- Alembic autogenerate creates new migration file every time you run the command, even if no changes should be made;
+- In general, alembic migrations require more manual configuration, but are more powerful, than Django migrations.
 
 ### Managing applications
 

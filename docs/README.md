@@ -4,7 +4,7 @@ starlette_web brings a number of features atop base starlette.
 
 ### Common features
 
-- ORM (via SQLAlchemy.ORM), model helper methods
+- ORM (via SQLAlchemy.ORM), [model helper methods](./common/model_mixin.md)
 - Admin panel (via [starlette_admin](https://github.com/jowilf/starlette-admin))
 - [Caches](./common/caching.md)
 - [Pub-sub channels](./common/channels.md) (based on `encode/broadcaster`)

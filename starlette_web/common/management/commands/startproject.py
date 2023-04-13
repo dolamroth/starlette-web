@@ -2,13 +2,12 @@ import os
 import shutil
 from pathlib import Path
 
-from alembic.config import main as alembic_main
-
+from starlette_web.common.management.alembic_mixin import AlembicMixin
 from starlette_web.common.management.base import BaseCommand, CommandError, CommandParser
 from starlette_web.common.utils import get_random_string
 
 
-class Command(BaseCommand):
+class Command(BaseCommand, AlembicMixin):
     help = "Initialize directory with project files"
     _alembic_directory_name = "alembic"
 
@@ -79,14 +78,15 @@ DB_ECHO=false
 
         # Setup alembic
         os.chdir(project_dir)
-        alembic_main(["init", "-t", "async", self._alembic_directory_name])
+        await self.run_alembic_main(["init", "-t", "async", self._alembic_directory_name])
         with open(project_dir / self._alembic_directory_name / "env.py", "rt") as file:
             lines = []
             for line in file:
                 if line.strip() == "target_metadata = None":
                     lines += [
-                        "from starlette_web.common.database.model_base import ModelBase\n",
+                        "from starlette_web.common.conf import settings\n",
                         "from starlette_web.common.conf.app_manager import app_manager\n",
+                        "from starlette_web.common.database.model_base import ModelBase\n",
                         "app_manager.import_models()\n"
                         "target_metadata = ModelBase.metadata\n",
                     ]

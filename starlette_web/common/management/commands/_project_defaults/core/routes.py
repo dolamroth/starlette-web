@@ -4,7 +4,7 @@ from starlette.routing import Mount, Route, WebSocketRoute
 from starlette.staticfiles import StaticFiles
 
 from starlette_web.common.conf import settings
-from starlette_web.contrib.apispec.routes import routes as apispec_routes
+from starlette_web.contrib.apispec.views import OpenApiView
 from starlette_web.contrib.admin import admin, AdminMount
 
 
@@ -25,5 +25,5 @@ routes = [
     # to manage static files right
     AdminMount("/admin", app=admin.get_app(), name="admin"),
 
-    Mount("/openapi", routes=apispec_routes),
+    Route("/openapi", OpenApiView, include_in_schema=False),
 ]

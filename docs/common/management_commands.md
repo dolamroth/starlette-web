@@ -4,7 +4,7 @@ Management commands copy the [Django implementation](https://docs.djangoproject.
 except that in `starlette_web` they have async handlers. They are designed to run isolated piece of execution
 and thus do not return anything.
 
-## Custom commands and usage
+### Custom commands and usage
 
 Any management command must be defined in `%app_dir%/management/command/%command_name%.py`.
 The file must define a class named `Command`, subclassed from `starlette_web.common.management.base.BaseCommand`.
@@ -27,13 +27,15 @@ await call_command("test_parser", ["1", "2", "3", "--sum"])
 python command.py test_parser 1 2 3 --sum
 ```
 
-## Core commands
+### Core commands
 
 - startproject
 - startapp
 - collectstatic
+- makemigrations
+- migrate
 
-## Notes
+### Notes
 
 In order to use database connection, in command method `handle` create session like this.
 
@@ -51,6 +53,16 @@ Beware, that any `call_command` creates a new instance of application.
 Management commands respect `lifespan` wrapper of Starlette application. 
 The state of lifespan wrapper is available as `options["_lifespan_state"]`.
 
-## Examples
+### Argparse types
+
+Extra argparse types are available in `starlette_web.common.management.utils`:
+
+- `arg_uuid`
+- `arg_date`
+- `arg_datetime`
+- `arg_decimal`
+- `arg_range(_min=Optional[Number], _max=Optional[Number], _type=Literal[int, float, Decimal])`
+
+### Examples
 
 See `starlette_web.tests.management.commands` for more examples of using management commands.

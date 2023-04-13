@@ -4,7 +4,6 @@ from importlib import import_module
 from starlette_web.common.conf import settings
 from starlette_web.common.conf.base_app_config import BaseAppConfig
 from starlette_web.common.http.exceptions import ImproperlyConfigured
-from starlette_web.common.utils.importing import import_string
 
 
 class AppManager:
@@ -24,11 +23,22 @@ class AppManager:
             return
 
         for installed_app in settings.INSTALLED_APPS:
+            _module = import_module(installed_app)
+            if not _module.__file__:
+                raise ImproperlyConfigured(
+                    details=f"App {installed_app} must contain an __init__.py file."
+                )
+
             try:
-                AppConfig = import_string(installed_app + ".apps.AppConfig")
+                _app_module = import_module(installed_app + ".apps")
+            except (SystemError, ImportError) as exc:
+                raise ImproperlyConfigured(details=str(exc)) from exc
+
+            try:
+                AppConfig = getattr(_app_module, "AppConfig")
                 if BaseAppConfig not in AppConfig.__mro__:
                     raise AssertionError
-            except (SystemError, ImportError, AssertionError) as exc:
+            except (AttributeError, AssertionError) as exc:
                 raise ImproperlyConfigured(
                     details=f"App {installed_app} must define apps.AppConfig class, inherited "
                     f"from starlette_web.common.conf.base_app_config.BaseAppConfig"
