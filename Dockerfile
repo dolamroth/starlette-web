@@ -1,8 +1,7 @@
 FROM python:3.10-slim-buster
 WORKDIR /web-project
 
-COPY setup.cfg .
-COPY setup.py .
+COPY pyproject.toml .
 
 RUN groupadd -r web && useradd -r -g web web
 RUN apt-get update \
@@ -10,7 +9,7 @@ RUN apt-get update \
 		gcc \
 		libpq-dev \
 		python-dev \
-    && pip install .[admin,apispec,auth,postgres,redis,scheduler,testing] \
+    && pip install . "starlette-web[all]" \
 	&& apt-get purge -y --auto-remove gcc python-dev \
 	&& apt-get -y autoremove \
 	&& apt-get clean \
