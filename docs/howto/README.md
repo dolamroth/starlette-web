@@ -5,6 +5,7 @@ Get latest version:
 ```bash
 pip install starlette-web
 pip install starlette-web[postgres,redis,apispec,auth,scheduler]
+pip install starlette-web[all]
 ```
 
 starlette-web has a lot of extra dependencies, most of which correspond to contrib modules:
