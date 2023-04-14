@@ -141,6 +141,5 @@ APISPEC = {
         openapi_version="3.0.2",
         info=dict(description="My custom project."),
     ),
-    "ERROR_RESPONSE_SCHEMA": "starlette_web.common.http.schemas.ErrorResponseSchema",
     "CONVERT_TO_CAMEL_CASE": False,
 }

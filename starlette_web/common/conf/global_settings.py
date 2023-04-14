@@ -37,6 +37,10 @@ CACHES = {
     },
 }
 
+# Common.http
+
+ERROR_RESPONSE_SCHEMA = "starlette_web.common.http.schemas.ErrorResponseSchema"
+
 # Common.email
 
 EMAIL_SENDER = None
