@@ -40,6 +40,8 @@ CACHES = {
 # Common.http
 
 ERROR_RESPONSE_SCHEMA = "starlette_web.common.http.schemas.ErrorResponseSchema"
+DEFAULT_REQUEST_PARSER = "webargs_starlette.StarletteParser"
+DEFAULT_RESPONSE_RENDERER = "starlette_web.common.http.renderers.JSONRenderer"
 
 # Common.email
 
