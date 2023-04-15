@@ -140,9 +140,10 @@ class ChatWebsocketTestEndpoint(BaseWSEndpoint):
             await self._channels.publish(room, data["message"])
 
         elif data["request_type"] == "connect":
-            # In test endpoint, unregister checks that there are any tasks left,
-            # before closing the channel. Since this parent task will close
-            # as soon it spawns dialogue task, we need to register the latter.
+            # In test endpoint, _unregister_background_task checks that
+            # there are any tasks left, before closing the channel.
+            # Since this parent task will close as soon
+            # it spawns dialogue task, we need to register the latter.
             dialogue_task_id = get_random_string(50)
             self._tasks.add(dialogue_task_id)
             self.task_group.start_soon(self._run_dialogue, websocket, room, dialogue_task_id)

@@ -18,15 +18,17 @@ from starlette_web.common.authorization.backends import (
 )
 from starlette_web.common.authorization.permissions import PermissionType
 from starlette_web.common.authorization.base_user import AnonymousUser
+from starlette_web.common.conf import settings
 from starlette_web.common.http.exceptions import (
     UnexpectedError,
     BaseApplicationError,
     InvalidParameterError,
     PermissionDeniedError,
 )
-from starlette_web.common.http.renderers import BaseRenderer, JSONRenderer
+from starlette_web.common.http.renderers import BaseRenderer
 from starlette_web.common.http.statuses import ResponseStatus
 from starlette_web.common.database import DBModel
+from starlette_web.common.utils import import_string
 
 
 logger = logging.getLogger(__name__)
@@ -44,13 +46,15 @@ class BaseHTTPEndpoint(HTTPEndpoint):
     response_schema: ClassVar[Type[Schema]]
     auth_backend: ClassVar[Type[BaseAuthenticationBackend]] = NoAuthenticationBackend
     permission_classes: ClassVar[List[PermissionType]] = []
-    request_parser: ClassVar[Type[StarletteParser]] = StarletteParser
-    response_renderer: ClassVar[Type[BaseRenderer]] = JSONRenderer
+    request_parser: ClassVar[Type[StarletteParser]] = \
+        import_string(settings.DEFAULT_REQUEST_PARSER)
+    response_renderer: ClassVar[Type[BaseRenderer]] = \
+        import_string(settings.DEFAULT_RESPONSE_RENDERER)
 
     async def dispatch(self) -> None:
         """
-        This method is calling in every request.
-        So, we can use this one for customs authenticate and catch all exceptions
+        This method is called in every request.
+        So, we can use this one for custom authentication and exception handling
         """
 
         self.request = Request(self.scope, receive=self.receive)

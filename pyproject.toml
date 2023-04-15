@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "starlette_web"
+version = "0.1.3"
+description = "Asynchronous web framework, based on Starlette and inspired by Django"
+readme = "README.md"
+authors = [
+    {name = "Sergey Sayamov", email = "dolamroth@mail.ru"},
+    {name = "Dmitry Burnaev", email = "dmitry.burnaev@gmail.com"},
+]
+license = { text = "MIT" }
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: MIT License",
+    "Development Status :: 2 - Pre-Alpha",
+]
+dependencies = [
+    "anyio>=3.6.2,<3.7",
+    "starlette>=0.26.1,<0.27",
+    "webargs-starlette>=2.1,<2.2",
+    "python-multipart==0.0.6", # required by starlette dependencies
+    "uvicorn[standard]>=0.21.1,<0.22",
+    "sqlalchemy>=2.0.8,<2.1",
+    "alembic>=1.10.2,<1.11",
+    "Jinja2>=3.1,<3.2",
+    "httpx>=0.23.3,<0.24",
+    "python-dotenv>=0.21,<0.22",
+    "traceback-with-variables>=2.0.4,<2.1",
+    "aiosmtplib>=2.0.1,<2.1",
+    "filelock>=3.10.7,<3.11",
+    "marshmallow>=3.19.0,<3.20",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/dolamroth/starlette-web"
+"Issues" = "https://github.com/dolamroth/starlette-web/issues"
+
+[project.scripts]
+starlette-web-admin = "starlette_web.common.management.admin_util:main"
+
+[tool.setuptools.packages.find]
+exclude = ["starlette_web.tests*", "venv*"]
+
+[project.optional-dependencies]
+apispec = [
+    "apispec>=6.3.0,<6.4",
+    "pyyaml>=6.0,<6.1",
+    "openapi-spec-validator>=0.5.6,<0.6",
+]
+admin = ["starlette-admin>=0.7.0,<0.9"]
+auth = ["PyJWT>=2.6,<2.7"]
+postgres = ["asyncpg>=0.27,<0.28"]
+redis = ["redis>=4.5.4,<4.6"]
+scheduler = [
+    "croniter>=1.3.8,<1.4",
+    "py-win-task-scheduler==0.1.0; sys_platform == 'win32'",
+]
+deploy = ["gunicorn>=20.1.0,<20.2"]
+develop = ["black~=22.10.0"]
+testing = [
+    "pytest>=6.2,<6.3",
+    "coverage>=6.2,<6.3",
+    "psycopg2-binary>=2.9,<2.10",
+    "requests>=2.28,<2.29",
+    "flake8>=4.0,<4.1",
+]
+all = ["starlette-web[apispec,admin,auth,postgres,redis,scheduler,deploy,develop,testing]"]
+full = ["starlette-web[all]"]
