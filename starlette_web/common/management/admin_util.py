@@ -19,7 +19,7 @@ def main():
 
         os.environ.setdefault("STARLETTE_SETTINGS_MODULE", settings_module)
 
-        if len(sys_argv) < 1:
+        if len(sys_argv) < 2:
             raise Exception(
                 'Missing command name. Correct syntax is: '
                 '"starlette-web-admin command_name ..."'
