@@ -47,7 +47,7 @@ dependencies = [
 starlette-web-admin = "starlette_web.common.management.admin_util:main"
 
 [tool.setuptools.packages.find]
-exclude = ["starlette_web.tests*"]  # exclude packages matching these glob patterns (empty by default)
+exclude = ["starlette_web.tests*", "venv*"]
 
 [project.optional-dependencies]
 apispec = [
