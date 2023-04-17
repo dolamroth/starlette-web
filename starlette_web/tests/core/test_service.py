@@ -15,7 +15,9 @@ class TestHealthCheckAPIView(BaseTestAPIView):
     def test_health__fail(self, mock_filter, client):
         mock_filter.side_effect = RuntimeError("Oops")
         response = client.get(self.url)
-        response_data = self.assert_fail_response(response, status_code=503)
+
+        response_data = response.json()
+        assert response.status_code == 503
         assert response_data == {
             "services": {"postgres": "down"},
             "errors": ["Couldn't connect to DB: RuntimeError 'Oops'"],

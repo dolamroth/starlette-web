@@ -10,13 +10,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from starlette_web.common.conf import settings
-from starlette_web.common.http.statuses import ResponseStatus
 from starlette_web.common.email import send_email, EmailSenderError
 from starlette_web.common.http.base_endpoint import BaseHTTPEndpoint
 from starlette_web.common.http.exceptions import (
     AuthenticationFailedError,
     InvalidParameterError,
     SendRequestError,
+    ConflictError,
+    UnprocessableEntityError,
 )
 from starlette_web.common.utils import get_random_string
 from starlette_web.contrib.auth.models import User, UserSession, UserInvite
@@ -133,14 +134,13 @@ class SignInAPIView(JWTSessionMixin, BaseHTTPEndpoint):
         if not user:
             logger.info("Not found active user with email [%s]", email)
             raise AuthenticationFailedError(
-                "Not found active user with provided email.",
-                response_status=ResponseStatus.INVALID_PARAMETERS,
+                details="Not found active user with provided email.",
             )
 
         if not user.verify_password(password):
             logger.error("Password didn't verify: email: %s", email)
             raise AuthenticationFailedError(
-                "Email or password is invalid.", response_status=ResponseStatus.INVALID_PARAMETERS
+                details="Email or password is invalid.",
             )
 
         return user
@@ -185,7 +185,7 @@ class SignUpAPIView(JWTSessionMixin, BaseHTTPEndpoint):
         email = cleaned_data["email"]
 
         if await User.async_get(self.db_session, email=email):
-            raise InvalidParameterError(details=f"User with email '{email}' already exists")
+            raise ConflictError(details=f"User with email '{email}' already exists")
 
         user_invite = await UserInvite.async_get(
             self.db_session,
@@ -201,7 +201,7 @@ class SignUpAPIView(JWTSessionMixin, BaseHTTPEndpoint):
                 cleaned_data["invite_token"],
                 details,
             )
-            raise InvalidParameterError(details=details)
+            raise UnprocessableEntityError(details=details)
 
         if email != user_invite.email:
             raise InvalidParameterError(message="Email does not match with your invitation.")

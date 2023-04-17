@@ -1,3 +1,4 @@
+import httpx
 import pytest
 
 from starlette_web.common.conf import settings
@@ -12,4 +13,4 @@ def test_settings():
         _ = settings.INEXISTENT_SETTING
 
     assert err.value.details == "Setting INEXISTENT_SETTING is not configured."
-    assert err.value.message == "Application is configured improperly."
+    assert err.value.message == httpx.codes.INTERNAL_SERVER_ERROR.name

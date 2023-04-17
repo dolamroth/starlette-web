@@ -1,23 +1,22 @@
-from starlette_web.common.http.statuses import ResponseStatus
+from typing import Optional
+
+import httpx
 
 
 class BaseApplicationError(Exception):
-    message = "Something went wrong"
-    details = None
-    status_code = 500
-    response_status = ResponseStatus.INTERNAL_ERROR
+    message: str = httpx.codes.INTERNAL_SERVER_ERROR.name
+    details: Optional[str] = None
+    status_code: int = 500
 
     def __init__(
         self,
         details: str = None,
         message: str = None,
         status_code: int = None,
-        response_status: str = None,
     ):
         self.message = message or self.message
         self.details = details or self.details
         self.status_code = status_code or self.status_code
-        self.response_status = response_status or self.response_status
 
     def __str__(self):
         return f"{self.message}\n{self.details}".strip()
@@ -26,116 +25,99 @@ class BaseApplicationError(Exception):
         yield "message", self.message
         yield "details", self.details
         yield "status_code", self.status_code
-        yield "response_status", self.response_status
 
 
 class ImproperlyConfigured(BaseApplicationError):
-    message = "Application is configured improperly."
+    message = httpx.codes.INTERNAL_SERVER_ERROR.name
 
 
 class UnexpectedError(BaseApplicationError):
-    message = "Something unexpected happened."
+    message = httpx.codes.INTERNAL_SERVER_ERROR.name
 
 
 class NotSupportedError(BaseApplicationError):
-    message = "Requested action is not supported now"
-
-
-class HttpError(BaseApplicationError):
-    message = "Some HTTP error happened."
+    message = httpx.codes.NOT_IMPLEMENTED.name
 
 
 class InvalidParameterError(BaseApplicationError):
     status_code = 400
-    message = "Requested data is not valid."
-    response_status = ResponseStatus.INVALID_PARAMETERS
+    message = httpx.codes.BAD_REQUEST.name
 
 
 class AuthenticationFailedError(BaseApplicationError):
     status_code = 401
-    response_status = ResponseStatus.AUTH_FAILED
-    message = "Authentication credentials are invalid."
+    message = httpx.codes.UNAUTHORIZED.name
 
 
 class AuthenticationRequiredError(AuthenticationFailedError):
-    status_code = 401
-    response_status = ResponseStatus.MISSED_CREDENTIALS
-    message = "Authentication is required."
+    details = "Authentication is required."
 
 
 class SignatureExpiredError(AuthenticationFailedError):
-    status_code = 401
-    response_status = ResponseStatus.SIGNATURE_EXPIRED
-    message = "Authentication credentials are invalid."
+    details = "Authentication credentials are invalid."
 
 
-class InviteTokenInvalidationError(BaseApplicationError):
-    status_code = 401
-    message = "Requested token is expired or does not exist."
-    response_status = ResponseStatus.INVITE_ERROR
+class InviteTokenInvalidationError(AuthenticationFailedError):
+    details = "Requested token is expired or does not exist."
 
 
 class PermissionDeniedError(BaseApplicationError):
     status_code = 403
-    message = "You don't have permission to perform this action."
-    response_status = ResponseStatus.FORBIDDEN
+    message = httpx.codes.FORBIDDEN.name
 
 
 class NotFoundError(BaseApplicationError):
     status_code = 404
-    message = "Requested object not found."
-    response_status = ResponseStatus.NOT_FOUND
+    message = httpx.codes.NOT_FOUND.name
 
 
 class MethodNotAllowedError(BaseApplicationError):
     status_code = 405
-    message = "Requested method is not allowed."
-    response_status = ResponseStatus.NOT_ALLOWED
+    message = httpx.codes.METHOD_NOT_ALLOWED.name
 
 
 class NotAcceptableError(BaseApplicationError):
     status_code = 406
-    message = (
+    message = httpx.codes.NOT_ACCEPTABLE.name
+    details = (
         "Request cannot be processed, "
         "Accept-* headers are incompatible with server."
     )
-    response_status = ResponseStatus.NOT_ALLOWED
 
 
 class ConflictError(BaseApplicationError):
     status_code = 409
-    message = "Request conflicts with current state of server."
-    response_status = ResponseStatus.CONFLICT
+    message = httpx.codes.CONFLICT.name
 
 
-class ImATeapotError(BaseApplicationError):
-    status_code = 418
-    message = "The server cannot brew a coffee, because it is a teapot."
-    response_status = ResponseStatus.I_AM_A_TEAPOT
-
-
-class UnprocessableEntryError(BaseApplicationError):
+class UnprocessableEntityError(BaseApplicationError):
     status_code = 422
-    message = "Could not process request due to logical errors in data."
-    response_status = ResponseStatus.UNPROCESSABLE_ENTRY
+    message = httpx.codes.UNPROCESSABLE_ENTITY.name
 
 
 class InvalidResponseError(BaseApplicationError):
     status_code = 500
-    message = "Response data couldn't be serialized."
+    message = httpx.codes.INTERNAL_SERVER_ERROR.name
+    details = "Response data could not be serialized."
 
 
 class NotImplementedByServerError(BaseApplicationError):
     status_code = 501
-    message = "Functionality is not supported by the server."
+    message = httpx.codes.NOT_IMPLEMENTED.name
+
+
+class HttpError(BaseApplicationError):
+    status_code = 502
+    message = httpx.codes.BAD_GATEWAY.name
 
 
 class SendRequestError(BaseApplicationError):
     status_code = 503
-    message = "Got unexpected error for sending request."
-    response_status = ResponseStatus.SERVICE_COMMUNICATION_ERROR
+    message = httpx.codes.SERVICE_UNAVAILABLE.name
+    details = "Got unexpected error for sending request."
 
 
 class MaxAttemptsReached(BaseApplicationError):
     status_code = 503
-    message = "Reached max attempt to make action"
+    message = httpx.codes.SERVICE_UNAVAILABLE.name
+    details = "Reached max attempt to make action"

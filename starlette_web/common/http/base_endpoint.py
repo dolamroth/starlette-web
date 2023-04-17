@@ -1,6 +1,6 @@
 import logging
 import sys
-from typing import Type, Union, Iterable, ClassVar, Optional, Mapping, List, Any, Dict
+from typing import Type, Union, Iterable, ClassVar, Optional, Mapping, List
 
 from marshmallow import Schema, ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -26,7 +26,6 @@ from starlette_web.common.http.exceptions import (
     PermissionDeniedError,
 )
 from starlette_web.common.http.renderers import BaseRenderer
-from starlette_web.common.http.statuses import ResponseStatus
 from starlette_web.common.database import DBModel
 from starlette_web.common.utils import import_string
 
@@ -143,7 +142,6 @@ class BaseHTTPEndpoint(HTTPEndpoint):
         self,
         data: Union[DBModel, Iterable[DBModel], dict] = None,
         status_code: int = status.HTTP_200_OK,
-        response_status: ResponseStatus = ResponseStatus.OK,
         headers: Mapping[str, str] = None,
         background: Optional[BackgroundTasks] = None,
     ) -> BaseRenderer:
@@ -161,12 +159,8 @@ class BaseHTTPEndpoint(HTTPEndpoint):
             payload = data
 
         return self.response_renderer(
-            self._get_response_content(response_status, payload),
+            payload,
             status_code=status_code,
             headers=headers,
             background=background,
         )
-
-    @staticmethod
-    def _get_response_content(response_status: ResponseStatus, payload: Any) -> Dict:
-        return {"status": response_status, "payload": payload}

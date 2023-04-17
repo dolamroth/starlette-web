@@ -1,10 +1,10 @@
 import logging
+
 from starlette import status
 from marshmallow import Schema, fields
 
 from starlette_web.contrib.auth.models import User
 from starlette_web.common.http.base_endpoint import BaseHTTPEndpoint
-from starlette_web.common.http.statuses import ResponseStatus
 
 
 logger = logging.getLogger(__name__)
@@ -40,7 +40,6 @@ class HealthCheckAPIView(BaseHTTPEndpoint):
         """
         response_data = {"services": {}, "errors": []}
         result_status = status.HTTP_200_OK
-        response_status = ResponseStatus.OK
 
         try:
             await User.async_filter(self.db_session)
@@ -57,8 +56,8 @@ class HealthCheckAPIView(BaseHTTPEndpoint):
         if "down" in services or response_data.get("errors"):
             response_data["status"] = "down"
             result_status = status.HTTP_503_SERVICE_UNAVAILABLE
-            response_status = ResponseStatus.INTERNAL_ERROR
 
         return self._response(
-            data=response_data, status_code=result_status, response_status=response_status
+            data=response_data,
+            status_code=result_status,
         )
