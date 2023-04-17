@@ -1,3 +1,5 @@
+# flake8: noqa
+
 from starlette_web.tests.core.test_base import BaseTestAPIView
 
 REFERENCE_SCHEMA = {
