@@ -1,7 +1,7 @@
 import json
 from typing import Union, Optional
 
-from httpx import Response, codes
+from httpx import Response
 from starlette.testclient import TestClient
 
 from starlette_web.common.database.model_base import ModelBase
@@ -55,7 +55,7 @@ class BaseTestAPIView(BaseTestCase):
         assert response.status_code == 400
         assert "error" in response_data, response_data
         assert "details" in response_data, response_data
-        assert response_data["error"] in codes.BAD_REQUEST.name
+        assert response_data["error"] in "Requested data is not valid."
 
         for error_field, error_value in error_details.items():
             assert error_field in response_data["details"]
@@ -66,7 +66,7 @@ class BaseTestAPIView(BaseTestCase):
         assert response.status_code == 404
         response_data = response.json()
         assert response_data == {
-            "error": codes.NOT_FOUND.name,
+            "error": "Requested object not found.",
             "details": (
                 f"{instance.__class__.__name__} #{instance.id} "
                 f"does not exist or belongs to another user"
@@ -76,7 +76,7 @@ class BaseTestAPIView(BaseTestCase):
     def assert_unauth(self, response: Response):
         response_data = self.assert_fail_response(response, status_code=401)
         assert response_data == {
-            "error": codes.UNAUTHORIZED.name,
+            "error": "Authentication is required.",
             "details": "Invalid token header. No credentials provided.",
         }
 
@@ -84,12 +84,16 @@ class BaseTestAPIView(BaseTestCase):
         self,
         response_data: Union[Response, dict],
         details: Optional[str],
+        message: Optional[str] = None,
     ):
         if isinstance(response_data, Response):
             response_data = self.assert_fail_response(response_data, status_code=401)
 
+        if message is None:
+            message = "Authentication credentials are invalid."
+
         assert response_data == {
-            "error": codes.UNAUTHORIZED.name,
+            "error": message,
             "details": details,
         }
 

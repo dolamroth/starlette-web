@@ -8,7 +8,10 @@ from starlette.responses import BackgroundTask
 from webargs_starlette import WebargsHTTPException
 
 from starlette_web.common.conf import settings
-from starlette_web.common.http.exceptions import BaseApplicationError
+from starlette_web.common.http.exceptions import (
+    BaseApplicationError,
+    InvalidParameterError,
+)
 from starlette_web.common.http.renderers import BaseRenderer, JSONRenderer
 from starlette_web.common.http.schemas import get_error_schema_class
 
@@ -33,7 +36,7 @@ class BaseExceptionHandler:
         return f"Raised Error: {exc.__class__.__name__}"
 
     def _get_status_code(self, request: Request, exc: Exception) -> int:
-        return getattr(exc, "status_code", httpx.codes.INTERNAL_SERVER_ERROR.value)
+        return getattr(exc, "status_code", BaseApplicationError.message)
 
     def _get_response_data(self, request: Request, exc: Exception) -> Any:
         _status_code = self._get_status_code(request, exc)
@@ -41,7 +44,7 @@ class BaseExceptionHandler:
         payload = {
             "error": self._get_error_message(request, exc),
         }
-        if settings.APP_DEBUG or _status_code == httpx.codes.BAD_REQUEST.value:
+        if settings.APP_DEBUG or _status_code == InvalidParameterError.message:
             payload["details"] = self._get_error_details(request, exc)
 
         error_schema = get_error_schema_class()()
@@ -85,7 +88,7 @@ class WebargsHTTPExceptionHandler(BaseExceptionHandler):
         return exc.messages.get("json") or exc.messages.get("form") or exc.messages
 
     def _get_error_message(self, request: Request, exc: WebargsHTTPException) -> str:
-        return httpx.codes.BAD_REQUEST.name
+        return InvalidParameterError.message
 
     def _get_status_code(self, request: Request, exc: Exception) -> int:
-        return httpx.codes.BAD_REQUEST.value
+        return InvalidParameterError.status_code

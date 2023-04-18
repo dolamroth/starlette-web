@@ -4,7 +4,6 @@ import os
 import uuid
 from datetime import datetime, timedelta
 
-import httpx
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -204,7 +203,7 @@ class TestAuthSignInAPIView(BaseTestAPIView):
         response = client.post(self.url, json={"email": self.email, "password": "fake-password"})
         response_data = self.assert_fail_response(response)
         assert response_data == {
-            "error": httpx.codes.UNAUTHORIZED.name,
+            "error": "Authentication credentials are invalid.",
             "details": "Email or password is invalid.",
         }
 
@@ -212,7 +211,7 @@ class TestAuthSignInAPIView(BaseTestAPIView):
         response = client.post(self.url, json={"email": "fake@t.ru", "password": self.raw_password})
         response_data = self.assert_fail_response(response)
         assert response_data == {
-            "error": httpx.codes.UNAUTHORIZED.name,
+            "error": "Authentication credentials are invalid.",
             "details": "Not found active user with provided email.",
         }
 
@@ -225,7 +224,7 @@ class TestAuthSignInAPIView(BaseTestAPIView):
         response = client.post(self.url, json={"email": self.email, "password": self.raw_password})
         response_data = self.assert_fail_response(response)
         assert response_data == {
-            "error": httpx.codes.UNAUTHORIZED.name,
+            "error": "Authentication credentials are invalid.",
             "details": "Not found active user with provided email.",
         }
 
@@ -268,7 +267,7 @@ class TestAuthSignUPAPIView(BaseTestAPIView):
         response = client.post(self.url, json=request_data)
         response_data = self.assert_fail_response(response, status_code=409)
         assert response_data == {
-            "error": httpx.codes.CONFLICT.name,
+            "error": "Request conflicts with current state of server.",
             "details": f"User with email '{user_email}' already exists",
         }
 
@@ -287,7 +286,7 @@ class TestAuthSignUPAPIView(BaseTestAPIView):
         response = client.post(self.url, json=request_data)
         response_data = self.assert_fail_response(response, status_code=422)
         assert response_data == {
-            "error": httpx.codes.UNPROCESSABLE_ENTITY.name,
+            "error": "Could not process request due to logical errors in data.",
             "details": "Invitation link is expired or unavailable",
         }
 
@@ -369,7 +368,7 @@ class TestUserInviteApiView(BaseTestAPIView):
 
         response_data = self.assert_fail_response(response)
         assert response_data == {
-            "error": httpx.codes.BAD_REQUEST.name,
+            "error": "Requested data is not valid.",
             "details": f"User with email=[{user.email}] already exists.",
         }
 
@@ -449,7 +448,7 @@ class TestResetPasswordAPIView(BaseTestAPIView):
             response, status_code=400,
         )
         assert response_data == {
-            "error": httpx.codes.BAD_REQUEST.name,
+            "error": "Requested data is not valid.",
             "details": "User with email=[fake-email@test.com] not found.",
         }
 
@@ -460,7 +459,7 @@ class TestResetPasswordAPIView(BaseTestAPIView):
             response, status_code=403,
         )
         assert response_data == {
-            "error": httpx.codes.FORBIDDEN.name,
+            "error": "You do not have permission to perform this action.",
             "details": "You don't have an admin privileges.",
         }
 
@@ -506,7 +505,11 @@ class TestChangePasswordAPIView(BaseTestAPIView):
     def test__token_expired__fail(self, client, user):
         token, _ = encode_jwt({"user_id": user.id}, expires_in=-10)
         response_data = self._assert_fail_response(client, token)
-        self.assert_auth_invalid(response_data, "JWT signature has been expired for token")
+        self.assert_auth_invalid(
+            response_data,
+            "JWT signature has been expired for token",
+            message="Authentication credentials have expired.",
+        )
 
     def test__token_invalid_type__fail(self, client, user):
         token, _ = encode_jwt({"user_id": user.id}, token_type=TOKEN_TYPE_REFRESH)
@@ -612,7 +615,7 @@ class TestRefreshTokenAPIView(BaseTestAPIView):
         response = client.post(self.url, json={"refresh_token": refresh_token})
         response_data = self.assert_fail_response(response, status_code=401)
         assert response_data == {
-            "error": httpx.codes.UNAUTHORIZED.name,
+            "error": "Authentication credentials are invalid.",
             "details": f"Token type 'refresh' expected, got '{token_type}' instead.",
         }
 
