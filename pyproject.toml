@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "starlette_web"
-version = "0.1.3"
+version = "0.1.4"
 description = "Asynchronous web framework, based on Starlette and inspired by Django"
 readme = "README.md"
 authors = [
@@ -60,7 +60,7 @@ auth = ["PyJWT>=2.6,<2.7"]
 postgres = ["asyncpg>=0.27,<0.28"]
 redis = ["redis>=4.5.4,<4.6"]
 scheduler = [
-    "croniter>=1.3.8,<1.4",
+    "croniter>=1.3.14,<1.4",
     "py-win-task-scheduler==0.1.0; sys_platform == 'win32'",
 ]
 deploy = ["gunicorn>=20.1.0,<20.2"]
