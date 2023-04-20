@@ -40,6 +40,9 @@ class Command(BaseCommand, AlembicMixin):
             if "Target database is not up to date" in stdout:
                 print(stdout.strip())
 
+            elif "No new upgrade operations detected" in stdout:
+                print(stdout.strip())
+
             else:
                 stdout, stderr = await self.run_alembic_main([
                     "revision",
