@@ -25,6 +25,6 @@ All but "development" and "testing" are recommended for production.
 
 See [docs/howto/setup](./setup/README.md)
 
-## Deployment
+## Running & Deployment
 
 See [docs/howto/deploy](./deploy/README.md)

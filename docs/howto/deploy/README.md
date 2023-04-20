@@ -1,4 +1,21 @@
-## Deployment
+After setting up the project, there will be file `asgi.py` containing the variable `app`.
+`app` is the instance of [ASGI 3 application](https://asgi.readthedocs.io/en/latest/specs/main.html)
+and, as such, may be run with any Asgi-compliant server.
+
+### Running manually
+
+`app` can be run manually with `uvicorn`. Default `asgi.py` already provides the relevant code:
+
+```python3
+import uvicorn
+
+from starlette_web.common.app import get_app
+
+app = get_app()
+uvicorn.run(app, host="127.0.0.1", port=80)
+```
+
+### Deployment
 
 It is recommended to deploy on Linux (Ubuntu >= 20.04) with **nginx** and **gunicorn**.
 Recommended setup includes **PostgreSQL** as database, and **Redis** as cache, 
