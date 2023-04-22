@@ -31,7 +31,7 @@ class AdminMount(Mount):
     def url_path_for(self, name: str, **path_params: Any) -> URLPath:
         if (name == self.name + ":statics") and ("path" in path_params):
             path = urljoin(settings.STATIC["URL"], "admin", path_params["path"])
-            return URLPath(path=path, protocol="http")
+            return URLPath(path=path)
         return super().url_path_for(name, **path_params)
 
 
