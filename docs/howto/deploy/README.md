@@ -1,17 +1,18 @@
 After setting up the project, there will be file `asgi.py` containing the variable `app`.
 `app` is the instance of [ASGI 3 application](https://asgi.readthedocs.io/en/latest/specs/main.html)
-and, as such, may be run with any Asgi-compliant server.
+and, as such, may be run with any Asgi-compliant server, by referring to it as `asgi:app` (from project root). 
 
 ### Running manually
 
-`app` can be run manually with `uvicorn`. Default `asgi.py` already provides the relevant code:
+`app` can be run manually with `uvicorn`. Default `asgi.py` already provides the relevant code
+(change host and port, if needed):
 
 ```python3
 import uvicorn
 
-from starlette_web.common.app import get_app
+from starlette_web.common.app import get_asgi_application
 
-app = get_app()
+app = get_asgi_application()
 uvicorn.run(app, host="127.0.0.1", port=80)
 ```
 

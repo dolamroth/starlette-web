@@ -148,7 +148,7 @@ class BaseStarletteApplication:
             _ = caches[conn_name]
 
 
-def get_app(**kwargs) -> AppClass:
+def get_asgi_application(**kwargs) -> AppClass:
     StarletteApplication = import_string(settings.APPLICATION_CLASS)
     run_checks = kwargs.pop("run_checks_on_startup", True)
     return StarletteApplication(run_checks=run_checks).get_app(**kwargs)

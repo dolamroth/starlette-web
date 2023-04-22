@@ -8,7 +8,7 @@ from typing import Optional, List, Type, Dict, Coroutine, Any, Callable
 import anyio
 from anyio._core._eventloop import T_Retval
 
-from starlette_web.common.app import get_app, WebApp
+from starlette_web.common.app import get_asgi_application, WebApp
 from starlette_web.common.conf import settings
 from starlette_web.common.http.exceptions import BaseApplicationError
 from starlette_web.common.utils import import_string
@@ -168,7 +168,7 @@ def fetch_command_by_name(command_name: str) -> Type[BaseCommand]:
 
 async def call_command(command_name, command_args: List[str]):
     command = fetch_command_by_name(command_name)
-    app = get_app(
+    app = get_asgi_application(
         use_pool=settings.DB_USE_CONNECTION_POOL_FOR_MANAGEMENT_COMMANDS,
         run_checks_on_startup=False,
     )

@@ -1,7 +1,7 @@
-from starlette_web.common.app import get_app
+from starlette_web.common.app import get_asgi_application
 
 
-app = get_app()
+app = get_asgi_application()
 
 
 if __name__ == "__main__":
