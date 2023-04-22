@@ -1,5 +1,5 @@
 import sys
-from typing import IO, Any, AnyStr, List, Literal, Optional
+from typing import Any, AnyStr, List, Literal, Optional
 from typing import AsyncContextManager, AsyncIterator
 
 import anyio
@@ -88,7 +88,7 @@ class BaseStorage(AsyncContextManager):
     async def _close(self, fd: Any) -> None:
         raise NotSupportedError(details="Not supported for this storage.")
 
-    async def _write(self, fd: Any, stream: IO) -> None:
+    async def _write(self, fd: Any, content: AnyStr) -> None:
         raise NotSupportedError(details="Not supported for this storage.")
 
     async def _read(self, fd: Any, size: int = -1) -> AnyStr:
@@ -147,7 +147,7 @@ class _AsyncWriter(_AsyncResourse):
         self._mode = ("a" if append else "w") + self._mode
         self._rollback = False
 
-    async def write(self, content: IO) -> None:
+    async def write(self, content: AnyStr) -> None:
         await self._storage._write(self._fd, content)
 
     async def close_task(self):

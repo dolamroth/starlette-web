@@ -11,6 +11,34 @@ All supported methods are asynchronous.
 
 ### Usage
 
+Configure variable `settings.STORAGES` (default storage is automatically set to `MediaFileSystemStorage`):
+
+```python
+STORAGES = {
+  "default": {
+    "BACKEND": "starlette_web.common.files.storages.MediaFileSystemStorage",
+  },
+  "other_storage": {
+    "BACKEND": "...",
+    "OPTIONS": {...},
+  }
+}
+```
+
+Then, use it with `storage_manager`:
+
+```python
+from starlette_web.common.files.storages import storage_manager
+
+await storage_manager.write("dir1/dir2/file5.txt", mode="t", content="Test content")
+content = await storage_manager.read("dir1/dir2/file5.txt", mode="t")
+file_url = await storage_manager.get_url("dir1/dir2/file5.txt")
+```
+
+For full list of methods, see next section.
+
+### Low-level usage
+
 ```python3
 from typing import List
 
@@ -59,7 +87,7 @@ By default, `BaseStorage` wraps all operations with asynchronous dummy lock, whi
 You may leave it as is, or use your cross-process asynchronous lock of choice.
 The lock interface allows defining a RW-lock, though default implementation is not provided.
 
-Available input arguments:  
+Available input arguments for `FilesystemStorage`:  
 - blocking_timeout: float (default `600`) - timeout to acquire lock for reading/writing, in seconds
 - write_timeout: float (default: `300`) - lock expiration timeout for writing, in seconds
 - directory_create_mode: int (default: `0o755`) - octal permissions for `mkdir`
