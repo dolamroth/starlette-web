@@ -88,16 +88,12 @@ class BaseWSEndpoint(WebSocketEndpoint):
             task_result = await self._background_handler(task_id, websocket, data)
         except anyio.get_cancelled_exc_class() as exc:
             logger.debug(f"Background task {task_id} has been cancelled.")
-            # As per anyio documentation, CancelError must be always re-raised
-            # Note, that it will also cancel all other tasks,
-            # due to design of cancellation in anyio 3.x
-            # See: https://github.com/agronholm/anyio/pull/496
+            # As per anyio documentation, CancelError must be always re-raised.
+            # Note, that it will also cancel all other tasks.
             raise exc
         except Exception as exc:  # pylint: disable=broad-except
             await self._handle_background_task_exception(task_id, websocket, exc)
         finally:
-            # As per anyio documentation, any awaitables,
-            # that run within scope of CancelError, must be shielded
             with anyio.fail_after(delay=self.EXIT_MAX_DELAY, shield=True):
                 await self._unregister_background_task(task_id, websocket, task_result)
 
