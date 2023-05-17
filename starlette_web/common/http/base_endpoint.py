@@ -63,36 +63,28 @@ class BaseHTTPEndpoint(HTTPEndpoint):
         handler = getattr(self, handler_name, self.method_not_allowed)
 
         try:
-            session_maker = self.app.session_maker()
-            session = await session_maker.__aenter__()
-        except Exception as err:
-            msg_template = "Unexpected error handled: %r"
-            logger.exception(msg_template, err)
-            raise UnexpectedError(msg_template % (err,))
+            async with self.app.session_maker() as session:
+                try:
+                    self.request.state.db_session = session
+                    self.db_session = session
 
-        try:
-            self.request.state.db_session = session
-            self.db_session = session
+                    await self._authenticate()
+                    await self._check_permissions()
 
-            await self._authenticate()
-            await self._check_permissions()
+                    response = await handler(self.request)  # noqa
+                    await session.commit()
 
-            response = await handler(self.request)  # noqa
-            await session.commit()
+                except Exception as err:
+                    await session.rollback()
+                    raise err
 
         except (BaseApplicationError, WebargsHTTPException, HTTPException) as err:
-            await session.rollback()
             raise err
 
         except Exception as err:
-            await session.rollback()
             msg_template = "Unexpected error handled: %r"
             logger.exception(msg_template, err)
             raise UnexpectedError(msg_template % (err,))
-
-        finally:
-            await session_maker.__aexit__(*sys.exc_info())
-            self.request.state.db_session = None
 
         await response(self.scope, self.receive, self.send)
 
