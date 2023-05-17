@@ -48,7 +48,6 @@ DEFAULT_RESPONSE_RENDERER = "starlette_web.common.http.renderers.JSONRenderer"
 STORAGES = {
     "default": {
         "BACKEND": "starlette_web.common.files.storages.MediaFileSystemStorage",
-        "OPTIONS": {},
     },
 }
 

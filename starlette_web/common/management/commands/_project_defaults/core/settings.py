@@ -51,6 +51,12 @@ DATABASE_DSN = config(
 
 ROUTES = "core.routes.routes"
 
+STORAGES = {
+    "default": {
+        "BACKEND": "starlette_web.common.files.storages.MediaFileSystemStorage",
+    },
+}
+
 CACHES = {
     "default": {
         "BACKEND": "starlette_web.common.caches.local_memory.LocalMemoryCache",

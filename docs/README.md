@@ -5,7 +5,6 @@ starlette_web brings a number of features atop base starlette.
 ### Common features
 
 - ORM (via SQLAlchemy.ORM), [model helper methods](./common/model_mixin.md)
-- Admin panel (via [starlette_admin](https://github.com/jowilf/starlette-admin))
 - [Caches](./common/caching.md)
 - [Pub-sub channels](./common/channels.md) (based on `encode/broadcaster`)
 - [File storages](./common/file_storages.md)
@@ -20,6 +19,7 @@ starlette_web brings a number of features atop base starlette.
 
 - Redis support
 - Authorization (based on `django.contrib.auth`)
+- Admin panel (via [starlette_admin](https://github.com/jowilf/starlette-admin))
 - [Constance](./contrib/constance.md) (based on `django-constance`)
 - [Periodic task scheduler](./contrib/scheduler.md) (based on `django-crontab`), 
   that uses OS native scheduling mechanism (POSIX crontab, Windows Task Scheduler 2.0).
@@ -33,6 +33,11 @@ starlette_web brings a number of features atop base starlette.
 ### Not planned features
 
 - FileField, ImageField (see [docs/notes](./notes/orm_filefield_challenges.md) for explanation)
+
+### Known limitations
+
+- **Composite primary keys** for databases are not supported by most contrib modules,
+  including `starlette_admin` or `sqlalchemy_mptt`, so restrain from using those.  
 
 ## Additional notes, articles and links
 
