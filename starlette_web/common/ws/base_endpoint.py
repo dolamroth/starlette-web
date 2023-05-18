@@ -83,10 +83,10 @@ class BaseWSEndpoint(WebSocketEndpoint):
     async def _background_handler_wrap(self, task_id: str, websocket: WebSocket, data: Dict):
         task_result = None
 
-        await self._register_background_task(task_id, websocket, data)
-
         with anyio.CancelScope() as cancel_scope:
             try:
+                await self._register_background_task(task_id, websocket, data)
+
                 try:
                     task_result = await self._background_handler(task_id, websocket, data)
                 except anyio.get_cancelled_exc_class() as exc:
