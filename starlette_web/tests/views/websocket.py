@@ -1,8 +1,8 @@
 import logging
-import sys
 from typing import Dict, Any, Optional
 
 import anyio
+from anyio.abc import TaskStatus
 from marshmallow import Schema, fields
 from marshmallow.validate import OneOf
 from starlette.types import Scope, Receive, Send
@@ -118,13 +118,23 @@ class ChatWebsocketTestEndpoint(BaseWSEndpoint):
         self._channels_wrap: Optional[Channel] = None
         self._channels: Optional[Channel] = None
         self._tasks = set()
+        self._close_event: Optional[anyio.Event] = None
+
+    async def _run_channel(
+        self,
+        close_event: anyio.Event,
+        task_status: TaskStatus = anyio.TASK_STATUS_IGNORED,
+    ):
+        redis_options = settings.CHANNEL_LAYERS["redispubsub"]["OPTIONS"]
+        async with Channel(RedisPubSubChannelLayer(**redis_options)) as channel:
+            task_status.started(channel)
+            await close_event.wait()
 
     async def _register_background_task(self, task_id: str, websocket: WebSocket, data: Dict):
         async with self._manager_lock:
             if not self._channels_init and data["request_type"] == "connect":
-                redis_options = settings.CHANNEL_LAYERS["redispubsub"]["OPTIONS"]
-                self._channels_wrap = Channel(RedisPubSubChannelLayer(**redis_options))
-                self._channels = await self._channels_wrap.__aenter__()
+                self._close_event = anyio.Event()
+                self._channels = await self.task_group.start(self._run_channel, self._close_event)
                 self._channels_init = True
 
             self._tasks.add(task_id)
@@ -159,7 +169,7 @@ class ChatWebsocketTestEndpoint(BaseWSEndpoint):
             self._tasks.discard(task_id)
 
             if self._channels_init and not self._tasks:
-                await self._channels_wrap.__aexit__(*sys.exc_info())
+                self._close_event.set()
                 self._channels_init = False
 
     async def _run_dialogue(self, websocket: WebSocket, room: str, dialogue_task_id: str):

@@ -82,11 +82,9 @@ class BaseWSEndpoint(WebSocketEndpoint):
 
     async def _background_handler_wrap(self, task_id: str, websocket: WebSocket, data: Dict):
         task_result = None
-        _task_registered = False
 
         with anyio.CancelScope() as cancel_scope:
             await self._register_background_task(task_id, websocket, data)
-            _task_registered = True
 
             try:
                 try:
@@ -102,8 +100,7 @@ class BaseWSEndpoint(WebSocketEndpoint):
                     cancel_scope.deadline = anyio.current_time() + self.EXIT_MAX_DELAY
                     cancel_scope.shield = True
             finally:
-                if _task_registered:
-                    await self._unregister_background_task(task_id, websocket, task_result)
+                await self._unregister_background_task(task_id, websocket, task_result)
 
     async def _handle_background_task_exception(
         self, task_id: str, websocket: WebSocket, exc: Exception
