@@ -1,5 +1,4 @@
 import logging
-import sys
 from typing import Type, Union, Iterable, ClassVar, Optional, Mapping, List
 
 from marshmallow import Schema, ValidationError

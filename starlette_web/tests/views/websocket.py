@@ -1,4 +1,5 @@
 import logging
+import sys
 from typing import Dict, Any, Optional
 
 import anyio
@@ -158,7 +159,7 @@ class ChatWebsocketTestEndpoint(BaseWSEndpoint):
             self._tasks.discard(task_id)
 
             if self._channels_init and not self._tasks:
-                await self._channels_wrap.__aexit__(None, None, None)
+                await self._channels_wrap.__aexit__(*sys.exc_info())
                 self._channels_init = False
 
     async def _run_dialogue(self, websocket: WebSocket, room: str, dialogue_task_id: str):
