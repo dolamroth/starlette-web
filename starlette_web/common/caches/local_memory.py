@@ -5,7 +5,6 @@ import re
 from typing import Any, Optional, Dict, Sequence, AsyncContextManager, List
 
 import anyio
-from anyio.lowlevel import checkpoint
 
 from starlette_web.common.caches.base import BaseCache, CacheError
 from starlette_web.common.caches.base_lock import BaseLock
@@ -29,6 +28,7 @@ class _AsyncLocalMemoryLock(BaseLock):
         super().__init__(name=name, timeout=timeout, blocking_timeout=blocking_timeout, **kwargs)
         self._manager_lock = kwargs["manager_lock"]
         self._cache_name = kwargs["cache_name"]
+        self._retry_interval = kwargs.get("retry_interval", 0.001)
         global _locks
         _locks.setdefault(self._cache_name, {})
         self._cache_lock = _locks[self._cache_name]
@@ -38,7 +38,7 @@ class _AsyncLocalMemoryLock(BaseLock):
             return
 
         while True:
-            await checkpoint()
+            await anyio.sleep(self._retry_interval)
             async with self._manager_lock:
                 if self._cache_lock.get(self._name, -1) < anyio.current_time():
                     self._cache_lock[self._name] = anyio.current_time() + self._timeout

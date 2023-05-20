@@ -42,9 +42,19 @@ Example of usage:
 ```python
 from starlette_web.common.caches import caches
 
-async with caches['default'].lock('lock_name', blocking_timeout=None, timeout=1):
+async with caches['default'].lock(
+    'lock_name', 
+    blocking_timeout=None, 
+    timeout=1, 
+    retry_interval=0.001,
+):
     ...
 ```
+
+Defaults:
+- blocking_timeout = None (seconds)
+- timeout = 20.0 (seconds)
+- retry_interval = 0.001 (seconds)
 
 **Important note**: custom locks in `starlette_web` have no deadlock detection, 
 so use `timeout` parameter to avoid deadlocking.

@@ -5,7 +5,8 @@ import tempfile
 import time
 from typing import Any, Union, Optional
 
-from anyio.lowlevel import checkpoint, cancel_shielded_checkpoint
+import anyio
+from anyio.lowlevel import cancel_shielded_checkpoint
 from filelock import FileLock as StrictFileLock
 
 from starlette_web.common.conf import settings
@@ -27,13 +28,14 @@ class FileLock(BaseLock):
     ) -> None:
         super().__init__(name, timeout, blocking_timeout, **kwargs)
         self._stored_file_ts = {}
+        self._retry_interval = kwargs.get("retry_interval", 0.001)
 
     async def _acquire(self):
         if self._is_acquired:
             return
 
         while True:
-            await checkpoint()
+            await anyio.sleep(self._retry_interval)
             try:
                 with self._get_manager_lock():
                     if self._sync_acquire():
