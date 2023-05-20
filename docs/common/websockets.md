@@ -66,6 +66,10 @@ However, should you need to do so, you may redefine method
 `starlette_web.common.ws.base_endpoint.BaseWSEndpoint.on_receive` to use
 `anyio.TaskGroup.start` and return `CancelScope` from within background handler.
 
+**AVOID** splitting resourse-managing context manager's creation and deletion within different background tasks
+in `BaseWSEndpoint`. Instead, pass channel management to a separate background task and manage it with `anyio.Event`.
+See `starlette_web.tests.views.websocket.ChatWebsocketTestEndpoint` for an example.
+
 ## Manually calling websocket.receive
 
 **AVOID** manually calling `websocket.receive` inside a background task, 

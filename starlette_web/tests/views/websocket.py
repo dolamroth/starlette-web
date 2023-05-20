@@ -125,6 +125,12 @@ class ChatWebsocketTestEndpoint(BaseWSEndpoint):
         close_event: anyio.Event,
         task_status: TaskStatus = anyio.TASK_STATUS_IGNORED,
     ):
+        # Move channel management to a separate background task,
+        # so that channel's anyio.TaskGroup does not interfere
+        # with any other possible cancel scopes.
+        # Note, that in this case it requires
+        # some low-level synchronization with anyio.Event.
+        # Note, as well, that this task does not add to self._tasks
         redis_options = settings.CHANNEL_LAYERS["redispubsub"]["OPTIONS"]
         async with Channel(RedisPubSubChannelLayer(**redis_options)) as channel:
             task_status.started(channel)

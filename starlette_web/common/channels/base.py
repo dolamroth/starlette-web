@@ -26,22 +26,19 @@ class Channel:
         self._channel_layer = channel_layer
         self._subscribers: Dict[str, Set[MemoryObjectSendStream]] = dict()
         self._manager_lock = anyio.Lock()
-        self._task_group_handler = None
 
     async def __aenter__(self) -> "Channel":
         await self.connect()
-        self._task_group_handler = anyio.create_task_group()
-        self._task_group = await self._task_group_handler.__aenter__()
+        self._task_group = anyio.create_task_group()
+        await self._task_group.__aenter__()
         self._task_group.start_soon(self._listener)
         return self
 
     async def __aexit__(self, *args: Any, **kwargs: Any):
         try:
             self._task_group.cancel_scope.cancel()
+            retval = await self._task_group.__aexit__(*args)
             del self._task_group
-
-            retval = await self._task_group_handler.__aexit__(*args)
-            del self._task_group_handler
         finally:
             self._subscribers.clear()
             with anyio.fail_after(self.EXIT_MAX_DELAY, shield=True):

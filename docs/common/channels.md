@@ -70,7 +70,7 @@ class RedisMultiplePatternsChannelLayer(RedisPubSubChannelLayer):
 
 If you want to publish messages and guarantee, that recipient has got them, you need to use
 broker that allows acknowledgement for messages. Again, this is not provided by default, and 
-you'll have to define a custom channel layer for this purpose. For examples, see kafka 
+you'll have to define a custom channel layer for this purpose. For an example, see kafka 
 backend and proposed mqtt backend for `encode/broadcaster`:
 
 - https://github.com/encode/broadcaster/blob/956571d030d33d6cb820758ec5ed8fe79c3288c6/broadcaster/_backends/kafka.py
@@ -80,7 +80,7 @@ For Redis, use redis Streams which support acknowledgment:
 - https://redis.io/commands/xack/
 - https://github.com/encode/broadcaster/blob/3cfcc8b41339862b1f5d50f42ab027bcae92d78c/broadcaster/_backends/redis_stream.py
 
-## Limitations
+## Limitations & Caveats
 
 Channels cannot be instantiated project-wise, in the same way as caches.
 In `channels`, the channel layer is instantiated for the whole duration of `async with` block,
@@ -99,3 +99,8 @@ and do not require pair-wise synchronization.
 In practice, this means, that you have to instantiate channels with `async with` block, 
 every time you need to use them. See `starlette_web.tests.contrib.test_channels.TestChannelLayers`
 for examples of usage.
+
+It is preferable to **only use channels as async context manager**, since it registers its own `anyio.TaskGroup`.
+In some cases, when you need to split channel creation and deletion, like with websockets, there are available
+synchronisation mechanisms with `anyio.Event`. See websocket chat test 
+`starlette_web.tests.views.websocket.ChatWebsocketTestEndpoint` for example of usage.

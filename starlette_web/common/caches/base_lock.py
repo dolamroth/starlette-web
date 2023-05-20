@@ -30,14 +30,13 @@ class BaseLock:
         if self._blocking_timeout is not None and self._blocking_timeout < 0:
             raise RuntimeError("blocking_timeout cannot be negative")
 
-        self._task_group_wrapper: Optional[TaskGroup] = None
         self._task_group: Optional[TaskGroup] = None
         self._acquire_event: Optional[anyio.Event] = None
         self._is_acquired = False
 
     async def __aenter__(self):
-        self._task_group_wrapper = anyio.create_task_group()
-        self._task_group = await self._task_group_wrapper.__aenter__()
+        self._task_group = anyio.create_task_group()
+        await self._task_group.__aenter__()
         self._acquire_event = anyio.Event()
         if self._blocking_timeout is not None:
             self._task_group.cancel_scope.deadline = anyio.current_time() + self._blocking_timeout
@@ -46,8 +45,8 @@ class BaseLock:
         try:
             await self._acquire_event.wait()
             self._is_acquired = self._acquire_event.is_set()
-        except anyio.get_cancelled_exc_class() as exc:
-            await self._task_group_wrapper.__aexit__(*sys.exc_info())
+        except (anyio.get_cancelled_exc_class(), BaseException) as exc:
+            await self._task_group.__aexit__(*sys.exc_info())
             self._is_acquired = False
             raise CacheLockError(details=str(exc)) from exc
 
@@ -56,7 +55,7 @@ class BaseLock:
             with anyio.move_on_after(self.EXIT_MAX_DELAY, shield=True):
                 await self._release()
         finally:
-            retval = await self._task_group_wrapper.__aexit__(exc_type, exc_val, exc_tb)
+            retval = await self._task_group.__aexit__(exc_type, exc_val, exc_tb)
 
         try:
             if exc_type is not None and exc_type not in [
@@ -76,7 +75,6 @@ class BaseLock:
         finally:
             self._acquire_event = None
             self._task_group = None
-            self._task_group_wrapper = None
 
         return retval
 
