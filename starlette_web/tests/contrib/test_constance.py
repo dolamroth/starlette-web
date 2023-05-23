@@ -1,9 +1,11 @@
 import datetime
+import pickle
 import uuid
 
 import pytest
 
 from starlette_web.common.http.exceptions import BaseApplicationError
+from starlette_web.contrib.constance.backends.database.models import Constance
 from starlette_web.tests.helpers import await_
 
 
@@ -32,3 +34,17 @@ def test_constance_errors(config):
 
     with pytest.raises(BaseApplicationError):
         await_(config.get("TEST_CONSTANT_NOT_EXISTING_KEY"))
+
+
+def test_constance_mget_after_deprecate_key(config, dbs):
+    # Simulate deprecation of key by inserting into database
+    # a key, which has already been removed from
+    await_(Constance.async_create(
+        db_session=dbs,
+        key="NON_EXISTENT_KEY",
+        value=pickle.dumps(1),
+        db_commit=True,
+    ))
+
+    result = await_(config.mget(["TEST_CONSTANT_UUID"]))
+    assert "NON_EXISTENT_KEY" not in result

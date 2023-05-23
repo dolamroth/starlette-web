@@ -24,6 +24,7 @@ class DatabaseBackend(BaseConstanceBackend):
                 **{
                     constant.key: self._preprocess_response(constant.value)
                     for constant in constants
+                    if constant.key in keys
                 },
             }
             return values

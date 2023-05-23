@@ -61,7 +61,9 @@ class LazyConstance:
 
         for key in keys:
             if key not in settings.CONSTANCE_CONFIG:
-                raise NotSupportedError
+                raise NotSupportedError(
+                    details=f"Key {key} not present in settings.CONSTANCE_CONFIG."
+                )
 
         return_list = await self._backend.mget(keys)
         return {
@@ -71,7 +73,7 @@ class LazyConstance:
 
     def _postprocess_value(self, key, value):
         if key not in settings.CONSTANCE_CONFIG:
-            raise NotSupportedError
+            raise NotSupportedError(details=f"Key {key} not present in settings.CONSTANCE_CONFIG.")
 
         if value == self._backend.empty:
             return settings.CONSTANCE_CONFIG[key][0]
