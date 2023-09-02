@@ -2,6 +2,7 @@ import datetime
 import jwt
 from functools import partial
 
+from sqlalchemy import select
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.datastructures import MutableHeaders
 from starlette.requests import HTTPConnection, Request
@@ -84,10 +85,10 @@ class AdminSessionMiddleware:
         if message["type"] == "http.response.start":
             if scope.get("session", {}) and scope["session"].get("token"):
                 async with self.session_maker() as db_session:
-                    user_session = await UserSession.async_get(
-                        db_session=db_session,
-                        refresh_token=scope["session"]["token"],
+                    query = select(UserSession).filter(
+                        UserSession.refresh_token == scope["session"]["token"],
                     )
+                    user_session = (await db_session.execute(query)).scalars().first()
 
                 if user_session and not user_session.is_persistent:
                     expires = ""

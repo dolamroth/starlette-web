@@ -1,3 +1,4 @@
+from sqlalchemy import select, update
 from starlette.requests import Request
 from starlette.responses import Response
 from starlette_admin.auth import AdminUser, AuthProvider
@@ -20,11 +21,8 @@ class AdminAuthProvider(AuthProvider):
         request: Request,
         response: Response,
     ) -> Response:
-        user = await User.async_get(
-            db_session=request.state.session,
-            email=username,
-            is_active__is=True,
-        )
+        query = select(User).filter(User.email == username, User.is_active.is_(True))
+        user = (await request.state.session.execute(query)).scalars().first()
         if not user:
             raise LoginFailed("Invalid username or password")
 
@@ -38,12 +36,12 @@ class AdminAuthProvider(AuthProvider):
         token_maker.db_session = request.state.session
         token_collection = await token_maker._create_session(user)
 
-        await UserSession.async_update(
-            db_session=request.state.session,
-            filter_kwargs=dict(refresh_token=token_collection.refresh_token),
-            update_data=dict(is_persistent=remember_me),
-            db_commit=True,
-        )
+        query = update(UserSession)\
+            .filter(UserSession.refresh_token == token_collection.refresh_token)\
+            .values(is_persistent=remember_me)
+
+        await request.state.session.execute(query)
+        await request.state.session.commit()
 
         request.scope["session"] = {
             "token": token_collection.refresh_token,
