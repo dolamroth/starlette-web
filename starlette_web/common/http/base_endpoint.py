@@ -17,6 +17,7 @@ from starlette_web.common.authorization.backends import (
 )
 from starlette_web.common.authorization.permissions import PermissionType
 from starlette_web.common.authorization.base_user import AnonymousUser
+from starlette_web.common.database.model_base import ModelBase
 from starlette_web.common.conf import settings
 from starlette_web.common.http.exceptions import (
     UnexpectedError,
@@ -25,7 +26,6 @@ from starlette_web.common.http.exceptions import (
     PermissionDeniedError,
 )
 from starlette_web.common.http.renderers import BaseRenderer
-from starlette_web.common.database import DBModel
 from starlette_web.common.utils import import_string
 
 
@@ -44,10 +44,10 @@ class BaseHTTPEndpoint(HTTPEndpoint):
     response_schema: ClassVar[Type[Schema]]
     auth_backend: ClassVar[Type[BaseAuthenticationBackend]] = NoAuthenticationBackend
     permission_classes: ClassVar[List[PermissionType]] = []
-    request_parser: ClassVar[Type[StarletteParser]] = \
-        import_string(settings.DEFAULT_REQUEST_PARSER)
-    response_renderer: ClassVar[Type[BaseRenderer]] = \
-        import_string(settings.DEFAULT_RESPONSE_RENDERER)
+    request_parser: ClassVar[Type[StarletteParser]] = import_string(settings.DEFAULT_REQUEST_PARSER)
+    response_renderer: ClassVar[Type[BaseRenderer]] = import_string(
+        settings.DEFAULT_RESPONSE_RENDERER
+    )
 
     async def dispatch(self) -> None:
         """
@@ -66,7 +66,6 @@ class BaseHTTPEndpoint(HTTPEndpoint):
                 try:
                     self.request.state.db_session = session
                     self.db_session = session
-
                     await self._authenticate()
                     await self._check_permissions()
 
@@ -131,7 +130,7 @@ class BaseHTTPEndpoint(HTTPEndpoint):
 
     def _response(
         self,
-        data: Union[DBModel, Iterable[DBModel], dict] = None,
+        data: Union[ModelBase, Iterable[ModelBase], dict] = None,
         status_code: int = status.HTTP_200_OK,
         headers: Mapping[str, str] = None,
         background: Optional[BackgroundTasks] = None,

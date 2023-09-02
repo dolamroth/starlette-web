@@ -34,9 +34,7 @@ class Settings:
                 setting_value = getattr(module, setting)
                 _getattr(self, "_user_settings")[setting] = setting_value
 
-        global_settings_module = import_module(
-            "starlette_web.common.conf.global_settings"
-        )
+        global_settings_module = import_module("starlette_web.common.conf.global_settings")
         for setting in dir(global_settings_module):
             if setting.isupper():
                 setting_value = getattr(global_settings_module, setting)
@@ -55,9 +53,7 @@ class Settings:
             value = _getattr(self, "_global_settings").get(key, empty)
 
             if value is empty:
-                raise ImproperlyConfigured(
-                    details=f"Setting {key.upper()} is not configured."
-                )
+                raise ImproperlyConfigured(details=f"Setting {key.upper()} is not configured.")
 
         return value
 

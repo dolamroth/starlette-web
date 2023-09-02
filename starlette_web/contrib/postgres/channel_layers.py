@@ -79,7 +79,7 @@ class PostgreSQLChannelLayer(BaseChannelLayer):
         if len(message.encode("utf-8")) > self.MAX_MESSAGE_BYTELEN:
             raise NotSupportedError(
                 details=f"Message byte-length must be at most "
-                        f"{self.MAX_MESSAGE_BYTELEN} symbols"
+                f"{self.MAX_MESSAGE_BYTELEN} symbols"
             )
 
     async def next_published(self) -> Event:

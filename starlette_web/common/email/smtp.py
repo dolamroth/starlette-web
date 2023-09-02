@@ -26,9 +26,7 @@ class SMTPEmailSender(BaseEmailSender):
         if _from is None:
             _from = self.options.get("from")
         if _from is None:
-            raise NotSupportedError(
-                details="Cannot send email without setting FROM field."
-            )
+            raise NotSupportedError(details="Cannot send email without setting FROM field.")
         message["From"] = _from
 
         html_part = MIMEText(html_content, "html")
@@ -40,15 +38,13 @@ class SMTPEmailSender(BaseEmailSender):
             options = dict(
                 message=message,
                 sender=_from,
-                recipients=_recipients[:self.MAX_BULK_SIZE],
+                recipients=_recipients[: self.MAX_BULK_SIZE],
                 **self.options,
             )
 
             with anyio.move_on_after(self.SEND_MAX_TIME):
-                await aiosmtplib.send(**{
-                    key: value
-                    for key, value in options.items()
-                    if key in available_args
-                })
+                await aiosmtplib.send(
+                    **{key: value for key, value in options.items() if key in available_args}
+                )
 
-            del _recipients[:self.MAX_BULK_SIZE]
+            del _recipients[: self.MAX_BULK_SIZE]

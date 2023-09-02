@@ -46,8 +46,10 @@ class WebApp(Starlette):
         if settings.DATABASE_DSN:
             self.session_maker = make_session_maker(use_pool=use_pool)
         else:
+
             def _not_implemented():
                 raise NotImplementedError("settings.DATABASE_DSN is not configured")
+
             self.session_maker = _not_implemented
 
 

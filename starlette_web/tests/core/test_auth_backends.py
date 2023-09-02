@@ -67,8 +67,10 @@ class TestBackendAuth:
         assert err.value.details == err_details
 
     def test_check_auth__user_not_active__fail(self, client, user, user_session, dbs):
-        await_(user.update(dbs, is_active=False))
+        user.is_active = False
         await_(dbs.commit())
+        await_(dbs.refresh(user))
+
         request, scope = self._prepare_request(dbs, user, user_session)
         with pytest.raises(AuthenticationFailedError) as err:
             await_(JWTAuthenticationBackend(request, scope).authenticate())
@@ -76,8 +78,10 @@ class TestBackendAuth:
         assert err.value.details == f"Couldn't found active user with id={user.id}."
 
     def test_check_auth__session_not_active__fail(self, client, user, user_session, dbs):
-        await_(user_session.update(dbs, is_active=False))
+        user_session.is_active = False
         await_(dbs.commit())
+        await_(dbs.refresh(user_session))
+
         request, scope = self._prepare_request(dbs, user, user_session)
         with pytest.raises(AuthenticationFailedError) as err:
             await_(JWTAuthenticationBackend(request, scope).authenticate())
@@ -89,8 +93,10 @@ class TestBackendAuth:
 
     @pytest.mark.parametrize("token_type", [TOKEN_TYPE_REFRESH, TOKEN_TYPE_RESET_PASSWORD])
     def test_check_auth__token_t_mismatch__fail(self, client, user, user_session, token_type, dbs):
-        await_(user_session.update(dbs, is_active=False))
+        user_session.is_active = False
         await_(dbs.commit())
+        await_(dbs.refresh(user_session))
+
         token, _ = encode_jwt({"user_id": user.id}, token_type=token_type)
         request, scope = self._prepare_request(dbs, user, user_session)
         with pytest.raises(AuthenticationFailedError) as err:
@@ -103,8 +109,10 @@ class TestBackendAuth:
         assert err.value.details == f"Token type 'access' expected, got '{token_type}' instead."
 
     def test_check_auth__admin_required__ok(self, client, user, user_session, dbs):
-        await_(user.update(dbs, is_superuser=True))
+        user.is_superuser = True
         await_(dbs.commit())
+        await_(dbs.refresh(user))
+
         request, scope = self._prepare_request(dbs, user, user_session)
         authenticated_user = await_(JWTAuthenticationBackend(request, scope).authenticate())
         assert authenticated_user.id == user.id
@@ -113,8 +121,10 @@ class TestBackendAuth:
         assert is_admin
 
     def test_check_auth__admin_required__not_superuser__fail(self, client, user, user_session, dbs):
-        await_(user.update(dbs, is_superuser=False))
+        user.is_superuser = False
         await_(dbs.commit())
+        await_(dbs.refresh(user))
+
         request, scope = self._prepare_request(dbs, user, user_session)
         with pytest.raises(PermissionDeniedError) as err:
             await_(JWTAuthenticationBackend(request, scope).authenticate())

@@ -1,6 +1,7 @@
 import logging
 from typing import Tuple
 
+from sqlalchemy import select
 from jwt import InvalidTokenError, ExpiredSignatureError
 
 from starlette_web.contrib.auth.models import User, UserSession
@@ -75,7 +76,9 @@ class JWTAuthenticationBackend(BaseAuthenticationBackend):
 
         user_id = jwt_payload.get("user_id")
 
-        user = await User.get_active(self.db_session, user_id)
+        query = select(User).filter(User.id == user_id, User.is_active.is_(True))
+        user = (await self.request.state.db_session.execute(query)).scalars().first()
+
         if not user:
             msg = "Couldn't found active user with id=%s."
             logger.warning(msg, user_id)
@@ -85,11 +88,11 @@ class JWTAuthenticationBackend(BaseAuthenticationBackend):
         if not session_id:
             raise AuthenticationFailedError("Incorrect data in JWT: session_id is missed")
 
-        user_session = await UserSession.async_get(
-            self.db_session,
-            public_id=session_id,
-            is_active=True,
+        query = select(UserSession).filter(
+            UserSession.public_id == session_id,
+            UserSession.is_active.is_(True),
         )
+        user_session = (await self.request.state.db_session.execute(query)).scalars().first()
         if not user_session:
             raise AuthenticationFailedError(
                 f"Couldn't found active session: {user_id=} | {session_id=}."

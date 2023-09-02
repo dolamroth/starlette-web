@@ -6,8 +6,7 @@ from starlette_web.common.http.exceptions import BaseApplicationError, Improperl
 class AppConfig(BaseAppConfig):
     app_name = "constance"
     _error_message = (
-        "settings.CONSTANCE_CONFIG must be of type "
-        "Dict[str, Tuple[Any, str, Type]]."
+        "settings.CONSTANCE_CONFIG must be of type " "Dict[str, Tuple[Any, str, Type]]."
     )
 
     def perform_checks(self):

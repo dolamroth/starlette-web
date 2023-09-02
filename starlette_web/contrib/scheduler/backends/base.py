@@ -3,6 +3,7 @@ import hashlib
 import logging
 import os
 import tempfile
+from contextlib import nullcontext
 from typing import List, Dict, Tuple, Union
 
 import anyio
@@ -109,12 +110,4 @@ class BasePeriodicTaskScheduler:
             )
             return FileLock(lock_file, timeout=self.settings.BLOCKING_TIMEOUT)
         else:
-
-            class DummyLock:
-                def __enter__(self):
-                    return self
-
-                def __exit__(self, exc_type, exc_val, exc_tb):
-                    return False
-
-            return DummyLock()
+            return nullcontext()

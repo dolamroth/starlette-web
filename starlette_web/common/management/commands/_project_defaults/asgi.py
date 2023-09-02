@@ -5,6 +5,7 @@ import os
 
 os.environ.setdefault("STARLETTE_SETTINGS_MODULE", "core.settings")
 from starlette_web.common.app import get_app
+
 app = get_app()
 
 

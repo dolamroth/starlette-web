@@ -18,9 +18,7 @@ class Command(BaseCommand):
 
         cwd = Path(current_dir)
         if not (cwd / "command.py").is_file():
-            raise CommandError(
-                details="This command may only be run in project root directory."
-            )
+            raise CommandError(details="This command may only be run in project root directory.")
 
         app_dir = cwd / app_name
         if app_dir.is_file() or app_dir.is_symlink():
@@ -32,16 +30,14 @@ class Command(BaseCommand):
             )
 
         if app_dir.is_dir():
-            raise CommandError(
-                details=f"Directory {app_dir} already exists. Exiting."
-            )
+            raise CommandError(details=f"Directory {app_dir} already exists. Exiting.")
 
         app_manager.register_apps()
         if app_name in app_manager.app_names:
             existing_app = app_manager.app_names[app_name]
             raise CommandError(
                 details=f"Application with name {app_name} already installed in "
-                        f"settings.INSTALLED_APPS ({existing_app})."
+                f"settings.INSTALLED_APPS ({existing_app})."
             )
 
         app_dir.mkdir()

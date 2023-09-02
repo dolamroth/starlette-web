@@ -6,6 +6,7 @@ from uuid import UUID
 from datetime import datetime, timedelta
 from typing import Tuple, Optional, Union
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
@@ -71,28 +72,32 @@ class JWTSessionMixin:
     async def _create_session(self, user: User) -> TokenCollection:
         session_id = uuid.uuid4()
         token_collection = self._get_tokens(user, session_id)
-        await UserSession.async_create(
-            self.db_session,
+        user_session = UserSession(
             user_id=user.id,
             public_id=str(session_id),
             refresh_token=token_collection.refresh_token,
             expired_at=token_collection.refresh_token_expired_at,
         )
+        self.db_session.add(user_session)
+        await self.db_session.flush()
         return token_collection
 
     async def _update_session(self, user: User, session_id: Union[str, UUID]) -> TokenCollection:
-        user_session = await UserSession.async_get(self.db_session, public_id=str(session_id))
-        if not user_session:
+        query = (
+            select(UserSession).filter(UserSession.public_id == str(session_id)).with_for_update()
+        )
+        user_session = (await self.db_session.execute(query)).scalars().first()
+
+        if user_session is None:
             return await self._create_session(user)
 
         token_collection = self._get_tokens(user, session_id=session_id)
-        await user_session.update(
-            self.db_session,
-            refresh_token=token_collection.refresh_token,
-            expired_at=token_collection.refresh_token_expired_at,
-            refreshed_at=datetime.utcnow(),
-            is_active=True,
-        )
+        user_session.refresh_token = token_collection.refresh_token
+        user_session.expired_at = token_collection.refresh_token_expired_at
+        user_session.refreshed_at = datetime.utcnow()
+        user_session.is_active = True
+        await self.db_session.flush()
+
         return token_collection
 
 
@@ -130,7 +135,8 @@ class SignInAPIView(JWTSessionMixin, BaseHTTPEndpoint):
         return self._response(token_collection)
 
     async def authenticate(self, email: str, password: str) -> User:
-        user = await User.async_get(db_session=self.db_session, email=email, is_active__is=True)
+        query = select(User).filter(User.email == email, User.is_active.is_(True))
+        user = (await self.db_session.execute(query)).scalars().first()
         if not user:
             logger.info("Not found active user with email [%s]", email)
             raise AuthenticationFailedError(
@@ -171,12 +177,19 @@ class SignUpAPIView(JWTSessionMixin, BaseHTTPEndpoint):
         """
         cleaned_data = await self._validate(request)
         user_invite: UserInvite = cleaned_data["user_invite"]
-        user = await User.async_create(
-            self.db_session,
+
+        user = User(
             email=cleaned_data["email"],
             password=User.make_password(cleaned_data["password_1"]),
         )
-        await user_invite.update(self.db_session, is_applied=True, user_id=user.id)
+        self.db_session.add(user)
+        await self.db_session.flush()
+        await self.db_session.refresh(user)
+
+        user_invite.user_id = user.id
+        user_invite.is_applied = True
+        await self.db_session.flush()
+
         token_collection = await self._create_session(user)
         return self._response(token_collection, status_code=status.HTTP_201_CREATED)
 
@@ -184,15 +197,18 @@ class SignUpAPIView(JWTSessionMixin, BaseHTTPEndpoint):
         cleaned_data = (await super()._validate(request)) or dict()
         email = cleaned_data["email"]
 
-        if await User.async_get(self.db_session, email=email):
+        query = select(User).filter(User.email == email)
+        user = (await self.db_session.execute(query)).scalars().first()
+
+        if user is not None:
             raise ConflictError(details=f"User with email '{email}' already exists")
 
-        user_invite = await UserInvite.async_get(
-            self.db_session,
-            token=cleaned_data["invite_token"],
-            is_applied__is=False,
-            expired_at__gt=datetime.utcnow(),
+        query = select(UserInvite).filter(
+            UserInvite.token == cleaned_data["invite_token"],
+            UserInvite.is_applied.is_(False),
+            UserInvite.expired_at > datetime.utcnow(),
         )
+        user_invite = (await self.db_session.execute(query)).scalars().first()
 
         if not user_invite:
             details = "Invitation link is expired or unavailable"
@@ -232,11 +248,11 @@ class SignOutAPIView(BaseHTTPEndpoint):
         user = request.user
         logger.info("Log out for user %s", user)
 
-        user_session = await UserSession.async_get(
-            self.db_session,
-            public_id=self.scope["user_session_id"],
-            is_active=True,
+        query = select(UserSession).filter(
+            UserSession.public_id == self.scope["user_session_id"],
+            UserSession.is_active.is_(True),
         )
+        user_session = (await self.db_session.execute(query)).scalars().first()
         if user_session:
             logger.info("Session %s exists and active. It will be updated.", user_session)
             user_session.is_active = False
@@ -280,9 +296,12 @@ class RefreshTokenAPIView(JWTSessionMixin, BaseHTTPEndpoint):
         if session_id is None:
             raise AuthenticationFailedError("No session ID in token found")
 
-        user_session = await UserSession.async_get(
-            self.db_session, public_id=session_id, is_active=True
+        query = select(UserSession).filter(
+            UserSession.public_id == session_id,
+            UserSession.is_active.is_(True),
         )
+        user_session = (await self.db_session.execute(query)).scalars().first()
+
         if not user_session:
             raise AuthenticationFailedError("There is not active session for user.")
 
@@ -329,22 +348,30 @@ class InviteUserAPIView(BaseHTTPEndpoint):
         cleaned_data = await self._validate(request)
         email = cleaned_data["email"]
         token = UserInvite.generate_token()
-        expired_at = datetime.utcnow() + timedelta(
-            seconds=settings.AUTH_INVITE_LINK_EXPIRES_IN)
+        expired_at = datetime.utcnow() + timedelta(seconds=settings.AUTH_INVITE_LINK_EXPIRES_IN)
 
-        if user_invite := await UserInvite.async_get(self.db_session, email=email):
+        query = select(UserInvite).filter(UserInvite.email == email)
+        user_invite = (await self.db_session.execute(query)).scalars().first()
+
+        if user_invite is not None:
             logger.info("INVITE: update for %s (expired %s) token [%s]", email, expired_at, token)
-            await user_invite.update(self.db_session, token=token, expired_at=expired_at)
+            user_invite.token = token
+            user_invite.expired_at = expired_at
+            await self.db_session.flush()
+            await self.db_session.refresh(user_invite)
 
         else:
             logger.info("INVITE: create for %s (expired %s) token [%s]", email, expired_at, token)
-            user_invite = await UserInvite.async_create(
-                self.db_session,
+
+            user_invite = UserInvite(
                 email=email,
                 token=token,
                 expired_at=expired_at,
                 owner_id=request.user.id,
             )
+            self.db_session.add(user_invite)
+            await self.db_session.flush()
+            await self.db_session.refresh(user_invite)
 
         logger.info("Invite object %r created. Sending message...", user_invite)
         await self._send_email(user_invite)
@@ -373,8 +400,11 @@ class InviteUserAPIView(BaseHTTPEndpoint):
     async def _validate(self, request, *_) -> dict:
         cleaned_data = (await super()._validate(request)) or dict()
 
-        if exists_user := await User.async_get(self.db_session, email=cleaned_data["email"]):
-            raise InvalidParameterError(f"User with email=[{exists_user.email}] already exists.")
+        query = select(User).filter(User.email == cleaned_data["email"])
+        user = (await self.db_session.execute(query)).scalars().first()
+
+        if user is not None:
+            raise InvalidParameterError(f"User with email=[{user.email}] already exists.")
 
         return cleaned_data
 
@@ -411,7 +441,8 @@ class ResetPasswordAPIView(BaseHTTPEndpoint):
 
     async def _validate(self, request, *_) -> User:
         cleaned_data = await super()._validate(request)
-        user = await User.async_get(self.db_session, email=cleaned_data["email"])
+        query = select(User).filter(User.email == cleaned_data["email"])
+        user = (await self.db_session.execute(query)).scalars().first()
         if not user:
             raise InvalidParameterError(f"User with email=[{cleaned_data['email']}] not found.")
 
@@ -483,7 +514,9 @@ class ChangePasswordAPIView(JWTSessionMixin, BaseHTTPEndpoint):
             token_type=TOKEN_TYPE_RESET_PASSWORD,
         )
         new_password = User.make_password(cleaned_data["password_1"])
-        await user.update(self.db_session, password=new_password)
+
+        user.password = new_password
+        await self.db_session.flush()
 
         token_collection = await self._create_session(user)
         return self._response(token_collection)

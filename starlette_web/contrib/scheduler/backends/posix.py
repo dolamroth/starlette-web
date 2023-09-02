@@ -63,7 +63,8 @@ class CrontabScheduler(BasePeriodicTaskScheduler):
 
         for line in copy.copy(self.crontab_lines):
             if project_hash in line and "crontab run" in line:
-                job_hash = line[line.find("crontab run"):][:32]
+                idx = line.find("crontab run")
+                job_hash = line[idx:idx + 32]
                 job = self._get_job_by_hash(job_hash)
                 logger.info(f"{job} -> {line.strip()}")
 

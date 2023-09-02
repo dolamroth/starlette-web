@@ -1,6 +1,8 @@
 from typing import Dict, Any, List
 
+from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import IntegrityError
 
 from starlette_web.common.database import make_session_maker
 from starlette_web.contrib.constance.backends.base import BaseConstanceBackend
@@ -17,7 +19,9 @@ class DatabaseBackend(BaseConstanceBackend):
 
     async def mget(self, keys: List[str]) -> Dict[str, Any]:
         async with self.session_maker() as session:
-            constants = (await Constance.async_filter(db_session=session)).all()
+            query = select(Constance)
+
+            constants = (await session.execute(query)).scalars()
             values = {key: self.empty for key in keys}
             values = {
                 **values,
@@ -31,14 +35,29 @@ class DatabaseBackend(BaseConstanceBackend):
 
     async def get(self, key: str) -> Any:
         async with self.session_maker() as session:
-            val = await Constance.async_get(db_session=session, key=key)
+            query = select(Constance).filter(Constance.key == key)
+            val = (await session.execute(query)).scalars().first()
             return self._preprocess_response(val.value if val else None)
 
     async def set(self, key: str, value: Any) -> None:
         async with self.session_maker() as session:
-            await Constance.async_create_or_update(
-                db_session=session,
-                filter_kwargs={"key": key},
-                update_data={"value": self.serializer.serialize(value)},
-                db_commit=True,
-            )
+            query = select(Constance).filter(Constance.key == key).with_for_update()
+            instance = (await session.execute(query)).scalars().first()
+
+            if instance is None:
+                try:
+                    instance = Constance(
+                        key=key,
+                        value=self.serializer.serialize(value),
+                    )
+                    session.add(instance)
+                    await session.commit()
+                except IntegrityError:
+                    # This case may occur, if multiple processes try
+                    # to update an existing value at the same time
+                    # TODO: examine, whether this could be processes in a better way
+                    pass
+
+            else:
+                instance.value = self.serializer.serialize(value)
+                await session.commit()

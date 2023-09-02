@@ -39,12 +39,14 @@ def test_constance_errors(config):
 def test_constance_mget_after_deprecate_key(config, dbs):
     # Simulate deprecation of key by inserting into database
     # a key, which has already been removed from
-    await_(Constance.async_create(
-        db_session=dbs,
+
+    instance = Constance(
         key="NON_EXISTENT_KEY",
         value=pickle.dumps(1),
-        db_commit=True,
-    ))
+    )
+
+    dbs.add(instance)
+    await_(dbs.commit())
 
     result = await_(config.mget(["TEST_CONSTANT_UUID"]))
     assert "NON_EXISTENT_KEY" not in result

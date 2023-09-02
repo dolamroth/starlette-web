@@ -27,6 +27,7 @@ class BaseStorage(AsyncContextManager):
     >>>     async with storage.writer("/path/to/file", mode="b") as _writer:
     >>>         await _writer.write(b"12345")
     """
+
     EXIT_MAX_DELAY = 60
     _blocking_timeout = 600
     _write_timeout = 300
@@ -119,9 +120,7 @@ class _AsyncResourse(AsyncContextManager):
         self._resource_lock = self._storage.get_access_lock(path, mode=mode)
 
         if self._mode not in ["t", "b"]:
-            raise NotSupportedError(
-                details="Supported modes for opening file are 't', 'b'."
-            )
+            raise NotSupportedError(details="Supported modes for opening file are 't', 'b'.")
 
     async def __aenter__(self):
         _ = await self._resource_lock.__aenter__()

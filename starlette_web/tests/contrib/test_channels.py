@@ -93,8 +93,7 @@ class TestChannelLayers:
 
         async def run_command_in_process(command_name, command_args):
             cmd = (
-                f"cd {settings.PROJECT_ROOT_DIR} && "
-                f"{sys.executable} command.py {command_name}"
+                f"cd {settings.PROJECT_ROOT_DIR} && " f"{sys.executable} command.py {command_name}"
             )
 
             if command_args:

@@ -109,7 +109,7 @@ class BaseCacheTester:
         end_time = time.time()
         run_time = end_time - start_time
 
-        expected_runtime = (sleep_time + (number_of_tests - 1) * timeout)
+        expected_runtime = sleep_time + (number_of_tests - 1) * timeout
         assert abs(run_time - expected_runtime) < 0.2
 
     def _run_base_lock_cancellation(self, cache: BaseCache):

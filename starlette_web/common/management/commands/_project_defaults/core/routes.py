@@ -19,11 +19,9 @@ routes = [
         app=StaticFiles(directory=settings.MEDIA["ROOT_DIR"]),
         name="media",
     ),
-
     # Admin-panel is not yet integral part of the framework,
     # so it requires a bit of hacking with custom mount class,
     # to manage static files right
     AdminMount("/admin", app=admin.get_app(), name="admin"),
-
     Route("/openapi", OpenApiView, include_in_schema=False),
 ]

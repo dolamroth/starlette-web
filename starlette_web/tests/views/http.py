@@ -1,10 +1,12 @@
 import logging
 
+from sqlalchemy import select
 from starlette import status
 from marshmallow import Schema, fields
 
 from starlette_web.contrib.auth.models import User
 from starlette_web.common.http.base_endpoint import BaseHTTPEndpoint
+from starlette_web.common.authorization.permissions import AllowAnyPermission
 
 
 logger = logging.getLogger(__name__)
@@ -42,7 +44,11 @@ class HealthCheckAPIView(BaseHTTPEndpoint):
         result_status = status.HTTP_200_OK
 
         try:
-            await User.async_filter(self.db_session)
+            query = select(User)
+            _ = (await self.request.state.db_session.execute(query)).scalars().first()
+
+            # This is for test
+            await AllowAnyPermission().has_permission(self.request, self.scope)
         except Exception as error:
             error_msg = f"Couldn't connect to DB: {error.__class__.__name__} '{error}'"
             logger.exception(error_msg)

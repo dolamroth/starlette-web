@@ -34,9 +34,7 @@ class FileCache(BaseCache):
         super().__init__(options)
         self.base_dir = options.get("CACHE_DIR")
         if self.base_dir is None or not Path(self.base_dir).is_dir():
-            raise ImproperlyConfigured(
-                details="Invalid CACHE_DIR value for FileCache"
-            )
+            raise ImproperlyConfigured(details="Invalid CACHE_DIR value for FileCache")
 
         self.serializer = self.serializer_class()
         if not self.serializer.serializes_to_bytes():
@@ -154,7 +152,7 @@ class FileCache(BaseCache):
         )
 
     def _get_manager_lock_name(self) -> str:
-        return str(Path(tempfile.gettempdir()) / (self._get_project_hash() + '_cache.lock'))
+        return str(Path(tempfile.gettempdir()) / (self._get_project_hash() + "_cache.lock"))
 
     @staticmethod
     def _key_name(key: str) -> str:
@@ -182,4 +180,4 @@ class FileCache(BaseCache):
         )
 
     def _get_project_hash(self):
-        return hashlib.md5(str(settings.SECRET_KEY).encode('utf-8')).hexdigest()
+        return hashlib.md5(str(settings.SECRET_KEY).encode("utf-8")).hexdigest()

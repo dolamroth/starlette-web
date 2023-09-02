@@ -90,20 +90,24 @@ def make_db_session(loop):
 
 def create_user(db_session):
     email, password = get_user_data()
-    return await_(User.async_create(db_session, db_commit=True, email=email, password=password))
+    user = User(email=email, password=User.make_password(password))
+
+    db_session.add(user)
+    await_(db_session.commit())
+    return user
 
 
 def create_user_session(db_session, user):
-    return await_(
-        UserSession.async_create(
-            db_session,
-            db_commit=True,
-            user_id=user.id,
-            public_id=str(uuid.uuid4()),
-            refresh_token="refresh-token",
-            is_active=True,
-            expired_at=datetime.utcnow() + timedelta(seconds=120),
-            created_at=datetime.utcnow(),
-            refreshed_at=datetime.utcnow(),
-        )
+    user_session = UserSession(
+        user_id=user.id,
+        public_id=str(uuid.uuid4()),
+        refresh_token="refresh-token",
+        is_active=True,
+        expired_at=datetime.utcnow() + timedelta(seconds=120),
+        created_at=datetime.utcnow(),
+        refreshed_at=datetime.utcnow(),
     )
+
+    db_session.add(user_session)
+    await_(db_session.commit())
+    return user_session

@@ -42,10 +42,7 @@ class TestFileSystemStorage:
         rel_path = "dir1/dir3/file5.txt"
 
         with open(Path(self.base_dir) / rel_path, "wb") as file:
-            file.write(b"\n".join([
-                (b"Line " + str(i).encode())
-                for i in range(1000)
-            ]))
+            file.write(b"\n".join([(b"Line " + str(i).encode()) for i in range(1000)]))
 
         async def write_and_read_task():
             _lines = []
@@ -82,7 +79,7 @@ class TestFileSystemStorage:
 
         async def delete_directory():
             async with FilesystemStorage(BASE_DIR=self.base_dir) as storage:
-                for path in (await storage.listdir("dir1/dir2")):
+                for path in await storage.listdir("dir1/dir2"):
                     await storage.delete("dir1/dir2/" + path)
 
                 await storage.delete("dir1/dir2")

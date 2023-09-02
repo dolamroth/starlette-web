@@ -17,6 +17,7 @@ class FileLock(BaseLock):
     """
     An async variation of SoftFileLock with support of timeout (via os.path.getmtime)
     """
+
     EXIT_MAX_DELAY = 60.0
 
     def __init__(
@@ -120,4 +121,4 @@ class FileLock(BaseLock):
         return StrictFileLock(_manager_lock_filepath, timeout=0)
 
     def _get_project_hash(self):
-        return hashlib.md5(str(settings.SECRET_KEY).encode('utf-8')).hexdigest()
+        return hashlib.md5(str(settings.SECRET_KEY).encode("utf-8")).hexdigest()

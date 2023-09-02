@@ -160,7 +160,7 @@ def fetch_command_by_name(command_name: str) -> Type[BaseCommand]:
     error_message = f"Command '{command_name}' not found."
     possible_matches = get_close_matches(command_name, list(commands.keys()))
     if possible_matches:
-        details = f"Did you mean \"{possible_matches[0]}\"?"
+        details = f'Did you mean "{possible_matches[0]}"?'
     else:
         details = ""
     raise CommandError(message=error_message, details=details)

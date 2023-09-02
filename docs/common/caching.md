@@ -1,7 +1,8 @@
 ## Caching
 
 Framework supports Django-like generic cache backend.
-A sample implementation is provided for RedisCache in `starlette_web.contrib.redis`.
+A sample implementation is provided for Redis in `starlette_web.contrib.redis.cache.RedisCache`,
+and for local filesystem in `starlette_web.common.files.cache.FileCache`.
 
 ## Plugging-in
 

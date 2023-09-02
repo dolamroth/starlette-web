@@ -53,9 +53,7 @@ def arg_range(
             else:
                 raise argparse.ArgumentTypeError("Unsupported range type")
         except (ValueError, TypeError):
-            raise argparse.ArgumentTypeError(
-                f"String {arg_value} cannot be cast to {_type}"
-            )
+            raise argparse.ArgumentTypeError(f"String {arg_value} cannot be cast to {_type}")
 
         if _min is not None:
             if _min > value:
@@ -66,4 +64,5 @@ def arg_range(
                 raise argparse.ArgumentTypeError(f"Value is higher than _max = {_max}")
 
         return value
+
     return validator

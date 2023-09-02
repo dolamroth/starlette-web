@@ -15,7 +15,6 @@ SITE_URL = "https://web.project.com"
 
 INSTALLED_APPS = [
     "starlette_web.contrib.staticfiles",
-
     # Following contrib modules require extra dependencies.
     # "starlette_web.contrib.apispec",
     # "starlette_web.contrib.auth",

@@ -21,13 +21,13 @@ def main():
 
         if len(sys_argv) < 2:
             raise Exception(
-                'Missing command name. Correct syntax is: '
-                '"starlette-web-admin command_name ..."'
+                "Missing command name. Correct syntax is: " '"starlette-web-admin command_name ..."'
             )
 
         from starlette_web.common.conf import settings
         from starlette_web.common.app import get_app
         from starlette_web.common.management.base import fetch_command_by_name
+
         command = fetch_command_by_name(sys_argv[1])
         app = get_app(use_pool=settings.DB_USE_CONNECTION_POOL_FOR_MANAGEMENT_COMMANDS)
         command(app).run_from_command_line(sys_argv)

@@ -1,3 +1,5 @@
+from sqlalchemy import select
+
 from starlette_web.common.management.base import BaseCommand, CommandError
 from starlette_web.contrib.auth.models import User
 from starlette_web.contrib.auth.management.auth_command_mixin import AuthCommandMixin
@@ -10,7 +12,9 @@ class Command(AuthCommandMixin, BaseCommand):
         async with self.app.session_maker() as session:
             email = self.get_input_data("Input email (username): ")
             self.validate_field("email", email)
-            user = await User.async_get(db_session=session, email=email)
+
+            query = select(User).filter(User.email == email)
+            user = (await session.execute(query)).scalars().first()
             if user is not None:
                 raise CommandError(details=f"User with email = {email} already exists.")
 
@@ -22,13 +26,13 @@ class Command(AuthCommandMixin, BaseCommand):
 
             self.validate_password(password_1, user=user)
 
-            user = await User.async_create(
-                db_session=session,
-                db_commit=True,
+            user = User(
                 email=email,
                 password=User.make_password(password_1),
                 is_superuser=True,
                 is_active=True,
             )
+            session.add(user)
+            await session.commit()
 
             print(f"User {user} created successfully.")

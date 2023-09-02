@@ -1,5 +1,3 @@
-from typing import Optional
-from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import HTTPConnection
 from starlette.types import Scope
 
@@ -12,7 +10,6 @@ class BaseAuthenticationBackend:
 
     def __init__(self, request: HTTPConnection, scope: Scope):
         self.request: HTTPConnection = request
-        self.db_session: Optional[AsyncSession] = self.request.state.db_session
         self.scope: Scope = scope
 
     async def authenticate(self, **kwargs) -> BaseUserMixin:

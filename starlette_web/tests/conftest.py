@@ -169,13 +169,16 @@ def user_session(user, loop, dbs):
 
 @pytest.fixture
 def user_invite(user, loop, dbs) -> UserInvite:
-    return loop.run_until_complete(
-        UserInvite.async_create(
-            dbs,
-            db_commit=True,
+    async def get_user_invite():
+        user_invite = UserInvite(
             email=f"user_{uuid.uuid4().hex[:10]}@test.com",
             token=f"{uuid.uuid4().hex}",
             expired_at=datetime.utcnow() + timedelta(days=1),
             owner_id=user.id,
         )
-    )
+        dbs.add(user_invite)
+        await dbs.commit()
+        await dbs.refresh(user_invite)
+        return user_invite
+
+    return loop.run_until_complete(get_user_invite())

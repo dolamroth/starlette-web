@@ -13,7 +13,10 @@ class Command(BaseCommand):
         password = User.make_password(test_user_password)
 
         async with self.app.session_maker() as session:
-            user = await User.async_create(session, email=email, password=password)
+            user = User(email=email, password=password)
+            session.add(user)
+            await session.commit()
+            await session.refresh(user)
 
-            await User.async_delete(session, {"id": user.id})
+            await session.delete(user)
             await session.commit()

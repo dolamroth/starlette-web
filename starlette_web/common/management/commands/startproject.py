@@ -29,9 +29,7 @@ class Command(BaseCommand, AlembicMixin):
             )
 
         if project_dir.is_dir():
-            raise CommandError(
-                details=f"Directory {project_dir} already exists. Exiting."
-            )
+            raise CommandError(details=f"Directory {project_dir} already exists. Exiting.")
 
         project_dir.mkdir()
         defaults_dir = Path(__file__).parent / "_project_defaults"
@@ -87,8 +85,7 @@ DB_ECHO=false
                         "from starlette_web.common.conf import settings\n",
                         "from starlette_web.common.conf.app_manager import app_manager\n",
                         "from starlette_web.common.database.model_base import ModelBase\n",
-                        "app_manager.import_models()\n"
-                        "target_metadata = ModelBase.metadata\n",
+                        "app_manager.import_models()\n" "target_metadata = ModelBase.metadata\n",
                     ]
                 else:
                     lines.append(line)

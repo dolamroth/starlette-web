@@ -1,7 +1,7 @@
 from typing import Type
 
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker as sessionmaker
 from sqlalchemy.pool import NullPool
 
 from starlette_web.common.conf import settings

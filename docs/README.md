@@ -4,7 +4,7 @@ starlette_web brings a number of features atop base starlette.
 
 ### Common features
 
-- ORM (via SQLAlchemy.ORM), [model helper methods](./common/model_mixin.md)
+- Active Record ORM (via SQLAlchemy.ORM)
 - [Caches](./common/caching.md)
 - [Pub-sub channels](./common/channels.md) (based on `encode/broadcaster`)
 - [File storages](./common/file_storages.md)

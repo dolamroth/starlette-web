@@ -1,5 +1,6 @@
 import uuid
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from starlette_web.contrib.auth.models import User
@@ -10,39 +11,25 @@ def test_nested_transaction(dbs: AsyncSession):
     email = str(uuid.uuid4()).replace("-", "") + "@test.com"
     password = User.make_password(str(uuid.uuid4()))
 
-    block1_wrapper = None
-    block2_wrapper = None
+    async def run_test():
+        async with dbs.begin_nested() as block1:
+            async with dbs.begin_nested() as block2:
+                user = User(email=email, password=password)
+                dbs.add(user)
+                await dbs.flush()
 
-    block_1_exited = False
-    block_2_exited = False
+                query = select(User).filter(User.email == email)
+                user = (await dbs.execute(query)).scalars().first()
+                assert user is not None
 
-    try:
-        block1_wrapper = dbs.begin_nested()
-        block1 = await_(block1_wrapper.__aenter__())
+                await block2.commit()
 
-        block2_wrapper = dbs.begin_nested()
-        block2 = await_(block2_wrapper.__aenter__())
-        _ = await_(User.async_create(db_session=dbs, email=email, password=password))
+            user = (await dbs.execute(query)).scalars().first()
+            assert user is not None
 
-        user = await_(User.async_get(db_session=dbs, email=email, password=password))
-        assert user is not None
-        # Note: With .begin_nested(), calling .commit()/.rollback() at end is obligatory
-        await_(block2.commit())
-        await_(block2_wrapper.__aexit__(None, None, None))
-        block_2_exited = True
+            await block1.rollback()
 
-        user = await_(User.async_get(db_session=dbs, email=email, password=password))
-        assert user is not None
-        # Note: With .begin_nested(), calling .commit()/.rollback() at end is obligatory
-        await_(block1.rollback())
-        await_(block1_wrapper.__aexit__(None, None, None))
-        block_1_exited = True
-
-        user = await_(User.async_get(db_session=dbs, email=email, password=password))
+        user = (await dbs.execute(query)).scalars().first()
         assert user is None
-    finally:
-        if block2_wrapper and not block_2_exited:
-            await_(block2_wrapper.__aexit__(None, None, None))
 
-        if block1_wrapper and not block_1_exited:
-            await_(block1_wrapper.__aexit__(None, None, None))
+    await_(run_test())

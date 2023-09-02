@@ -16,14 +16,12 @@ class ConstanceCacheMixin(BaseConstanceBackend):
         if self._cache_key not in settings.CACHES:
             raise ImproperlyConfigured(
                 details="ConstanceCacheBackend must be configured "
-                        "with existing cache_key in settings.CACHES"
+                "with existing cache_key in settings.CACHES"
             )
         self._cache = caches[self._cache_key]
 
     async def get(self, key: str) -> Any:
-        value = self._preprocess_response(
-            await self._cache.async_get(self._cache_keygen(key))
-        )
+        value = self._preprocess_response(await self._cache.async_get(self._cache_keygen(key)))
         if value == self.empty:
             value = await super().get(key)
             if value != self.empty:

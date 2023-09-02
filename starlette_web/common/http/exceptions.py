@@ -80,10 +80,7 @@ class MethodNotAllowedError(BaseApplicationError):
 
 class NotAcceptableError(BaseApplicationError):
     status_code = 406
-    message = _(
-        "Request cannot be processed, "
-        "Accept-* headers are incompatible with server."
-    )
+    message = _("Request cannot be processed, " "Accept-* headers are incompatible with server.")
 
 
 class ConflictError(BaseApplicationError):

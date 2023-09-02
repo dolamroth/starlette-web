@@ -44,11 +44,13 @@ class Command(BaseCommand, AlembicMixin):
                 print(stdout.strip())
 
             else:
-                stdout, stderr = await self.run_alembic_main([
-                    "revision",
-                    "-m",
-                    revision_name,
-                    "--autogenerate",
-                ])
+                stdout, stderr = await self.run_alembic_main(
+                    [
+                        "revision",
+                        "-m",
+                        revision_name,
+                        "--autogenerate",
+                    ]
+                )
 
                 print(stdout.strip())

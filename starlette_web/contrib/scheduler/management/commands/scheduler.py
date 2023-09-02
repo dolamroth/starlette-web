@@ -12,7 +12,9 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser: CommandParser):
         parser.add_argument(
-            "cmd", choices=["add", "show", "remove", "run"], type=str,
+            "cmd",
+            choices=["add", "show", "remove", "run"],
+            type=str,
         )
         parser.add_argument("--jobhash", type=str, required=False)
 

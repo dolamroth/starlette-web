@@ -40,7 +40,9 @@ class BaseTestAPIView(BaseTestCase):
         return response_data
 
     def assert_fail_response(
-        self, response: Response, status_code: int = None,
+        self,
+        response: Response,
+        status_code: int = None,
     ) -> Union[dict, list]:
 
         response_data = response.json()

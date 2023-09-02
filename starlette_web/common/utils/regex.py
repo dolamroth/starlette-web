@@ -21,46 +21,46 @@ def redis_pattern_to_re_pattern(pattern: str) -> re.Pattern:
     >>> re.fullmatch(re_pattern, "key:1")
     [2] None
     """
-    parts = ['^']
+    parts = ["^"]
     i = 0
     L = len(pattern)
     while i < L:
         c = pattern[i]
-        if c == '?':
-            parts.append('.')
-        elif c == '*':
-            parts.append('.*')
-        elif c == '\\':
+        if c == "?":
+            parts.append(".")
+        elif c == "*":
+            parts.append(".*")
+        elif c == "\\":
             if i < L - 1:
                 i += 1
             parts.append(re.escape(pattern[i]))
-        elif c == '[':
-            parts.append('[')
+        elif c == "[":
+            parts.append("[")
             i += 1
-            if i < L and pattern[i] == '^':
+            if i < L and pattern[i] == "^":
                 i += 1
-                parts.append('^')
+                parts.append("^")
             while i < L:
-                if pattern[i] == '\\':
+                if pattern[i] == "\\":
                     i += 1
                     if i < L:
                         parts.append(re.escape(pattern[i]))
-                elif pattern[i] == ']':
+                elif pattern[i] == "]":
                     break
-                elif i + 2 <= L and pattern[i + 1] == '-':
+                elif i + 2 <= L and pattern[i + 1] == "-":
                     start = pattern[i]
                     end = pattern[i + 2]
                     if start > end:
                         start, end = end, start
-                    parts.append(re.escape(start) + '-' + re.escape(end))
+                    parts.append(re.escape(start) + "-" + re.escape(end))
                     i += 2
                 else:
                     parts.append(re.escape(pattern[i]))
                 i += 1
-            parts.append(']')
+            parts.append("]")
         else:
             parts.append(re.escape(pattern[i]))
         i += 1
-    parts.append('\\Z')
-    regex = ''.join(parts)
+    parts.append("\\Z")
+    regex = "".join(parts)
     return re.compile(regex, re.S)

@@ -1,9 +1,9 @@
 from sqlalchemy import LargeBinary, Column, String
 
-from starlette_web.common.database import ModelBase, ModelMixin
+from starlette_web.common.database import ModelBase
 
 
-class Constance(ModelBase, ModelMixin):
+class Constance(ModelBase):
     __tablename__ = "constance"
 
     key = Column(String(length=255), primary_key=True)

@@ -4,12 +4,12 @@ from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from starlette_web.common.database import ModelMixin, ModelBase
+from starlette_web.common.database import ModelBase
 from starlette_web.common.authorization.base_user import BaseUserMixin
 from starlette_web.contrib.auth.hashers import make_password, verify_password
 
 
-class User(ModelBase, BaseUserMixin, ModelMixin):
+class User(ModelBase, BaseUserMixin):
     __tablename__ = "auth_users"
 
     id = Column(Integer, primary_key=True)
@@ -47,7 +47,7 @@ class User(ModelBase, BaseUserMixin, ModelMixin):
         return await cls.async_get(db_session, id=user_id, is_active=True)
 
 
-class UserInvite(ModelBase, ModelMixin):
+class UserInvite(ModelBase):
     __tablename__ = "auth_invites"
     TOKEN_MAX_LENGTH = 32
 
@@ -71,7 +71,7 @@ class UserInvite(ModelBase, ModelMixin):
         return secrets.token_urlsafe()[: cls.TOKEN_MAX_LENGTH]
 
 
-class UserSession(ModelBase, ModelMixin):
+class UserSession(ModelBase):
     __tablename__ = "auth_sessions"
 
     id = Column(Integer, primary_key=True)
