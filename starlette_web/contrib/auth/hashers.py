@@ -77,7 +77,7 @@ class PasswordManager(metaclass=Singleton):
             self._add_password_hasher(password_hasher)
 
     def _add_password_hasher(self, hasher: Union[str, BasePasswordHasher]) -> None:
-        if type(hasher) == str:
+        if type(hasher) is str:
             self._password_hashers[hasher] = import_string(hasher)()
         else:
             self._password_hashers[hasher.__class__.__name__] = hasher

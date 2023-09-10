@@ -79,7 +79,7 @@ class TestChannelLayers:
         assert len(accepted_messages) == 15
         messages = []
         for event in accepted_messages:
-            assert type(event) == Event
+            assert type(event) is Event
             messages.append(event.message)
 
         for i in range(5):

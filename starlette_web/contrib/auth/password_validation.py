@@ -22,10 +22,10 @@ class PasswordLengthValidator(BasePasswordValidator):
     def __init__(self, **options):
         super().__init__(**options)
         self.min_length = options.get("MIN_LENGTH", 8)
-        if type(self.min_length) != int or self.min_length < 0:
+        if type(self.min_length) is not int or self.min_length < 0:
             raise NotSupportedError(details="Invalid input options for MIN_LENGTH.")
         self.max_length = options.get("MAX_LENGTH", 64)
-        if type(self.max_length) != int or self.max_length < 0:
+        if type(self.max_length) is not int or self.max_length < 0:
             raise NotSupportedError(details="Invalid input options for MAX_LENGTH.")
 
     def __call__(self, password: str, user: Optional[User] = None):
@@ -40,7 +40,7 @@ class UsernameSimilarityValidator(BasePasswordValidator):
     def __init__(self, **options):
         super().__init__(**options)
         self.max_similarity = options.get("MAX_SIMILARITY", 0.7)
-        if type(self.max_similarity) != float or not (0 <= self.max_similarity <= 1):
+        if type(self.max_similarity) is not float or not (0 <= self.max_similarity <= 1):
             raise NotSupportedError(details="Invalid input options for MAX_SIMILARITY.")
 
     def __call__(self, password: str, user: Optional[User] = None):

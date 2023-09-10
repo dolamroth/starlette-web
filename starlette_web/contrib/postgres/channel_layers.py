@@ -71,7 +71,7 @@ class PostgreSQLChannelLayer(BaseChannelLayer):
 
     async def _validate_message(self, message):
         # https://www.postgresql.org/docs/current/sql-notify.html
-        if type(message) != str:
+        if type(message) is not str:
             raise NotSupportedError(
                 details="Publish message for PostgreSQL NOTIFY must be a string"
             )

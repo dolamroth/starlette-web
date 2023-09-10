@@ -65,7 +65,7 @@ class Admin(BaseAdmin):
 
         # Remove static files from starlette_admin routing,
         # it is handled differently
-        self.routes = [route for route in self.routes if type(route) != Mount]
+        self.routes = [route for route in self.routes if type(route) is not Mount]
 
     def get_app(self) -> Starlette:
         for route in self.routes:

@@ -17,7 +17,7 @@ def test_constance_get_value(config):
     assert all_values == {"TEST_CONSTANT_1": 1, "TEST_CONSTANT_2": 2}
 
     test_constant_datetime = await_(config.get("TEST_CONSTANT_DATETIME"))
-    assert type(test_constant_datetime) == datetime.datetime
+    assert type(test_constant_datetime) is datetime.datetime
 
 
 def test_constance_set_value(config):

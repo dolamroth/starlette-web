@@ -10,7 +10,7 @@ def test_json_serializer():
     }
 
     encoded = serializer.serialize(obj)
-    assert type(encoded) == str
+    assert type(encoded) is str
 
     decoded = serializer.deserialize(encoded)
     assert obj == decoded
@@ -31,7 +31,7 @@ def test_pickle_serializer():
     }
 
     encoded = serializer.serialize(obj)
-    assert type(encoded) == bytes
+    assert type(encoded) is bytes
 
     decoded = serializer.deserialize(encoded)
     assert obj == decoded

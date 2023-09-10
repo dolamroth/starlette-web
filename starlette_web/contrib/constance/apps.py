@@ -19,13 +19,13 @@ class AppConfig(BaseAppConfig):
 
     def _run_config_checks(self, _config):
         try:
-            assert type(_config) == dict
+            assert type(_config) is dict
 
             for key, value in _config.items():
-                assert type(key) == str
+                assert type(key) is str
                 actual_value, description, value_type = value
                 assert isinstance(value_type, type)
                 assert isinstance(actual_value, value_type)
-                assert type(description) == str
+                assert type(description) is str
         except AssertionError:
             raise ImproperlyConfigured(details=self._error_message)

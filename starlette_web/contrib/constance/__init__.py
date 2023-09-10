@@ -41,7 +41,7 @@ class LazyConstance:
             )
 
         expected_type = settings.CONSTANCE_CONFIG[key][2]
-        if type(value) != expected_type:
+        if type(value) is not expected_type:
             try:
                 # This is for cases like int-float, str-int and such
                 value = expected_type(value)
