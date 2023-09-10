@@ -1,7 +1,7 @@
 import os
 import sys
 
-from starlette_web.common.app import get_app
+from starlette_web.common.app import get_asgi_application
 from starlette_web.common.management.base import fetch_command_by_name, CommandError
 
 
@@ -24,5 +24,5 @@ if __name__ == "__main__":
     from starlette_web.common.conf import settings
 
     command = fetch_command_by_name(sys_argv[1])
-    app = get_app(use_pool=settings.DB_USE_CONNECTION_POOL_FOR_MANAGEMENT_COMMANDS)
+    app = get_asgi_application(use_pool=settings.DB_USE_CONNECTION_POOL_FOR_MANAGEMENT_COMMANDS)
     command(app).run_from_command_line(sys_argv)
