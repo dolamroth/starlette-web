@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, Sequence
 
 import anyio
 
@@ -52,7 +52,7 @@ class BaseEmailSender:
         self,
         subject: str,
         html_content: str,
-        recipients_list: List[str],
+        recipients_list: Sequence[str],
         from_email: Optional[str] = None,
     ):
         raise NotImplementedError

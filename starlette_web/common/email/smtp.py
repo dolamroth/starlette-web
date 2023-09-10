@@ -1,6 +1,6 @@
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from typing import Optional, List
+from typing import Optional, Sequence
 
 import aiosmtplib
 import anyio
@@ -17,7 +17,7 @@ class SMTPEmailSender(BaseEmailSender):
         self,
         subject: str,
         html_content: str,
-        recipients_list: List[str],
+        recipients_list: Sequence[str],
         from_email: Optional[str] = None,
     ):
         message = MIMEMultipart("alternative")
@@ -32,7 +32,7 @@ class SMTPEmailSender(BaseEmailSender):
         html_part = MIMEText(html_content, "html")
         message.attach(html_part)
 
-        _recipients = recipients_list.copy()
+        _recipients = list(recipients_list).copy()
         while _recipients:
             available_args = get_available_options(aiosmtplib.send)
             options = dict(
