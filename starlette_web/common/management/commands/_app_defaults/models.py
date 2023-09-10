@@ -9,5 +9,6 @@ It will be automatically introspected,
 if you add %app_name% from "apps.py" to settings.INSTALLED_APPS
 
 >>> class Model(ModelBase):
+>>>     __tablename__ = 'app_model'
 >>>     ...
 """
