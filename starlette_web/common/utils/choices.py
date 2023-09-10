@@ -11,7 +11,15 @@ class ChoicesMeta(enum.EnumMeta):
         labels = []
         for key in classdict._member_names:
             value = classdict[key]
-            label = key.replace("_", " ").title()
+            if (
+                isinstance(value, (list, tuple))
+                and len(value) > 1
+                and isinstance(value[-1], str)
+            ):
+                *value, label = value
+                value = tuple(value)
+            else:
+                label = key.replace("_", " ").title()
             labels.append(label)
             # Use dict.__setitem__() to suppress defenses against double
             # assignment in enum's classdict.

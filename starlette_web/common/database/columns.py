@@ -34,7 +34,7 @@ class EnumTypeColumn(Column):
 
     """
 
-    impl = sa.String(16)
+    impl = sa.String(32)
 
     def __new__(
         cls, enum_class: Type[Choices], impl: sa_type_api.TypeEngine = None, *args, **kwargs
@@ -48,6 +48,9 @@ class EnumTypeColumn(Column):
         if "default" in kwargs:
             if isinstance(kwargs["default"], enum.Enum):
                 kwargs["default"] = kwargs["default"].value
+
+        if "nullable" not in kwargs:
+            kwargs["nullable"] = False
 
         impl = impl or cls.impl
         return Column(ChoiceType(enum_class, impl=impl), *args, **kwargs)
