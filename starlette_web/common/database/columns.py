@@ -13,7 +13,7 @@ from starlette_web.common.utils.choices import Choices
 # TODO: probably not supported in starlette_admin,
 #  one has to manually set field converter to sqlalchemy implementation
 #  in starlette_admin.contrib.sqla.helpers.converters
-class EnumTypeColumn(Column):
+class ChoiceColumn(Column):
     """Just wrapper for ChoiceType db column
 
     >>> from sqlalchemy import String
@@ -26,7 +26,7 @@ class EnumTypeColumn(Column):
 
     >>> class User(ModelBase):
     >>>     ...
-    >>>     type = EnumTypeColumn(UserType, impl=String(16), default=UserType.admin)
+    >>>     type = ChoiceColumn(UserType, impl=String(16), default=UserType.admin)
 
     >>> user = User(type='admin')
     >>> user.type
