@@ -1,4 +1,7 @@
+from typing import Type
+
 from sqlalchemy import types
+from starlette_web.common.utils.choices import Choices
 
 
 class ChoiceType(types.TypeDecorator):
@@ -9,11 +12,11 @@ class ChoiceType(types.TypeDecorator):
     a list of tuple been passed to the constructor. If a subclass of
     :class:`enum.Enum` is passed, columns will be coerced to value of :class:`enum.Enum`
 
-    >>> import enum
     >>> from sqlalchemy import Column, String
     >>> from starlette_web.common.database import ModelBase
+    >>> from starlette_web.common.utils.choices import TextChoices
 
-    >>> class UserType(enum.Enum):
+    >>> class UserType(TextChoices):
     >>>     admin = 'admin'
     >>>     regular = 'regular'
 
@@ -30,7 +33,7 @@ class ChoiceType(types.TypeDecorator):
     impl = types.String(255)
     cache_ok = True
 
-    def __init__(self, enum_class, impl=None, *args, **kwargs):
+    def __init__(self, enum_class: Type[Choices], impl=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.enum_class = enum_class
         if impl:

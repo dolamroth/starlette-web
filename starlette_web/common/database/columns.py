@@ -1,14 +1,13 @@
 import enum
-from typing import Type, TypeVar
+from typing import Type
 
 import sqlalchemy as sa
 from sqlalchemy import Column
 from sqlalchemy.sql import type_api as sa_type_api
 
+from starlette_web.common.http.exceptions import ImproperlyConfigured
 from starlette_web.common.database.types import ChoiceType
-
-
-EnumClass = TypeVar("EnumClass", bound=enum.Enum)
+from starlette_web.common.utils.choices import Choices
 
 
 # TODO: probably not supported in starlette_admin,
@@ -17,11 +16,11 @@ EnumClass = TypeVar("EnumClass", bound=enum.Enum)
 class EnumTypeColumn(Column):
     """Just wrapper for ChoiceType db column
 
-    >>> import enum
     >>> from sqlalchemy import String
     >>> from starlette_web.common.database import ModelBase
+    >>> from starlette_web.common.utils.choices import TextChoices
 
-    >>> class UserType(enum.Enum):
+    >>> class UserType(TextChoices):
     >>>    admin = 'admin'
     >>>    regular = 'regular'
 
@@ -38,10 +37,17 @@ class EnumTypeColumn(Column):
     impl = sa.String(16)
 
     def __new__(
-        cls, enum_class: Type[EnumClass], impl: sa_type_api.TypeEngine = None, *args, **kwargs
+        cls, enum_class: Type[Choices], impl: sa_type_api.TypeEngine = None, *args, **kwargs
     ):
+        if not issubclass(enum_class, Choices):
+            raise ImproperlyConfigured(
+                details=f"Enum class {enum_class} must be a subclass of "
+                        f"starlette_web.common.utils.choices.Choices"
+            )
+
         if "default" in kwargs:
-            kwargs["default"] = getattr(kwargs["default"], "value") or kwargs["default"]
+            if isinstance(kwargs["default"], enum.Enum):
+                kwargs["default"] = kwargs["default"].value
 
         impl = impl or cls.impl
         return Column(ChoiceType(enum_class, impl=impl), *args, **kwargs)
