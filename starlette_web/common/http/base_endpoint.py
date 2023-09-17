@@ -1,5 +1,5 @@
 import logging
-from typing import Type, Union, Iterable, ClassVar, Optional, Mapping, List
+from typing import Type, Union, Iterable, ClassVar, Optional, Mapping, List, Awaitable
 
 from marshmallow import Schema, ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,6 +8,7 @@ from starlette.background import BackgroundTasks
 from starlette.exceptions import HTTPException
 from starlette.endpoints import HTTPEndpoint
 from starlette.requests import Request
+from starlette.responses import Response
 from webargs_starlette import WebargsHTTPException, StarletteParser
 
 from starlette_web.common.app import WebApp
@@ -59,7 +60,7 @@ class BaseHTTPEndpoint(HTTPEndpoint):
         self.app: WebApp = self.scope.get("app")
 
         handler_name = "get" if self.request.method == "HEAD" else self.request.method.lower()
-        handler = getattr(self, handler_name, self.method_not_allowed)
+        handler: Awaitable[Response] = getattr(self, handler_name, self.method_not_allowed)
 
         try:
             async with self.app.session_maker() as session:
@@ -69,7 +70,7 @@ class BaseHTTPEndpoint(HTTPEndpoint):
                     await self._authenticate()
                     await self._check_permissions()
 
-                    response = await handler(self.request)  # noqa
+                    response: Response = await handler(self.request)  # noqa
                     await session.commit()
 
                 except Exception as err:
@@ -83,6 +84,14 @@ class BaseHTTPEndpoint(HTTPEndpoint):
             msg_template = "Unexpected error handled: %r"
             logger.exception(msg_template, err)
             raise UnexpectedError(msg_template % (err,))
+
+        # Circumvent strange design decision of uvicorn, which raises on non-empty response
+        # (even with b"null") when status code is 204 or 304
+        if response.status_code in settings.STATUS_CODES_WITH_NO_BODY:
+            if settings.REMOVE_BODY_FROM_RESPONSE_WITH_NO_BODY:
+                response.body = b""
+            elif response.body:
+                response.headers.append("content-length", str(len(response.body)))
 
         await response(self.scope, self.receive, self.send)
 
