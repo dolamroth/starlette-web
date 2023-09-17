@@ -13,6 +13,7 @@ from starlette_web.tests.views import (
     FinitePeriodicTaskWebsocketTestEndpoint,
     InfinitePeriodicTaskWebsocketTestEndpoint,
     ChatWebsocketTestEndpoint,
+    EmptyResponseAPIView,
 )
 
 
@@ -24,6 +25,7 @@ routes = [
     Mount("/static", app=StaticFiles(directory=settings.STATIC["ROOT_DIR"]), name="static"),
     Mount("/media", app=StaticFiles(directory=settings.MEDIA["ROOT_DIR"]), name="media"),
     Route("/health_check/", HealthCheckAPIView),
+    Route("/empty/", EmptyResponseAPIView, include_in_schema=False),
     WebSocketRoute("/ws/test_websocket_base", BaseWebsocketTestEndpoint),
     WebSocketRoute("/ws/test_websocket_cancel", CancellationWebsocketTestEndpoint),
     WebSocketRoute("/ws/test_websocket_auth", AuthenticationWebsocketTestEndpoint),

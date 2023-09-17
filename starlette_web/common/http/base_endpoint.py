@@ -91,7 +91,7 @@ class BaseHTTPEndpoint(HTTPEndpoint):
             if settings.REMOVE_BODY_FROM_RESPONSE_WITH_NO_BODY:
                 response.body = b""
             elif response.body:
-                response.headers.append("content-length", str(len(response.body)))
+                response.headers.update({"content-length": str(len(response.body))})
 
         await response(self.scope, self.receive, self.send)
 

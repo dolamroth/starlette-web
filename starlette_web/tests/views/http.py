@@ -67,3 +67,10 @@ class HealthCheckAPIView(BaseHTTPEndpoint):
             data=response_data,
             status_code=result_status,
         )
+
+
+class EmptyResponseAPIView(BaseHTTPEndpoint):
+    auth_backend = None
+
+    async def get(self, *_):
+        return self._response(status_code=204)
