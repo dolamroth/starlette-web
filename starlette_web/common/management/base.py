@@ -73,7 +73,7 @@ class BaseCommand:
             called_from_command_line=called_from_command_line,
         )
         self.add_arguments(self.parser)
-        namespace = self.parser.parse_args(args=argv[2:])
+        namespace, _ = self.parser.parse_known_args(args=argv[2:])
         kwargs = namespace.__dict__
         return partial(self._handle_wrapper, **kwargs)
 

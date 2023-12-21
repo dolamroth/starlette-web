@@ -1,3 +1,4 @@
+import argparse
 import os
 import sys
 
@@ -6,23 +7,17 @@ from starlette_web.common.management.base import fetch_command_by_name, CommandE
 
 
 if __name__ == "__main__":
-    settings_module = "core.settings"
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--settings", default="core.settings", required=False)
+    args, _ = parser.parse_known_args()
+    os.environ.setdefault("STARLETTE_SETTINGS_MODULE", args.settings)
 
-    sys_argv = list(sys.argv).copy()
-    for arg in sys_argv.copy():
-        if arg.startswith("--settings="):
-            settings_module = arg[11:]
-            sys_argv.remove(arg)
-
-    os.environ.setdefault("STARLETTE_SETTINGS_MODULE", settings_module)
-
-    if len(sys_argv) < 2:
+    if len(sys.argv) < 2:
         raise CommandError(
             'Missing command name. Correct syntax is: "python command.py command_name ..."'
         )
 
     from starlette_web.common.conf import settings
-
-    command = fetch_command_by_name(sys_argv[1])
+    command = fetch_command_by_name(sys.argv[1])
     app = get_asgi_application(use_pool=settings.DB_USE_CONNECTION_POOL_FOR_MANAGEMENT_COMMANDS)
-    command(app).run_from_command_line(sys_argv)
+    command(app).run_from_command_line(sys.argv)
