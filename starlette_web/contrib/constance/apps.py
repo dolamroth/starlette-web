@@ -27,5 +27,5 @@ class AppConfig(BaseAppConfig):
                 assert isinstance(value_type, type)
                 assert isinstance(actual_value, value_type)
                 assert type(description) is str
-        except AssertionError:
+        except (AssertionError, TypeError, ValueError):
             raise ImproperlyConfigured(details=self._error_message)
