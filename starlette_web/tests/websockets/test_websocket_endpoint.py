@@ -75,7 +75,7 @@ class TestWebsocketEndpoint:
 
         # Exception is raised by client_ws_fail,
         # due to raised Exception in 3rd background task
-        with pytest.raises(exceptiongroup.BaseExceptionGroup) as exc_group:
+        with pytest.raises((exceptiongroup.BaseExceptionGroup, WebSocketDisconnect)) as exc:
             with client.websocket_connect("/ws/test_websocket_cancel") as websocket:
                 cache_keys = await_(locmem_cache.async_keys("*"))
                 assert cache_keys == []
@@ -86,7 +86,8 @@ class TestWebsocketEndpoint:
 
                 time.sleep(3)
 
-        assert type(exc_group.value.exceptions[0]) is WebSocketDisconnect
+        if isinstance(exc.value, exceptiongroup.BaseExceptionGroup):
+            assert type(exc.value.exceptions[0]) is WebSocketDisconnect
 
         cache_keys = await_(locmem_cache.async_keys("*"))
         assert len(cache_keys) == 1
@@ -97,12 +98,13 @@ class TestWebsocketEndpoint:
     def test_authentication_failure(self, client):
         await_(locmem_cache.async_clear())
 
-        with pytest.raises(exceptiongroup.BaseExceptionGroup) as exc_group:
+        with pytest.raises((exceptiongroup.BaseExceptionGroup, WebSocketDisconnect)) as exc:
             with client.websocket_connect("/ws/test_websocket_auth") as websocket:
                 websocket.send_json({"request_type": "test_1"})
                 time.sleep(3)
 
-        assert type(exc_group.value.exceptions[0]) is WebSocketDisconnect
+        if isinstance(exc.value, exceptiongroup.BaseExceptionGroup):
+            assert type(exc.value.exceptions[0]) is WebSocketDisconnect
 
     def test_authentication_success(self, client, dbs, user, user_session):
         await_(locmem_cache.async_clear())
