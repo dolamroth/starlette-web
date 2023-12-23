@@ -1,3 +1,4 @@
+import exceptiongroup
 import math
 import sys
 from typing import Optional
@@ -51,11 +52,22 @@ class BaseLock:
             raise CacheLockError(details=str(exc)) from exc
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
+        if exc_type is not None and issubclass(exc_type, exceptiongroup.BaseExceptionGroup):
+            if len(exc_val.exceptions) == 1:
+                exc_tb = exc_val.__traceback__
+                exc_type = type(exc_val.exceptions[0])
+                exc_val = exc_val.exceptions[0]
+
         try:
             with anyio.move_on_after(self.EXIT_MAX_DELAY, shield=True):
                 await self._release()
+
         finally:
-            retval = await self._task_group.__aexit__(exc_type, exc_val, exc_tb)
+            if exc_type == anyio.get_cancelled_exc_class():
+                retval = await self._task_group.__aexit__(exc_type, exc_val, exc_tb)
+            else:
+                # Avoid re-raising exception as BaseExceptionGroup
+                retval = await self._task_group.__aexit__(None, None, None)
 
         try:
             if exc_type is not None and exc_type not in [

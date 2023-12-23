@@ -18,4 +18,5 @@ if __name__ == "__main__":
         os.environ.setdefault("STARLETTE_SETTINGS_MODULE", args.settings)
 
     import uvicorn
+
     uvicorn.run(app, host="127.0.0.1", port=80)

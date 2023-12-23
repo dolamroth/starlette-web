@@ -44,7 +44,6 @@ class BaseTestAPIView(BaseTestCase):
         response: Response,
         status_code: int = None,
     ) -> Union[dict, list]:
-
         response_data = response.json()
         assert response.status_code == (status_code or self.default_fail_status_code)
         assert "error" in response_data, response_data

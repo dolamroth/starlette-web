@@ -18,6 +18,7 @@ if __name__ == "__main__":
         )
 
     from starlette_web.common.conf import settings
+
     command = fetch_command_by_name(sys.argv[1])
     app = get_asgi_application(use_pool=settings.DB_USE_CONNECTION_POOL_FOR_MANAGEMENT_COMMANDS)
     command(app).run_from_command_line(sys.argv)

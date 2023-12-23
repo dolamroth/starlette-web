@@ -43,7 +43,8 @@ class OpenApiView(BaseHTTPEndpoint):
             return JSONRenderer(schemas.get_schema(routes))
 
         return TemplateResponse(
-            "apispec/redoc.html",
+            request=request,
+            name="apispec/redoc.html",
             context={
                 "REDOC_SPEC_URL": str(_schema_url),
                 "REDOC_JS_URL": urljoin(settings.STATIC["URL"], "apispec", "redoc.js"),

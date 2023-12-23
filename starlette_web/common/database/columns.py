@@ -42,7 +42,7 @@ class ChoiceColumn(Column):
         if not issubclass(enum_class, Choices):
             raise ImproperlyConfigured(
                 details=f"Enum class {enum_class} must be a subclass of "
-                        f"starlette_web.common.utils.choices.Choices"
+                f"starlette_web.common.utils.choices.Choices"
             )
 
         if "default" in kwargs:

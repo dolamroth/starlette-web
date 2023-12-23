@@ -38,12 +38,12 @@ class _AsyncLocalMemoryLock(BaseLock):
             return
 
         while True:
-            await anyio.sleep(self._retry_interval)
             async with self._manager_lock:
                 if self._cache_lock.get(self._name, -1) < anyio.current_time():
                     self._cache_lock[self._name] = anyio.current_time() + self._timeout
                     self._acquire_event.set()
                     return
+            await anyio.sleep(self._retry_interval)
 
     async def _release(self):
         if not self._is_acquired:

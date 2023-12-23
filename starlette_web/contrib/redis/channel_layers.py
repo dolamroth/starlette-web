@@ -28,7 +28,7 @@ class RedisPubSubChannelLayer(BaseChannelLayer):
         await self._pubsub.connect()
 
     async def disconnect(self) -> None:
-        await self._pubsub.reset()
+        await self._pubsub.aclose()
 
     async def subscribe(self, group: str) -> None:
         await self._pubsub.subscribe(group)

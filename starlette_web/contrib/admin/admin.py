@@ -89,7 +89,6 @@ class Admin(BaseAdmin):
         request: Request,
         exc: Exception = HTTPException(status_code=500),  # noqa: B008
     ) -> Response:
-
         try:
             _ = exc.status_code
             _ = exc.detail
@@ -98,7 +97,8 @@ class Admin(BaseAdmin):
             exc.detail = str(exc)
 
         return self.templates.TemplateResponse(
-            "error.html",
-            {"request": request, "exc": exc},
+            request=request,
+            name="error.html",
+            context={"request": request, "exc": exc},
             status_code=exc.status_code,
         )
