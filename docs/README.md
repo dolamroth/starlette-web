@@ -14,6 +14,7 @@ starlette_web brings a number of features atop base starlette.
 - [Authentication backend and permission classes](./common/authorization_permissions.md)
   (based on `djangorestframework`)
 - [Extended support for OpenAPI](./contrib/apispec.md)
+- [Utilities](./common/utils.md)
 
 ### Contrib modules
 
@@ -37,7 +38,10 @@ starlette_web brings a number of features atop base starlette.
 ### Known limitations
 
 - **Composite primary keys** for databases are not supported by most contrib modules,
-  including `starlette_admin` or `sqlalchemy_mptt`, so restrain from using those.  
+  including `starlette_admin` or `sqlalchemy_mptt`, so restrain from using those.
+- Framework is **not thread-safe** in general. It is supposed to be run in a single thread. 
+  Some modules, such as redis, are instantiated with fixed event loop in main thread. 
+  Allowed operations to run in threads are: file I/O, tests.  
 
 ## Additional notes, articles and links
 

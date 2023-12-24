@@ -1,5 +1,6 @@
 import logging
 
+import anyio
 from sqlalchemy import select
 from starlette import status
 from marshmallow import Schema, fields
@@ -74,3 +75,19 @@ class EmptyResponseAPIView(BaseHTTPEndpoint):
 
     async def get(self, *_):
         return self._response(status_code=204)
+
+
+class EndpointWithStatusCodeMiddleware(BaseHTTPEndpoint):
+    auth_backend = None
+
+    async def get(self, *_):
+        # Middleware should reset status code to 201
+        return self._response(status_code=200)
+
+
+class EndpointWithCacheMiddleware(BaseHTTPEndpoint):
+    auth_backend = None
+
+    async def get(self, *_):
+        await anyio.sleep(2.0)
+        return self._response(status_code=200)
