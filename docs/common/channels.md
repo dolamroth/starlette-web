@@ -66,6 +66,27 @@ class RedisMultiplePatternsChannelLayer(RedisPubSubChannelLayer):
         await self._pubsub.punsubscribe(*patterns)
 ```
 
+Another approach is to create a single connection and subscribe to multiple topics in different coroutines:
+
+```python
+import anyio
+
+from starlette_web.common.channels.base import Channel
+from starlette_web.common.channels.layers.local_memory import InMemoryChannelLayer
+
+async def subscribe_to_channel_topic(channel: Channel, topic: str):
+    async with channel.subscribe("chatroom") as subscribe:
+        # This is infinite iterator, so use it in a scope, where it can be cancelled/stopped
+        # i.e. websockets, anyio.move_on_after, or simply with an exiting message
+        async for event in subscribe:
+            await process_event(event)
+
+async with Channel(InMemoryChannelLayer()) as channel:
+    async with anyio.create_task_group() as task_group:
+        task_group.start_soon(subscribe_to_channel_topic, channel, "topic_1")
+        task_group.start_soon(subscribe_to_channel_topic, channel, "topic_2")
+```
+
 ## Acknowledgement
 
 If you want to publish messages and guarantee, that recipient has got them, you need to use

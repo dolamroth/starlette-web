@@ -34,6 +34,8 @@ starlette_web brings a number of features atop base starlette.
 ### Not planned features
 
 - FileField, ImageField (see [docs/notes](./notes/orm_filefield_challenges.md) for explanation)
+- Asynchronous shell (difficult to implement and to use with lots of async context managers, 
+  goes against structured concurrency)
 
 ### Known limitations
 
