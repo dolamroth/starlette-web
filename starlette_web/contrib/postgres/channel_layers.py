@@ -51,7 +51,7 @@ class PostgreSQLChannelLayer(BaseChannelLayer):
                 self._send_stream = None
                 self._receive_stream = None
 
-    async def subscribe(self, group: str) -> None:
+    async def subscribe(self, group: str, **kwargs) -> None:
         await self._conn.add_listener(group, self._listener)
 
     async def _listener(self, *args: Any) -> None:
@@ -59,10 +59,10 @@ class PostgreSQLChannelLayer(BaseChannelLayer):
         event = Event(group=channel, message=payload)
         await self._send_stream.send(event)
 
-    async def unsubscribe(self, group: str) -> None:
+    async def unsubscribe(self, group: str, **kwargs) -> None:
         await self._conn.remove_listener(group, self._listener)
 
-    async def publish(self, group: str, message: Any) -> None:
+    async def publish(self, group: str, message: Any, **kwargs) -> None:
         await self._validate_message(message)
         await self._conn.execute("SELECT pg_notify($1, $2);", group, message)
 

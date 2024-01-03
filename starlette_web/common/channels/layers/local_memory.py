@@ -27,13 +27,13 @@ class InMemoryChannelLayer(BaseChannelLayer):
         self._send_stream = None
         self._receive_stream = None
 
-    async def subscribe(self, group: str) -> None:
+    async def subscribe(self, group: str, **kwargs) -> None:
         self._subscribed.add(group)
 
-    async def unsubscribe(self, group: str) -> None:
+    async def unsubscribe(self, group: str, **kwargs) -> None:
         self._subscribed.remove(group)
 
-    async def publish(self, group: str, message: Any) -> None:
+    async def publish(self, group: str, message: Any, **kwargs) -> None:
         event = Event(group=group, message=message)
         await self._send_stream.send(event)
 

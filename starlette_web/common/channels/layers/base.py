@@ -14,13 +14,13 @@ class BaseChannelLayer:
     async def disconnect(self) -> None:
         raise NotSupportedError()
 
-    async def subscribe(self, group: str) -> None:
+    async def subscribe(self, group: str, **kwargs) -> None:
         raise NotSupportedError()
 
-    async def unsubscribe(self, group: str) -> None:
+    async def unsubscribe(self, group: str, **kwargs) -> None:
         raise NotSupportedError()
 
-    async def publish(self, group: str, message: Any) -> None:
+    async def publish(self, group: str, message: Any, **kwargs) -> None:
         raise NotSupportedError()
 
     async def next_published(self) -> Event:

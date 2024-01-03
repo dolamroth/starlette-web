@@ -71,17 +71,17 @@ class Channel:
                 for recv_channel in self._subscribers[group]:
                     recv_channel.close()
 
-    async def publish(self, group: str, message: Any) -> None:
-        await self._channel_layer.publish(group, message)
+    async def publish(self, group: str, message: Any, **kwargs) -> None:
+        await self._channel_layer.publish(group, message, **kwargs)
 
     @asynccontextmanager
-    async def subscribe(self, group: str) -> AsyncGenerator["Subscriber", None]:
+    async def subscribe(self, group: str, **kwargs) -> AsyncGenerator["Subscriber", None]:
         send_stream, receive_stream = anyio.create_memory_object_stream()
 
         try:
             async with self._manager_lock:
                 if not self._subscribers.get(group):
-                    await self._channel_layer.subscribe(group)
+                    await self._channel_layer.subscribe(group, **kwargs)
                     self._subscribers[group] = {
                         send_stream,
                     }
@@ -97,7 +97,7 @@ class Channel:
                         self._subscribers[group].remove(send_stream)
                         if not self._subscribers.get(group):
                             del self._subscribers[group]
-                            await self._channel_layer.unsubscribe(group)
+                            await self._channel_layer.unsubscribe(group, **kwargs)
 
             finally:
                 send_stream.close()

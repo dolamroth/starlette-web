@@ -30,13 +30,13 @@ class RedisPubSubChannelLayer(BaseChannelLayer):
     async def disconnect(self) -> None:
         await self._pubsub.aclose()
 
-    async def subscribe(self, group: str) -> None:
+    async def subscribe(self, group: str, **kwargs) -> None:
         await self._pubsub.subscribe(group)
 
-    async def unsubscribe(self, group: str) -> None:
+    async def unsubscribe(self, group: str, **kwargs) -> None:
         await self._pubsub.unsubscribe(group)
 
-    async def publish(self, group: str, message: Any) -> None:
+    async def publish(self, group: str, message: Any, **kwargs) -> None:
         message = self._serializer.serialize(message)
         await self.redis.publish(group, message)
 
