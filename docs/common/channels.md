@@ -12,6 +12,7 @@ Supported channel layers:
 - `starlette_web.common.channels.layers.local_memory.InMemoryChannelLayer` -single-process, fire-and-forget, for testing
 - `starlette_web.contrib.redis.channel_layers.RedisPubSubChannelLayer` - cross-process, fire-and-forget
 - `starlette_web.contrib.postgres.channel_layers.PostgreSQLChannelLayer` - cross-process, fire-and-forget
+- `starlette_web.contrib.mqtt.MQTTChannelLayer` - cross-process, experimental, supports acknowledgement
 
 ## Example
 

@@ -19,6 +19,7 @@ starlette_web brings a number of features atop base starlette.
 ### Contrib modules
 
 - Redis support
+- MQTT experimental support
 - Authorization (based on `django.contrib.auth`)
 - Admin panel (via [starlette_admin](https://github.com/jowilf/starlette-admin))
 - [Constance](./contrib/constance.md) (based on `django-constance`)

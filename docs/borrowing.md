@@ -22,3 +22,6 @@
 - djangorestframework-camel-case
   - https://github.com/vbabiy/djangorestframework-camel-case
   - https://github.com/vbabiy/djangorestframework-camel-case/blob/master/LICENSE
+- fastapi-mqtt
+  - https://github.com/sabuhish/fastapi-mqtt/tree/master
+  - https://github.com/sabuhish/fastapi-mqtt/blob/master/LICENSE

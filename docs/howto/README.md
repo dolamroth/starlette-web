@@ -12,6 +12,7 @@ starlette-web has a lot of extra dependencies, most of which correspond to contr
 - apispec
 - admin
 - auth
+- mqtt
 - postgres
 - redis
 - scheduler
