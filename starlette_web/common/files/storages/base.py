@@ -1,4 +1,5 @@
 import sys
+from contextlib import nullcontext
 from typing import Any, AnyStr, List, Literal, Optional
 from typing import AsyncContextManager, AsyncIterator
 
@@ -8,14 +9,6 @@ from starlette_web.common.http.exceptions import NotSupportedError
 
 
 MODE = Literal["t", "b"]
-
-
-class DummyAsyncLock:
-    async def __aenter__(self):
-        return self
-
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> Optional[bool]:
-        return False
 
 
 class BaseStorage(AsyncContextManager):
@@ -107,7 +100,7 @@ class BaseStorage(AsyncContextManager):
     def get_access_lock(self, path: str, mode="r") -> AsyncContextManager:
         # Mode parameter allows possible usage of RWLock,
         # should you find a working cross-process implementation
-        return DummyAsyncLock()
+        return nullcontext()
 
 
 class _AsyncResourse(AsyncContextManager):

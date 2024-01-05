@@ -36,7 +36,6 @@ class SMTPEmailSender(BaseEmailSender):
         while _recipients:
             available_args = get_available_options(aiosmtplib.send)
             options = dict(
-                message=message,
                 sender=_from,
                 recipients=_recipients[: self.MAX_BULK_SIZE],
                 **self.options,
@@ -44,6 +43,7 @@ class SMTPEmailSender(BaseEmailSender):
 
             with anyio.move_on_after(self.SEND_MAX_TIME):
                 await aiosmtplib.send(
+                    message,
                     **{key: value for key, value in options.items() if key in available_args}
                 )
 

@@ -11,8 +11,11 @@ from starlette_web.common.utils.serializers import (
 
 class MQTTSerializer(BytesSerializer):
     def serialize(self, content: Any) -> Any:
-        if isinstance(content, (bytes, bytearray, memoryview, str)):
+        if isinstance(content, (bytes, bytearray, memoryview)):
             return bytes(content)
+
+        if isinstance(content, str):
+            return content.encode()
 
         try:
             return json.dumps(content).encode()

@@ -15,9 +15,6 @@ from starlette_web.common.channels.event import Event
 from starlette_web.common.channels.exceptions import ListenerClosed
 
 
-_empty = object()
-
-
 class Channel:
     EXIT_MAX_DELAY = 60
 
@@ -38,8 +35,8 @@ class Channel:
         try:
             self._task_group.cancel_scope.cancel()
             retval = await self._task_group.__aexit__(*args)
-            del self._task_group
         finally:
+            del self._task_group
             self._subscribers.clear()
             with anyio.fail_after(self.EXIT_MAX_DELAY, shield=True):
                 await self.disconnect()
