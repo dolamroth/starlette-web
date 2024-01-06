@@ -1,3 +1,4 @@
+from email.mime.base import MIMEBase
 from typing import Optional, Sequence
 
 import anyio
@@ -54,5 +55,7 @@ class BaseEmailSender:
         html_content: str,
         recipients_list: Sequence[str],
         from_email: Optional[str] = None,
+        attachments: Optional[Sequence[MIMEBase]] = None,
+        **kwargs,
     ):
         raise NotImplementedError

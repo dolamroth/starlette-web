@@ -14,6 +14,18 @@ from_email = "from@gmail.com"
 await send_email(subject, html_content, recipients_list, from_email)
 ```
 
+### Attachments
+
+Attachments may be added to message via standard class `email.mime.base.MIMEBase` and its inheritors:
+
+```python
+from email.mime.image import MIMEImage
+...
+
+attachments = [MIMEImage(open("test.png", "rb").read())]
+await send_email(subject, html_content, recipients_list, from_email, attachments=attachments)
+```
+
 ### Setting up
 
 In your settings file define setting `EMAIL_SENDER`:

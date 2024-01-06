@@ -1,4 +1,5 @@
-from typing import Optional, List, TypedDict, Dict, Type
+from email.mime.base import MIMEBase
+from typing import Optional, List, TypedDict, Dict, Type, Sequence
 
 from starlette_web.common.conf import settings
 from starlette_web.common.email.base_sender import BaseEmailSender
@@ -42,9 +43,18 @@ class EmailManager:
         html_content: str,
         recipients_list: List[str],
         from_email: Optional[str] = None,
+        attachments: Optional[Sequence[MIMEBase]] = None,
+        **kwargs,
     ):
         async with self._get_email_sender() as sender:
-            await sender.send_email(subject, html_content, recipients_list, from_email=from_email)
+            await sender.send_email(
+                subject,
+                html_content,
+                recipients_list,
+                from_email=from_email,
+                attachments=attachments,
+                **kwargs,
+            )
 
 
 _email_manager = EmailManager()
