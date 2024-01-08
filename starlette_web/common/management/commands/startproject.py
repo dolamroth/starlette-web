@@ -23,7 +23,7 @@ class Command(BaseCommand, AlembicMixin):
 
         cwd = Path(current_dir)
         project_dir = cwd / project_name
-        files_templates_dir = Path(starlette_web.__path__[0], "common", "conf", "files_templates")
+        files_templates_dir = Path(starlette_web.__path__[0], "common", "conf", "file_templates")
         if project_dir.is_file() or project_dir.is_symlink():
             raise CommandError(
                 details=(
