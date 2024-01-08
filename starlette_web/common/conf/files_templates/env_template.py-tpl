@@ -1,0 +1,10 @@
+APP_DEBUG=false
+SITE_URL="https://web.project.com/"
+SECRET_KEY={secret_key}
+
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=web_project
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+DB_ECHO=false
