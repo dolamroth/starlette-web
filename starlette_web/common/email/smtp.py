@@ -8,7 +8,7 @@ import anyio
 
 from starlette_web.common.email.base_sender import BaseEmailSender
 from starlette_web.common.http.exceptions import NotSupportedError
-from starlette_web.common.utils import get_available_options
+from starlette_web.common.utils import safe_init
 
 
 class SMTPEmailSender(BaseEmailSender):
@@ -16,10 +16,7 @@ class SMTPEmailSender(BaseEmailSender):
     _client: Optional[aiosmtplib.SMTP] = None
 
     async def _open(self):
-        available_args = get_available_options(aiosmtplib.send)
-        self._client = aiosmtplib.SMTP(
-            **{key: value for key, value in self.options.items() if key in available_args},
-        )
+        self._client = safe_init(aiosmtplib.SMTP, **self.options)
         await self._client.__aenter__()
         return self
 

@@ -58,14 +58,15 @@ apispec = [
     "openapi-spec-validator>=0.7.1,<0.8",
 ]
 admin = ["starlette-admin>=0.11.2,<0.12"]
-auth = ["PyJWT>=2.8,<2.9"]
+auth = ["PyJWT[crypto]>=2.8,<2.9"]
 mqtt = ["gmqtt>=0.6.13,<0.7"]
 postgres = ["asyncpg>=0.29,<0.30"]
 redis = ["redis>=5.0.1,<5.1"]
 scheduler = [
     "croniter>=2.0.1,<2.1",
-    "py-win-task-scheduler==0.1.0; sys_platform == 'win32'",
+    "py-win-task-scheduler==0.2.0; sys_platform == 'win32'",
 ]
+ssh = ["asyncssh>=2.14.2,<2.15"]
 deploy = ["gunicorn>=21.2.0,<22.0"]
 develop = ["black~=22.10.0"]
 testing = [

@@ -46,9 +46,14 @@ class BaseLock:
         try:
             await self._acquire_event.wait()
             self._is_acquired = self._acquire_event.is_set()
-        except (anyio.get_cancelled_exc_class(), BaseException) as exc:
+        except BaseException as exc:
             await self._task_group.__aexit__(*sys.exc_info())
             self._is_acquired = False
+
+            # https://anyio.readthedocs.io/en/stable/cancellation.html#finalization
+            if type(exc) is anyio.get_cancelled_exc_class():
+                raise exc
+
             raise CacheLockError(details=str(exc)) from exc
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
