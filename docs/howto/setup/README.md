@@ -5,7 +5,7 @@ After you have installed `starlette-web` package, an util `starlette-web-admin` 
 To start project, execute:
 
 ```bash
-starlette-web-admin startproject %project_name%
+starlette-web-admin startproject %project_name% --migration_prefix=[auto,date]
 cd %project_name%
 ```
 

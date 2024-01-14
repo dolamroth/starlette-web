@@ -14,7 +14,15 @@ class Command(BaseCommand, AlembicMixin):
 
     def add_arguments(self, parser: CommandParser):
         parser.add_argument("project_name", type=str)
-        parser.add_argument("--migration_prefix", type=str, default="auto")
+        parser.add_argument(
+            "--migration_prefix",
+            type=str,
+            default="auto",
+            choices=["auto", "date"],
+            help="Prefix for migration files' names.\n"
+                 "'auto' - django-like ordered numerical prefix 0001, 0002, 0003, ...\n"
+                 "'date' - datetime of file creation",
+        )
 
     async def handle(self, **options):
         project_name = options["project_name"]
@@ -82,7 +90,7 @@ class Command(BaseCommand, AlembicMixin):
         with open(project_dir / "alembic.ini", "rt") as file:
             lines = []
             for line in file:
-                if "# file_template = " in line:
+                if migration_prefix == "date" and "# file_template = " in line:
                     lines.append(line[2:])
                 elif migration_prefix == "auto" and "# revision_environment = false" in line:
                     lines += "revision_environment = true"
