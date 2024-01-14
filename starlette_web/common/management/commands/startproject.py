@@ -5,6 +5,7 @@ from pathlib import Path
 from starlette_web.common.management.alembic_mixin import AlembicMixin
 from starlette_web.common.management.base import BaseCommand, CommandError, CommandParser
 from starlette_web.common.utils import get_random_string
+from jinja2 import Template
 
 
 class Command(BaseCommand, AlembicMixin):
@@ -13,13 +14,21 @@ class Command(BaseCommand, AlembicMixin):
 
     def add_arguments(self, parser: CommandParser):
         parser.add_argument("project_name", type=str)
+        parser.add_argument(
+            "--migration_prefix",
+            type=str,
+            default="auto",
+            choices=["auto", "date"],
+            help="Prefix for migration files' names.\n"
+                 "'auto' - django-like ordered numerical prefix 0001, 0002, 0003, ...\n"
+                 "'date' - datetime of file creation",
+        )
 
     async def handle(self, **options):
-        current_dir = os.getcwd()
         project_name = options["project_name"]
+        migration_prefix = options.get("migration_prefix")
 
-        cwd = Path(current_dir)
-        project_dir = cwd / project_name
+        project_dir = Path(os.getcwd()) / project_name
         if project_dir.is_file() or project_dir.is_symlink():
             raise CommandError(
                 details=(
@@ -44,60 +53,52 @@ class Command(BaseCommand, AlembicMixin):
                 project_dir / filename,
             )
 
-        env_template = """
-APP_DEBUG=false
-SITE_URL="https://web.project.com/"
-SECRET_KEY={secret_key}
-
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=web_project
-DB_USERNAME=postgres
-DB_PASSWORD=postgres
-DB_ECHO=false
-        """
-
-        with open(project_dir / ".env", "wt+", encoding="utf-8") as file:
-            content = env_template.format(
-                secret_key=get_random_string(50),
-            )
-            file.writelines(content.strip() + "\n")
-
-        with open(project_dir / ".env.template", "wt+", encoding="utf-8") as file:
-            content = env_template.format(
-                secret_key="",
-            )
-            file.writelines(content.strip() + "\n")
-
         # Setup base directories
-
         (project_dir / "static").mkdir()
         (project_dir / "templates").mkdir()
+
+        # Setup env files
+        env_template_content = self._read_template_file(file_name=defaults_dir / ".env_template")
+        with open(project_dir / ".env", "wt+", encoding="utf-8") as file:
+            file.write(env_template_content.format(secret_key=get_random_string(50)))
+
+        with open(project_dir / ".env.template", "wt+", encoding="utf-8") as file:
+            file.write(env_template_content.format(secret_key=""))
 
         # Setup alembic
         os.chdir(project_dir)
         await self.run_alembic_main(["init", "-t", "async", self._alembic_directory_name])
-        with open(project_dir / self._alembic_directory_name / "env.py", "rt") as file:
-            lines = []
-            for line in file:
-                if line.strip() == "target_metadata = None":
-                    lines += [
-                        "from starlette_web.common.conf import settings\n",
-                        "from starlette_web.common.conf.app_manager import app_manager\n",
-                        "from starlette_web.common.database.model_base import ModelBase\n",
-                        "app_manager.import_models()\n" "target_metadata = ModelBase.metadata\n",
-                    ]
-                else:
-                    lines.append(line)
+        await self._setup_alembic_conf(
+            project_dir=project_dir,
+            env_file_path=defaults_dir / "alembic" / "env.py-tpl",
+            migration_prefix=migration_prefix,
+        )
 
+    @staticmethod
+    def _read_template_file(file_name: Path) -> str:
+        if not (file_name.exists() and file_name.is_file()):
+            raise CommandError(details=f"Invalid file template path: {str(file_name)}")
+
+        with file_name.open() as file:
+            return file.read()
+
+    async def _setup_alembic_conf(
+        self,
+        project_dir: Path,
+        env_file_path: Path,
+        migration_prefix: str,
+    ) -> None:
+        alembic_env_content = Template(self._read_template_file(file_name=env_file_path))
         with open(project_dir / self._alembic_directory_name / "env.py", "wt") as file:
-            file.writelines(lines)
+            file.write(alembic_env_content.render(migration_prefix=migration_prefix))
 
         with open(project_dir / "alembic.ini", "rt") as file:
             lines = []
             for line in file:
-                if "# file_template = " in line:
+                if migration_prefix == "date" and "# file_template = " in line:
                     lines.append(line[2:])
+                elif migration_prefix == "auto" and "# revision_environment = false" in line:
+                    lines += "revision_environment = true"
                 else:
                     lines.append(line)
 
