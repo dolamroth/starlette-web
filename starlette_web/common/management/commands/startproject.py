@@ -82,7 +82,12 @@ class Command(BaseCommand, AlembicMixin):
         with file_name.open() as file:
             return file.read()
 
-    async def _setup_alembic_conf(self, project_dir: Path, env_file_path: Path, migration_prefix: str) -> None:
+    async def _setup_alembic_conf(
+        self,
+        project_dir: Path,
+        env_file_path: Path,
+        migration_prefix: str,
+    ) -> None:
         alembic_env_content = Template(self._read_template_file(file_name=env_file_path))
         with open(project_dir / self._alembic_directory_name / "env.py", "wt") as file:
             file.write(alembic_env_content.render(migration_prefix=migration_prefix))
