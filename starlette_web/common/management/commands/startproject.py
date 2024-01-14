@@ -5,6 +5,7 @@ from pathlib import Path
 from starlette_web.common.management.alembic_mixin import AlembicMixin
 from starlette_web.common.management.base import BaseCommand, CommandError, CommandParser
 from starlette_web.common.utils import get_random_string
+from jinja2 import Template
 
 
 class Command(BaseCommand, AlembicMixin):
@@ -61,7 +62,7 @@ class Command(BaseCommand, AlembicMixin):
         await self.run_alembic_main(["init", "-t", "async", self._alembic_directory_name])
         await self._setup_alembic_conf(
             project_dir=project_dir,
-            env_file_path=defaults_dir / "alembic" / "env.py",
+            env_file_path=defaults_dir / "alembic" / "env.py-tpl",
             migration_prefix=migration_prefix,
         )
 
@@ -74,47 +75,19 @@ class Command(BaseCommand, AlembicMixin):
             return file.read()
 
     async def _setup_alembic_conf(self, project_dir: Path, env_file_path: Path, migration_prefix: str) -> None:
-        if migration_prefix == "auto":
-            with open(project_dir / self._alembic_directory_name / "env.py", "rt") as file:
-                lines = []
-                for line in file:
-                    if line.strip() == "target_metadata = None":
-                        lines += [
-                            "from starlette_web.common.conf import settings\n",
-                            "from starlette_web.common.conf.app_manager import app_manager\n",
-                            "from starlette_web.common.database.model_base import ModelBase\n",
-                            "app_manager.import_models()\n" "target_metadata = ModelBase.metadata\n",
-                        ]
-                    else:
-                        lines.append(line)
+        alembic_env_content = Template(self._read_template_file(file_name=env_file_path))
+        with open(project_dir / self._alembic_directory_name / "env.py", "wt") as file:
+            file.write(alembic_env_content.render(migration_prefix=migration_prefix))
 
-            with open(project_dir / self._alembic_directory_name / "env.py", "wt") as file:
-                file.writelines(lines)
+        with open(project_dir / "alembic.ini", "rt") as file:
+            lines = []
+            for line in file:
+                if "# file_template = " in line:
+                    lines.append(line[2:])
+                elif migration_prefix == "auto" and "# revision_environment = false" in line:
+                    lines += "revision_environment = true"
+                else:
+                    lines.append(line)
 
-            with open(project_dir / "alembic.ini", "rt") as file:
-                lines = []
-                for line in file:
-                    if "# file_template = " in line:
-                        lines.append(line[2:])
-                    else:
-                        lines.append(line)
-
-            with open(project_dir / "alembic.ini", "wt") as file:
-                file.writelines(lines)
-        else:
-            alembic_env_content = self._read_template_file(file_name=env_file_path)
-            with open(project_dir / self._alembic_directory_name / "env.py", "wt") as file:
-                file.write(alembic_env_content)
-
-            with open(project_dir / "alembic.ini", "rt") as file:
-                lines = []
-                for line in file:
-                    if "# file_template = " in line:
-                        lines.append(line[2:])
-                    elif "# revision_environment = false" in line:
-                        lines += "revision_environment = true"
-                    else:
-                        lines.append(line)
-
-            with open(project_dir / "alembic.ini", "wt") as file:
-                file.writelines(lines)
+        with open(project_dir / "alembic.ini", "wt") as file:
+            file.writelines(lines)
