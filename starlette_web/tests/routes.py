@@ -53,4 +53,10 @@ routes = [
         "/ws/test_websocket_infinite_periodic", InfinitePeriodicTaskWebsocketTestEndpoint
     ),
     WebSocketRoute("/ws/test_websocket_chat", ChatWebsocketTestEndpoint),
+
+    # Endpoints for APIspec tests with path params
+    Route("/{alias:str}/", EmptyResponseAPIView),
+    Mount("/{alias1:str}/", routes=[
+        Route("/{alias2:str}/", EmptyResponseAPIView),
+    ]),
 ]

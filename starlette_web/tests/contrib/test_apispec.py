@@ -5,7 +5,7 @@ REFERENCE_SCHEMA = {
     "info": {
         "description": "My custom project.",
         "title": "Project documentation",
-        "version": "0.0.1",
+        "version": "0.0.1"
     },
     "paths": {
         "/api/auth/me/": {
@@ -16,19 +16,31 @@ REFERENCE_SCHEMA = {
                         "description": "Profile",
                         "content": {
                             "application/json": {
-                                "schema": {"$ref": "#/components/schemas/UserResponse"}
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResponse"
+                                }
                             }
-                        },
+                        }
                     },
                     "401": {
                         "description": "Authentication error.",
                         "content": {
-                            "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
-                        },
-                    },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
                 },
-                "tags": ["Authorization"],
-                "security": [{"JWTAuth": []}],
+                "tags": [
+                    "Authorization"
+                ],
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ]
             }
         },
         "/api/auth/sign-in/": {
@@ -38,32 +50,48 @@ REFERENCE_SCHEMA = {
                     "required": True,
                     "description": "Sign in",
                     "content": {
-                        "application/json": {"schema": {"$ref": "#/components/schemas/SignIn"}}
-                    },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SignIn"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "200": {
                         "description": "JsonWebToken",
                         "content": {
                             "application/json": {
-                                "schema": {"$ref": "#/components/schemas/JWTResponse"}
+                                "schema": {
+                                    "$ref": "#/components/schemas/JWTResponse"
+                                }
                             }
-                        },
+                        }
                     },
                     "401": {
                         "description": "Authentication failed",
                         "content": {
-                            "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
-                        },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
                     },
                     "400": {
                         "description": "Bad Request.",
                         "content": {
-                            "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
-                        },
-                    },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
                 },
-                "tags": ["Authorization"],
+                "tags": [
+                    "Authorization"
+                ]
             }
         },
         "/api/auth/sign-up/": {
@@ -73,42 +101,66 @@ REFERENCE_SCHEMA = {
                     "required": True,
                     "description": "Sign up",
                     "content": {
-                        "application/json": {"schema": {"$ref": "#/components/schemas/SignUp"}}
-                    },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SignUp"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "200": {
                         "description": "JsonWebToken",
                         "content": {
                             "application/json": {
-                                "schema": {"$ref": "#/components/schemas/JWTResponse"}
+                                "schema": {
+                                    "$ref": "#/components/schemas/JWTResponse"
+                                }
                             }
-                        },
+                        }
                     },
                     "400": {
                         "description": "Bad Request.",
                         "content": {
-                            "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
-                        },
-                    },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
                 },
-                "tags": ["Authorization"],
+                "tags": [
+                    "Authorization"
+                ]
             }
         },
         "/api/auth/sign-out/": {
             "delete": {
                 "description": "Sign out",
                 "responses": {
-                    "200": {"description": "Signed out"},
+                    "200": {
+                        "description": "Signed out"
+                    },
                     "401": {
                         "description": "Authentication error.",
                         "content": {
-                            "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
-                        },
-                    },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
                 },
-                "tags": ["Authorization"],
-                "security": [{"JWTAuth": []}],
+                "tags": [
+                    "Authorization"
+                ],
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ]
             }
         },
         "/api/auth/refresh-token/": {
@@ -119,33 +171,47 @@ REFERENCE_SCHEMA = {
                     "description": "Refresh token",
                     "content": {
                         "application/json": {
-                            "schema": {"$ref": "#/components/schemas/RefreshToken"}
+                            "schema": {
+                                "$ref": "#/components/schemas/RefreshToken"
+                            }
                         }
-                    },
+                    }
                 },
                 "responses": {
                     "200": {
                         "description": "JsonWebToken",
                         "content": {
                             "application/json": {
-                                "schema": {"$ref": "#/components/schemas/JWTResponse"}
+                                "schema": {
+                                    "$ref": "#/components/schemas/JWTResponse"
+                                }
                             }
-                        },
+                        }
                     },
                     "401": {
                         "description": "Authentication failed",
                         "content": {
-                            "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
-                        },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
                     },
                     "400": {
                         "description": "Bad Request.",
                         "content": {
-                            "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
-                        },
-                    },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
                 },
-                "tags": ["Authorization"],
+                "tags": [
+                    "Authorization"
+                ]
             }
         },
         "/api/auth/invite-user/": {
@@ -156,34 +222,52 @@ REFERENCE_SCHEMA = {
                     "description": "Invited user's credentials",
                     "content": {
                         "application/json": {
-                            "schema": {"$ref": "#/components/schemas/UserInviteRequest"}
+                            "schema": {
+                                "$ref": "#/components/schemas/UserInviteRequest"
+                            }
                         }
-                    },
+                    }
                 },
                 "responses": {
                     "200": {
                         "description": "Invited user",
                         "content": {
                             "application/json": {
-                                "schema": {"$ref": "#/components/schemas/UserInviteResponse"}
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserInviteResponse"
+                                }
                             }
-                        },
+                        }
                     },
                     "401": {
                         "description": "Authentication error.",
                         "content": {
-                            "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
-                        },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
                     },
                     "400": {
                         "description": "Bad Request.",
                         "content": {
-                            "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
-                        },
-                    },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
                 },
-                "tags": ["Authorization"],
-                "security": [{"JWTAuth": []}],
+                "tags": [
+                    "Authorization"
+                ],
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ]
             }
         },
         "/api/auth/reset-password/": {
@@ -194,40 +278,62 @@ REFERENCE_SCHEMA = {
                     "description": "User credentials",
                     "content": {
                         "application/json": {
-                            "schema": {"$ref": "#/components/schemas/ResetPasswordRequest"}
+                            "schema": {
+                                "$ref": "#/components/schemas/ResetPasswordRequest"
+                            }
                         }
-                    },
+                    }
                 },
                 "responses": {
                     "200": {
                         "description": "Link to email",
                         "content": {
                             "application/json": {
-                                "schema": {"$ref": "#/components/schemas/ResetPasswordResponse"}
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResetPasswordResponse"
+                                }
                             }
-                        },
+                        }
                     },
                     "401": {
                         "description": "Authentication error.",
                         "content": {
-                            "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
-                        },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
                     },
                     "403": {
                         "description": "Access forbidden.",
                         "content": {
-                            "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
-                        },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
                     },
                     "400": {
                         "description": "Bad Request.",
                         "content": {
-                            "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
-                        },
-                    },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
                 },
-                "tags": ["Authorization"],
-                "security": [{"JWTAuth": []}],
+                "tags": [
+                    "Authorization"
+                ],
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ]
             }
         },
         "/api/auth/change-password/": {
@@ -238,28 +344,40 @@ REFERENCE_SCHEMA = {
                     "description": "New password confirmation",
                     "content": {
                         "application/json": {
-                            "schema": {"$ref": "#/components/schemas/ChangePassword"}
+                            "schema": {
+                                "$ref": "#/components/schemas/ChangePassword"
+                            }
                         }
-                    },
+                    }
                 },
                 "responses": {
                     "200": {
                         "description": "New tokens",
                         "content": {
                             "application/json": {
-                                "schema": {"$ref": "#/components/schemas/JWTResponse"}
+                                "schema": {
+                                    "$ref": "#/components/schemas/JWTResponse"
+                                }
                             }
-                        },
+                        }
                     },
-                    "401": {"description": "Authentication failed"},
+                    "401": {
+                        "description": "Authentication failed"
+                    },
                     "400": {
                         "description": "Bad Request.",
                         "content": {
-                            "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
-                        },
-                    },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
                 },
-                "tags": ["Authorization"],
+                "tags": [
+                    "Authorization"
+                ]
             }
         },
         "/health_check/": {
@@ -270,118 +388,325 @@ REFERENCE_SCHEMA = {
                         "description": "Services with status",
                         "content": {
                             "application/json": {
-                                "schema": {"$ref": "#/components/schemas/HealthCheck"}
+                                "schema": {
+                                    "$ref": "#/components/schemas/HealthCheck"
+                                }
                             }
-                        },
+                        }
                     },
-                    "503": {"description": "Service unavailable"},
+                    "503": {
+                        "description": "Service unavailable"
+                    }
                 },
-                "tags": ["Health check"],
+                "tags": [
+                    "Health check"
+                ]
             }
         },
+        "/{alias}/": {
+            "get": {
+                "description": "Empty response for test",
+                "responses": {
+                    "204": {
+                        "description": "Empty response for test"
+                    }
+                },
+                "tags": [
+                    "Empty"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "required": True,
+                        "name": "alias",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ]
+            }
+        },
+        "/{alias1}/{alias2}/": {
+            "get": {
+                "description": "Empty response for test",
+                "responses": {
+                    "204": {
+                        "description": "Empty response for test"
+                    }
+                },
+                "tags": [
+                    "Empty"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "required": True,
+                        "name": "alias1",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "path",
+                        "required": True,
+                        "name": "alias2",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ]
+            }
+        }
     },
     "openapi": "3.0.2",
     "components": {
         "schemas": {
             "Error": {
                 "type": "object",
-                "properties": {"error": {"type": "string"}, "details": {"nullable": True}},
-                "required": ["error"],
+                "properties": {
+                    "error": {
+                        "type": "string"
+                    },
+                    "details": {
+                        "nullable": True
+                    }
+                },
+                "required": [
+                    "error"
+                ]
             },
             "UserResponse": {
                 "type": "object",
                 "properties": {
-                    "email": {"type": "string", "format": "email"},
-                    "id": {"type": "integer"},
-                    "is_active": {"type": "boolean"},
-                    "is_superuser": {"type": "boolean"},
+                    "id": {
+                        "type": "integer"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    },
+                    "is_superuser": {
+                        "type": "boolean"
+                    }
                 },
-                "required": ["email", "id", "is_active", "is_superuser"],
+                "required": [
+                    "email",
+                    "id",
+                    "is_active",
+                    "is_superuser"
+                ]
             },
             "SignIn": {
                 "type": "object",
                 "properties": {
-                    "email": {"type": "string", "format": "email"},
-                    "password": {"type": "string", "minLength": 2, "maxLength": 32},
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "password": {
+                        "type": "string",
+                        "minLength": 2,
+                        "maxLength": 32
+                    }
                 },
-                "required": ["email", "password"],
+                "required": [
+                    "email",
+                    "password"
+                ]
             },
             "JWTResponse": {
                 "type": "object",
                 "properties": {
-                    "refresh_token": {"type": "string"},
-                    "access_token": {"type": "string"},
+                    "access_token": {
+                        "type": "string"
+                    },
+                    "refresh_token": {
+                        "type": "string"
+                    }
                 },
-                "required": ["access_token", "refresh_token"],
+                "required": [
+                    "access_token",
+                    "refresh_token"
+                ]
             },
             "SignUp": {
                 "type": "object",
                 "properties": {
-                    "password_2": {"type": "string", "minLength": 2, "maxLength": 32},
-                    "email": {"type": "string", "format": "email", "maxLength": 128},
-                    "password_1": {"type": "string", "minLength": 2, "maxLength": 32},
-                    "invite_token": {"type": "string", "minLength": 10, "maxLength": 32},
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 128
+                    },
+                    "password_1": {
+                        "type": "string",
+                        "minLength": 2,
+                        "maxLength": 32
+                    },
+                    "password_2": {
+                        "type": "string",
+                        "minLength": 2,
+                        "maxLength": 32
+                    },
+                    "invite_token": {
+                        "type": "string",
+                        "minLength": 10,
+                        "maxLength": 32
+                    }
                 },
-                "required": ["email", "invite_token", "password_1", "password_2"],
+                "required": [
+                    "email",
+                    "invite_token",
+                    "password_1",
+                    "password_2"
+                ]
             },
             "RefreshToken": {
                 "type": "object",
                 "properties": {
-                    "refresh_token": {"type": "string", "minLength": 10, "maxLength": 512}
+                    "refresh_token": {
+                        "type": "string",
+                        "minLength": 10,
+                        "maxLength": 512
+                    }
                 },
-                "required": ["refresh_token"],
+                "required": [
+                    "refresh_token"
+                ]
             },
             "UserInviteRequest": {
                 "type": "object",
-                "properties": {"email": {"type": "string", "format": "email"}},
-                "required": ["email"],
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    }
+                },
+                "required": [
+                    "email"
+                ]
             },
             "UserInviteResponse": {
                 "type": "object",
                 "properties": {
-                    "token": {"type": "string"},
-                    "email": {"type": "string", "format": "email"},
-                    "created_at": {"type": "string", "format": "date-time"},
-                    "expired_at": {"type": "string", "format": "date-time"},
-                    "owner_id": {"type": "integer"},
-                    "id": {"type": "integer"},
+                    "id": {
+                        "type": "integer"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "token": {
+                        "type": "string"
+                    },
+                    "expired_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "owner_id": {
+                        "type": "integer"
+                    }
                 },
-                "required": ["created_at", "email", "expired_at", "owner_id", "token"],
+                "required": [
+                    "created_at",
+                    "email",
+                    "expired_at",
+                    "owner_id",
+                    "token"
+                ]
             },
             "ResetPasswordRequest": {
                 "type": "object",
-                "properties": {"email": {"type": "string", "format": "email"}},
-                "required": ["email"],
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    }
+                },
+                "required": [
+                    "email"
+                ]
             },
             "ResetPasswordResponse": {
                 "type": "object",
                 "properties": {
-                    "token": {"type": "string"},
-                    "email": {"type": "string", "format": "email"},
-                    "user_id": {"type": "integer"},
+                    "user_id": {
+                        "type": "integer"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "token": {
+                        "type": "string"
+                    }
                 },
-                "required": ["email", "token"],
+                "required": [
+                    "email",
+                    "token"
+                ]
             },
             "ChangePassword": {
                 "type": "object",
                 "properties": {
-                    "password_2": {"type": "string", "minLength": 2, "maxLength": 32},
-                    "token": {"type": "string", "minLength": 1},
-                    "password_1": {"type": "string", "minLength": 2, "maxLength": 32},
+                    "token": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "password_1": {
+                        "type": "string",
+                        "minLength": 2,
+                        "maxLength": 32
+                    },
+                    "password_2": {
+                        "type": "string",
+                        "minLength": 2,
+                        "maxLength": 32
+                    }
                 },
-                "required": ["password_1", "password_2", "token"],
+                "required": [
+                    "password_1",
+                    "password_2",
+                    "token"
+                ]
             },
-            "ServicesCheck": {"type": "object", "properties": {"postgres": {"type": "string"}}},
+            "ServicesCheck": {
+                "type": "object",
+                "properties": {
+                    "postgres": {
+                        "type": "string"
+                    }
+                }
+            },
             "HealthCheck": {
                 "type": "object",
                 "properties": {
-                    "services": {"$ref": "#/components/schemas/ServicesCheck"},
-                    "errors": {"type": "array", "items": {"type": "string"}},
-                },
-            },
+                    "services": {
+                        "$ref": "#/components/schemas/ServicesCheck"
+                    },
+                    "errors": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         },
-        "securitySchemes": {"JWTAuth": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"}},
-    },
+        "securitySchemes": {
+            "JWTAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    }
 }
 
 

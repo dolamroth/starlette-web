@@ -74,6 +74,13 @@ class EmptyResponseAPIView(BaseHTTPEndpoint):
     auth_backend = None
 
     async def get(self, *_):
+        """
+        description: Empty response for test
+        responses:
+          204:
+            description: Empty response for test
+        tags: ["Empty"]
+        """
         return self._response(status_code=204)
 
 

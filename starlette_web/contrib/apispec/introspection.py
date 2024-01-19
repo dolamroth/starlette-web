@@ -8,12 +8,14 @@ from starlette.routing import BaseRoute, Mount, Route
 from starlette.schemas import BaseSchemaGenerator, EndpointInfo
 
 from starlette_web.common.authorization.backends import BaseAuthenticationBackend
+from starlette_web.common.http.exceptions import ImproperlyConfigured
 from starlette_web.common.http.schemas import get_error_schema_class
 from starlette_web.common.i18n import gettext
 
 
 # TODO: custom EndpointInfo with link to endpoint class
 # TODO: maybe allow user to override class in settings (?)
+# TODO: allow user to define rules to format path parameters with custom converters
 class APISpecSchemaGenerator(BaseSchemaGenerator):
     ERROR_SCHEMA_NAME = "Error"
 
@@ -21,6 +23,7 @@ class APISpecSchemaGenerator(BaseSchemaGenerator):
         self.spec: APISpec = spec
         self.security_schemas = {}
         self.paths_and_endpoints = {}
+        self._original_paths = {}
 
     def _fetch_paths_and_endpoints(self, initial_routes: List[BaseRoute]):
         if self.paths_and_endpoints:
@@ -30,20 +33,28 @@ class APISpecSchemaGenerator(BaseSchemaGenerator):
         routes = {}
 
         for route in initial_routes:
+            _cleaned_path = self._remove_converter(route.path)
             # Skip any websocket connections
             if isinstance(route, Mount):
-                mounts.append((self._remove_converter(route.path), route))
+                mounts.append((_cleaned_path, route))
+                self._original_paths[_cleaned_path] = route.path
             elif isinstance(route, Route) and getattr(route, "include_in_schema", True):
                 routes[self._remove_converter(route.path)] = route.endpoint
+                self._original_paths[_cleaned_path] = route.path
 
         while mounts:
             path, mount = mounts.popleft()
+            _original_path = self._original_paths[path]
             for route in mount.routes:
+                _cleaned_path = self._remove_converter(route.path)
                 # Skip any websocket connections
                 if isinstance(route, Mount):
-                    mounts.append((path + self._remove_converter(route.path), route))
+                    mounts.append((path + _cleaned_path, route))
+                    self._original_paths[path + _cleaned_path] = _original_path + route.path
                 elif isinstance(route, Route) and getattr(route, "include_in_schema", True):
-                    routes[path + self._remove_converter(route.path)] = route.endpoint
+                    routes[path + _cleaned_path] = route.endpoint
+                    self._original_paths[path + _cleaned_path] = _original_path + route.path
+            self._original_paths.pop(path, None)
 
         self.paths_and_endpoints = routes
 
@@ -105,6 +116,63 @@ class APISpecSchemaGenerator(BaseSchemaGenerator):
                 },
             }
 
+    def _populate_path_params(self, endpoint: EndpointInfo, parsed_docstring: dict):
+        try:
+            original_path = self._original_paths[endpoint.path]
+        except KeyError:
+            return
+
+        _parameters_to_add = {}
+
+        start_pos = original_path.find("{")
+        while start_pos > -1:
+            end_pos = original_path.find("}")
+            if end_pos < start_pos + 2:
+                break
+
+            param = original_path[start_pos + 1:end_pos]
+
+            if ":" in param:
+                if param.count(":") > 1:
+                    raise ImproperlyConfigured(
+                        details=f"Invalid definition of path parameter in endpoint "
+                        f"{self._original_paths[endpoint.path]}. "
+                        f"Only single converter is allowed.",
+                    )
+
+                param_name, param_converter = param.split(":")
+            else:
+                param_name, param_converter = param, "str"
+
+            if param_name == "" or param_converter == "":
+                break
+
+            _parameters_to_add[param_name] = param_converter
+            original_path = original_path[end_pos + 1:]
+            start_pos = original_path.find("{")
+
+        if _parameters_to_add:
+            parsed_docstring.setdefault("parameters", [])
+            parameters = parsed_docstring["parameters"]
+            for parameter in parameters:
+                if parameter["in"] == "path":
+                    _parameters_to_add.pop(parameter["name"], None)
+
+            for param_name, param_converter in _parameters_to_add.items():
+                schema = {"type": "string"}
+                if param_converter == "int":
+                    schema = {"type": "integer"}
+                elif param_converter == "float":
+                    schema = {"type": "number", "format": "double"}
+                elif param_converter in ["uuid", "path"]:
+                    schema["format"] = param_converter
+                parsed_docstring["parameters"].append({
+                    "in": "path",
+                    "required": True,
+                    "name": param_name,
+                    "schema": schema,
+                })
+
     def get_schema(self, routes: List[BaseRoute]) -> dict:
         ErrorResponseSchema = get_error_schema_class()()
         if self.ERROR_SCHEMA_NAME not in self.spec.components.schemas:
@@ -118,6 +186,7 @@ class APISpecSchemaGenerator(BaseSchemaGenerator):
             self._populate_security_schema(endpoint, parsed)
             self._populate_auth_errors(endpoint, parsed)
             self._populate_validation(endpoint, parsed)
+            self._populate_path_params(endpoint, parsed)
 
             self.spec.path(
                 path=endpoint.path,

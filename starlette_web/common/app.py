@@ -1,4 +1,3 @@
-import inspect
 import logging
 import logging.config
 from typing import List, Union, Dict, Callable, Type, TypeVar, Optional
