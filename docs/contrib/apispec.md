@@ -50,9 +50,25 @@ Then, query GET endpoint with specifying GET-parameter `format` (by default, `op
 
 `Swagger` is not supported as to version `0.1.x`.
 
-### Usage
+### Introspection
 
-Please, see `starlette_web.contrib.auth` and `starlette_web.tests.contrib.test_apispec` for examples of usage.
+`starlette_web.contrib.apispec` automatically:
+- adds 401 response, if endpoint defines `auth_backend`
+- populates security schemas `BaseAuthenticationBackend.openapi_name` and `BaseAuthenticationBackend.openapi_spec`
+- adds 403 response, if endpoint defines `permission_classes`
+- adds `Route` path parameters
+
+### Schema validation
+
+OpenAPI schema is validated with `openapi_spec_validator`. 
+In general, this helps to find errors in YAML APIspec, 
+such as missing path parameters or invalid indentation.
+
+**Note**: Validation also <u>forbids user to create multiple subclasses `marshmallow.schema.Schema`
+with the same class name</u>. The reason boils down to the fact, that marshmallow stores all schemas in
+inner registry by class name. If any 2 classes have same name, APIspec struggles to choose exact
+schema class for introspection and gives up. This results in invalid OpenAPI, where schema is mentioned,
+but its definition is missing.
 
 ### Camel case support
 
@@ -61,5 +77,9 @@ Use its `CamelCaseStarletteParser` and `CamelCaseJSONRenderer` as drop-in replac
 `request_parser` and `response_renderer` of `BaseHttpEndpoint`.
 
 Should you use it, also set `settings.APISPEC["CONVERT_TO_CAMEL_CASE"]` to `True`.
+
+### Usage
+
+Please, see `starlette_web.contrib.auth` and `starlette_web.tests.contrib.test_apispec` for examples of usage.
 
 ### TODO: More features will be available in 0.2.
