@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "starlette_web"
-version = "0.1.6"
+version = "0.1.7"
 description = "Asynchronous web framework, based on Starlette and inspired by Django"
 readme = "README.md"
 authors = [
@@ -25,7 +25,7 @@ classifiers = [
 ]
 dependencies = [
     "anyio>=4.2.0,<4.3",
-    "starlette>=0.34,<1.0",
+    "starlette>=0.35.1,<1.0",
     "webargs-starlette>=2.1,<2.2",
     "python-multipart==0.0.6", # required by starlette dependencies
     "uvicorn[standard]>=0.25.0,<0.26",
