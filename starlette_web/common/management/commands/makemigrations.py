@@ -31,19 +31,16 @@ class Command(BaseCommand, AlembicMixin):
             revision_name = options["name"]
 
         if options.get("empty", False):
-            await self.run_alembic_main(["revision", "-m", revision_name])
-            print("New empty migration generated.")
+            stdout, stderr = await self.run_alembic_main(["revision", "-m", revision_name])
 
         else:
             stdout, stderr = await self.run_alembic_main(["check"])
 
-            if "Target database is not up to date" in stdout:
-                print(stdout.strip())
-
-            elif "No new upgrade operations detected" in stdout:
-                print(stdout.strip())
-
-            else:
+            if not any([
+                "Target database is not up to date" in stdout,
+                "No new upgrade operations detected" in stdout,
+                "FAILED" in stdout,
+            ]):
                 stdout, stderr = await self.run_alembic_main(
                     [
                         "revision",
@@ -53,4 +50,4 @@ class Command(BaseCommand, AlembicMixin):
                     ]
                 )
 
-                print(stdout.strip())
+        print(stdout.strip())

@@ -55,7 +55,7 @@ After running `startproject`, in project root there will be `alembic.ini` file.
 Open it and edit setting `sqlalchemy.url`, setting it to the same value, as `settings.DATABASE_DSN`.
 
 ```bash
-alembic revision -c "%new_revision_name%" --autogenerate  # analog of django makemigrations
+alembic revision -m "%new_revision_name%" --autogenerate  # analog of django makemigrations
 alembic upgrade head  # analog of django migrate
 alembic downgrade -1 # backwards migration
 ```
