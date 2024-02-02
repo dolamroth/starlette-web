@@ -39,13 +39,13 @@ jobs:
           REDIS_HOST: "172.17.0.1"
           REDIS_PORT: 6379
         run: |
-          echo "DB_NAME=web_project\n" | sudo tee .env
-          echo "DB_USERNAME=web_project\n" | sudo tee -a .env
-          echo "DB_PASSWORD=web_password\n" | sudo tee -a .env
-          echo "DB_HOST=\"172.17.0.1\"\n" | sudo tee -a .env
-          echo "DB_PORT=5432\n" | sudo tee -a .env
-          echo "REDIS_HOST=\"172.17.0.1\"\n" | sudo tee -a .env
-          echo "REDIS_PORT=6379\n" | sudo tee -a .env
+          echo "DB_NAME=web_project\n" | tee /web_project/.env
+          echo "DB_USERNAME=web_project\n" | tee -a /web_project/.env
+          echo "DB_PASSWORD=web_password\n" | tee -a /web_project/.env
+          echo "DB_HOST=\"172.17.0.1\"\n" | tee -a /web_project/.env
+          echo "DB_PORT=5432\n" | tee -a /web_project/.env
+          echo "REDIS_HOST=\"172.17.0.1\"\n" | tee -a /web_project/.env
+          echo "REDIS_PORT=6379\n" | tee -a /web_project/.env
           ls -l
 
       - name: Build image
