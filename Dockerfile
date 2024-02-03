@@ -24,6 +24,7 @@ COPY starlette_web ./starlette_web
 COPY etc/run_tests.sh .
 COPY .coveragerc .
 COPY .flake8 .
+COPY .env .
 
 RUN chown -R web:web /web-project
 
