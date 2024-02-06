@@ -50,18 +50,18 @@ class Channel:
         await self._channel_layer.disconnect()
 
     async def _listener(self) -> None:
-        while True:
-            try:
-                event = await self._channel_layer.next_published()
-            except ListenerClosed:
-                break
+        async with anyio.create_task_group() as task_group:
+            while True:
+                try:
+                    event = await self._channel_layer.next_published()
+                except ListenerClosed:
+                    break
 
-            async with self._manager_lock:
-                subscribers_list = list(self._subscribers.get(event.group, []))
+                async with self._manager_lock:
+                    subscribers_list = list(self._subscribers.get(event.group, []))
 
-            async with anyio.create_task_group() as nursery:
                 for send_stream in subscribers_list:
-                    nursery.start_soon(send_stream.send, event)
+                    task_group.start_soon(send_stream.send, event)
 
         async with self._manager_lock:
             for group in self._subscribers.keys():

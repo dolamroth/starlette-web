@@ -93,7 +93,8 @@ class TestChannelLayers:
 
         async def run_command_in_process(command_name, command_args):
             cmd = (
-                f"cd {settings.PROJECT_ROOT_DIR} && " f"{sys.executable} command.py {command_name}"
+                f"cd {settings.PROJECT_ROOT_DIR} && " 
+                f"{sys.executable} command.py {command_name}"
             )
 
             if command_args:
@@ -105,24 +106,24 @@ class TestChannelLayers:
                 await process.wait()
 
         async def task_coroutine():
-            async with anyio.create_task_group() as nursery:
-                nursery.cancel_scope.deadline = anyio.current_time() + 10
-                nursery.start_soon(
+            async with anyio.create_task_group() as task_group:
+                task_group.cancel_scope.deadline = anyio.current_time() + 10
+                task_group.start_soon(
                     run_command_in_process,
                     "test_channels_publisher",
                     [f"--group={test_group_name}"],
                 )
-                nursery.start_soon(
+                task_group.start_soon(
                     run_command_in_process,
                     "test_channels_subscriber",
                     [f"--group={test_group_name}", f"--subscriber={subscriber_1}"],
                 )
-                nursery.start_soon(
+                task_group.start_soon(
                     run_command_in_process,
                     "test_channels_subscriber",
                     [f"--group={test_group_name}", f"--subscriber={subscriber_2}"],
                 )
-                nursery.start_soon(
+                task_group.start_soon(
                     run_command_in_process,
                     "test_channels_subscriber",
                     [f"--group={test_group_name}", f"--subscriber={subscriber_3}"],

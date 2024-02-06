@@ -19,7 +19,7 @@ class CacheHandler:
     def __init__(self):
         self._caches: Dict[str, BaseCache] = dict()
 
-    def __getitem__(self, alias):
+    def __getitem__(self, alias) -> BaseCache:
         try:
             return self._caches[alias]
         except KeyError:

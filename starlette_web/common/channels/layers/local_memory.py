@@ -34,12 +34,15 @@ class InMemoryChannelLayer(BaseChannelLayer):
         self._subscribed.remove(group)
 
     async def publish(self, group: str, message: Any, **kwargs) -> None:
+        if not self._send_stream:
+            raise RuntimeError(".publish() requires not-null self._send_stream")
+
         event = Event(group=group, message=message)
         await self._send_stream.send(event)
 
     async def next_published(self) -> Event:
         if not self._receive_stream:
-            raise RuntimeError("Getting next published requires not-null self._receive_stream")
+            raise RuntimeError(".next_published() requires not-null self._receive_stream")
 
         while True:
             event = await self._receive_stream.receive()
