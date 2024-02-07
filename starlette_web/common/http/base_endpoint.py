@@ -134,6 +134,11 @@ class BaseHTTPEndpoint(HTTPEndpoint):
         except ValidationError as e:
             # TODO: check that details is str / flatten
             raise InvalidParameterError(details=e.data)
+        except WebargsHTTPException as e:
+            # TODO: check that details is str / flatten
+            # Make return code for invalidated request schema consistent within project
+            e.status_code = InvalidParameterError.status_code
+            raise e
 
         return cleaned_data
 

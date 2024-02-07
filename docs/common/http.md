@@ -20,3 +20,18 @@ See [docs/apispec](../contrib/apispec.md)
 ### Routing
 
 See [starlette documentation](https://www.starlette.io/endpoints/) on plugging class-based endpoints to routes.
+
+### Exception raising and handling
+
+A proper way to raise exception in `http` module is to raise a subclass of 
+`starlette_web.common.http.exception.BaseApplicationError`, which supplies status code,
+error description and optional error details. A number of subclasses with respective status codes 
+are already defined in project.
+
+**Note**: these exceptions may, but should not be raised in websocket routes. 
+Instead, reraise those as `WebsocketDisconnect` exception.
+
+Error details is supplied in any of the following cases:  
+- `settings.APP_DEBUG` is True
+- `settings.ERROR_DETAIL_FORCE_SUPPLY` is True
+- `exc.status_code` == 400

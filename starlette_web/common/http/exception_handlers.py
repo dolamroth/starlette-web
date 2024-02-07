@@ -44,7 +44,11 @@ class BaseExceptionHandler:
         payload = {
             "error": self._get_error_message(request, exc),
         }
-        if settings.APP_DEBUG or _status_code == InvalidParameterError.message:
+        if any([
+            settings.ERROR_DETAIL_FORCE_SUPPLY,
+            settings.APP_DEBUG,
+            _status_code == InvalidParameterError.status_code,
+        ]):
             payload["details"] = self._get_error_details(request, exc)
 
         error_schema = get_error_schema_class()()
