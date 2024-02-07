@@ -2,10 +2,10 @@ from difflib import SequenceMatcher
 from functools import cache
 from typing import Optional
 
+from starlette_web.common.authorization.base_user import BaseUserMixin
 from starlette_web.common.conf import settings
 from starlette_web.common.http.exceptions import NotSupportedError, InvalidParameterError
 from starlette_web.common.utils.importing import import_string
-from starlette_web.contrib.auth.models import User
 
 
 # TODO: maybe raise marshmallow.ValidationError ?
@@ -14,7 +14,7 @@ class BasePasswordValidator:
     def __init__(self, **options):
         self.options = options
 
-    def __call__(self, password: str, user: Optional[User] = None):
+    def __call__(self, password: str, user: Optional[BaseUserMixin] = None):
         raise NotSupportedError()
 
 
@@ -28,7 +28,7 @@ class PasswordLengthValidator(BasePasswordValidator):
         if type(self.max_length) is not int or self.max_length < 0:
             raise NotSupportedError(details="Invalid input options for MAX_LENGTH.")
 
-    def __call__(self, password: str, user: Optional[User] = None):
+    def __call__(self, password: str, user: Optional[BaseUserMixin] = None):
         if len(password) < self.min_length:
             raise InvalidParameterError(details=f"Password length is less than {self.min_length}.")
 
@@ -43,14 +43,24 @@ class UsernameSimilarityValidator(BasePasswordValidator):
         if type(self.max_similarity) is not float or not (0 <= self.max_similarity <= 1):
             raise NotSupportedError(details="Invalid input options for MAX_SIMILARITY.")
 
-    def __call__(self, password: str, user: Optional[User] = None):
+    def __call__(self, password: str, user: Optional[BaseUserMixin] = None):
         if not user:
+            return
+
+        if not hasattr(user, "username_field") or not user.username_field:
+            return
+
+        username_field = user.username_field
+
+        try:
+            username = str(getattr(user, username_field))
+        except:  # noqa:
             return
 
         if (
             SequenceMatcher(
                 a=password.lower(),
-                b=user.email.lower(),
+                b=username.lower(),
             ).quick_ratio()
             > self.max_similarity
         ):
@@ -58,7 +68,7 @@ class UsernameSimilarityValidator(BasePasswordValidator):
 
 
 class NumericPasswordValidator(BasePasswordValidator):
-    def __call__(self, password: str, user: Optional[User] = None):
+    def __call__(self, password: str, user: Optional[BaseUserMixin] = None):
         if password.isdigit():
             raise InvalidParameterError(details="Password is entirely numeric.")
 
@@ -73,6 +83,6 @@ def _get_validators():
     return validators
 
 
-def validate_password(password, user: Optional[User] = None):
+def validate_password(password, user: Optional[BaseUserMixin] = None):
     for validator in _get_validators():
         validator(password, user)

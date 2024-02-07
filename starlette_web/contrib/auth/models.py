@@ -12,6 +12,8 @@ from starlette_web.contrib.auth.hashers import make_password, verify_password
 class User(ModelBase, BaseUserMixin):
     __tablename__ = "auth_users"
 
+    username_field = "email"
+
     id = Column(Integer, primary_key=True)
     email = Column(String(length=128), index=True, nullable=False, unique=True)
     password = Column(String(length=256), nullable=False)
