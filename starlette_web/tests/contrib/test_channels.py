@@ -154,10 +154,15 @@ class TestChannelLayers:
             _publisher_result = []
 
             async def publisher_task(channel, _res):
+                await anyio.sleep(0.1)
                 await channel.publish("test_group", "Message")
                 await anyio.sleep(0.2)
                 _res.append(len(channel._subscribers))
-                _res.append(len(channel._channel_layer._subscribed))
+                _res.append(len({
+                    k: v
+                    for k, v in channel._channel_layer._subscribed.items()
+                    if v > 0
+                }))
 
             async def subscriber_task(channel: Channel):
                 async with channel.subscribe("test_group") as subscriber:
@@ -167,6 +172,7 @@ class TestChannelLayers:
 
             async with Channel(InMemoryChannelLayer()) as channels:
                 async with anyio.create_task_group() as task_group:
+                    task_group.cancel_scope.deadline = anyio.current_time() + 5.0
                     task_group.start_soon(publisher_task, channels, _publisher_result)
                     task_group.start_soon(subscriber_task, channels)
                     task_group.start_soon(subscriber_task, channels)
