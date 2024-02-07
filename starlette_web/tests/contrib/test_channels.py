@@ -182,3 +182,75 @@ class TestChannelLayers:
 
         res = await_(task_coroutine())
         assert res == [0, 0]
+
+    def test_multiple_same_subscribers_inmemorychannellayer(self):
+        async def task_coroutine():
+            _result = []
+
+            async def publisher_task(channel: Channel):
+                await anyio.sleep(0.1)
+                for _ in range(10):
+                    await channel.publish("test_group", "Message")
+
+            async def subscriber_task(channel: Channel, _res: list, break_after: int):
+                async with channel.subscribe("test_group") as subscriber:
+                    _message_counter = 0
+                    async for message in subscriber:
+                        if _message_counter >= break_after:
+                            break
+                        _res.append(message)
+                        _message_counter += 1
+
+            async with Channel(InMemoryChannelLayer()) as channels:
+                async with anyio.create_task_group() as task_group:
+                    task_group.cancel_scope.deadline = anyio.current_time() + 5.0
+                    task_group.start_soon(publisher_task, channels)
+                    task_group.start_soon(subscriber_task, channels, _result, 5)
+                    task_group.start_soon(subscriber_task, channels, _result, 2)
+                    task_group.start_soon(subscriber_task, channels, _result, 1)
+
+            return _result
+
+        res = await_(task_coroutine())
+        assert len(res) == 8
+
+    def test_publish_in_subscribe_inmemorychannellayer(self):
+        async def task_coroutine():
+            _result = []
+
+            async def pipeline_1(channel: Channel):
+                await anyio.sleep(0.1)
+                for _ in range(10):
+                    await channel.publish("topic_1", "Message")
+
+            async def pipeline_2(channel: Channel):
+                async with channel.subscribe("topic_1") as subscriber:
+                    _messages_count = 0
+                    async for event in subscriber:
+                        await channel.publish("topic_2", event.message)
+                        _messages_count += 1
+                        if _messages_count >= 10:
+                            break
+
+            async def pipeline_3(channel: Channel, _res):
+                async with channel.subscribe("topic_2") as subscriber:
+                    _messages_count = 0
+                    async for event in subscriber:
+                        _res.append(event)
+                        # This topic is not listened by anyone
+                        await channel.publish("topic_3", event.message)
+                        _messages_count += 1
+                        if _messages_count >= 10:
+                            break
+
+            async with Channel(InMemoryChannelLayer()) as channels:
+                async with anyio.create_task_group() as task_group:
+                    task_group.cancel_scope.deadline = anyio.current_time() + 3.0
+                    task_group.start_soon(pipeline_1, channels)
+                    task_group.start_soon(pipeline_2, channels)
+                    task_group.start_soon(pipeline_3, channels, _result)
+
+            return _result
+
+        res = await_(task_coroutine())
+        assert len(res) == 10

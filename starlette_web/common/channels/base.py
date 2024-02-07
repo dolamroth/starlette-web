@@ -8,6 +8,7 @@ from anyio.streams.memory import (
     MemoryObjectSendStream,
     EndOfStream,
     ClosedResourceError,
+    BrokenResourceError,
 )
 
 from starlette_web.common.channels.layers.base import BaseChannelLayer
@@ -50,6 +51,12 @@ class Channel:
         await self._channel_layer.disconnect()
 
     async def _listener(self) -> None:
+        async def _safe_send(_send_stream: MemoryObjectSendStream, _event: Event):
+            try:
+                await _send_stream.send(_event)
+            except (BrokenResourceError, ClosedResourceError):
+                pass
+
         async with anyio.create_task_group() as task_group:
             while True:
                 try:
@@ -61,7 +68,7 @@ class Channel:
                     subscribers_list = list(self._subscribers.get(event.group, []))
 
                 for send_stream in subscribers_list:
-                    task_group.start_soon(send_stream.send, event)
+                    task_group.start_soon(_safe_send, send_stream, event)
 
         async with self._manager_lock:
             for group in self._subscribers.keys():
