@@ -5,6 +5,6 @@ recursive-exclude .github *
 recursive-exclude .pytest_cache *
 recursive-exclude docs *
 recursive-exclude examples *
-recursive-exclude tests *
+recursive-exclude starlette_web/tests *
 recursive-exclude * __pycache__
 recursive-exclude * *.py[cod]
