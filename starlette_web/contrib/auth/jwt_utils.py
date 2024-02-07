@@ -5,6 +5,8 @@ from typing import Tuple
 
 import jwt
 
+from starlette_web.common.utils.inspect import get_available_options
+
 
 class JWTProcessor:
     def __init__(self, **kwargs):
@@ -61,8 +63,9 @@ class JWTProcessor:
         res = {}
         options = {**self.init_options, **kwargs}
 
-        if "algorithm" in options:
-            res["algorithm"] = options["algorithm"]
+        for _option in get_available_options(jwt.encode):
+            if _option in options:
+                res[_option] = options[_option]
 
         return res
 
@@ -70,14 +73,14 @@ class JWTProcessor:
         res = {}
         options = {**self.init_options, **kwargs}
 
-        if "algorithm" in options:
-            res["algorithms"] = [options["algorithm"]]
-        elif "algorithms" in options:
-            res["algorithms"] = options["algorithms"]
+        for _option in get_available_options(jwt.decode):
+            if _option in options:
+                res[_option] = options[_option]
 
-        if "options" in options:
-            res["options"] = options["options"]
-        else:
+        if "algorithm" in options and not res.get("algorithms"):
+            res["algorithms"] = [options["algorithm"]]
+
+        if "options" not in res:
             res["options"] = options
 
         return res

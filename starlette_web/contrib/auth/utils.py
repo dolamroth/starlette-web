@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from functools import cached_property
 
 from starlette_web.common.conf import settings
+from starlette_web.common.utils.json import StarletteJSONEncoder
 from starlette_web.contrib.auth.jwt_utils import JWTProcessor
 
 
@@ -47,6 +48,7 @@ class AuthJWTProcessor(JWTProcessor):
 jwt_processor = AuthJWTProcessor(
     algorithm=settings.AUTH_JWT_ALGORITHM,
     verify_signature=True,
+    json_encoder=StarletteJSONEncoder,
 )
 encode_jwt = jwt_processor.encode_jwt
 decode_jwt = jwt_processor.decode_jwt
