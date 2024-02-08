@@ -39,6 +39,7 @@ dependencies = [
     "filelock>=3.13.1,<3.14",
     "marshmallow>=3.20.1,<3.21",
     "chardet>=5.2.0,<5.3",
+    "PyJWT[crypto]>=2.8,<2.9",
 ]
 
 [project.urls]
@@ -58,7 +59,6 @@ apispec = [
     "openapi-spec-validator>=0.7.1,<0.8",
 ]
 admin = ["starlette-admin>=0.11.2,<0.12"]
-auth = ["PyJWT[crypto]>=2.8,<2.9"]
 mqtt = ["gmqtt>=0.6.13,<0.7"]
 postgres = ["asyncpg>=0.29,<0.30"]
 redis = ["redis>=5.0.1,<5.1"]

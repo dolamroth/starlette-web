@@ -11,7 +11,6 @@ pip install starlette-web[all]
 starlette-web has a lot of extra dependencies, most of which correspond to contrib modules:
 - apispec
 - admin
-- auth
 - mqtt
 - postgres
 - redis

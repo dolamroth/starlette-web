@@ -1,10 +1,9 @@
 import datetime
 from dataclasses import dataclass
-from functools import cached_property
 
 from starlette_web.common.conf import settings
 from starlette_web.common.utils.json import StarletteJSONEncoder
-from starlette_web.contrib.auth.jwt_utils import JWTProcessor
+from starlette_web.common.authorization.jwt_utils import JWTProcessor
 
 
 TOKEN_TYPE_ACCESS = "access"
@@ -21,14 +20,6 @@ class TokenCollection:
 
 
 class AuthJWTProcessor(JWTProcessor):
-    @cached_property
-    def _get_encode_secret_key(self):
-        return str(settings.SECRET_KEY)
-
-    @cached_property
-    def _get_decode_secret_key(self):
-        return str(settings.SECRET_KEY)
-
     def _get_expires_at(self, expires_in: int = None, **kwargs) -> datetime.datetime:
         token_type: str = kwargs.get("token_type", TOKEN_TYPE_ACCESS)
 

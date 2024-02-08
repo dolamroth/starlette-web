@@ -5,6 +5,8 @@ from typing import Tuple
 
 import jwt
 
+from starlette_web.common.conf import settings
+from starlette_web.common.utils.json import StarletteJSONEncoder
 from starlette_web.common.utils.inspect import get_available_options
 
 
@@ -51,13 +53,16 @@ class JWTProcessor:
 
     @cached_property
     def _get_encode_secret_key(self):
-        raise NotImplementedError()
+        return str(settings.SECRET_KEY)
 
     @cached_property
     def _get_decode_secret_key(self):
-        raise NotImplementedError()
+        return str(settings.SECRET_KEY)
 
     def _get_expires_at(self, expires_in: int = None, **kwargs) -> datetime.datetime:
+        if expires_in is None and kwargs.get("expires_in"):
+            expires_in = kwargs["expires_in"]
+
         return datetime.datetime.utcnow() + datetime.timedelta(seconds=expires_in)
 
     def _enhance_payload_for_encode(self, payload: dict, **kwargs) -> None:
@@ -88,3 +93,12 @@ class JWTProcessor:
             res["options"] = options
 
         return res
+
+
+jwt_processor = JWTProcessor(
+    algorithm=settings.AUTH_JWT_ALGORITHM,
+    verify_signature=True,
+    json_encoder=StarletteJSONEncoder,
+)
+encode_jwt = jwt_processor.encode_jwt
+decode_jwt = jwt_processor.decode_jwt
