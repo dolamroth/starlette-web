@@ -18,31 +18,35 @@ class JWTProcessor:
         expires_in: int = None,
         **kwargs,
     ) -> Tuple[str, datetime.datetime]:
+        _options = {**self.init_options}
+        _options.update(kwargs)
+
         _expires_at = self._get_expires_at(
             expires_in=expires_in,
-            **self.init_options,
-            **kwargs,
+            **_options,
         )
         _payload = copy.deepcopy(payload)
         _payload["exp"] = _expires_at
         self._enhance_payload_for_encode(
             _payload,
-            **self.init_options,
-            **kwargs,
+            **_options,
         )
 
         token = jwt.encode(
             payload=_payload,
             key=self._get_encode_secret_key,
-            **self._get_encode_options(**self.init_options, **kwargs),
+            **self._get_encode_options(**_options),
         )
         return token, _expires_at
 
     def decode_jwt(self, encoded_jwt: str, **kwargs):
+        _options = {**self.init_options}
+        _options.update(kwargs)
+
         return jwt.decode(
             encoded_jwt,
             key=self._get_decode_secret_key,
-            **self._get_decode_options(**self.init_options, **kwargs),
+            **self._get_decode_options(**_options),
         )
 
     @cached_property
