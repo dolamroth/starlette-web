@@ -109,7 +109,7 @@ class WindowsTaskScheduler(BasePeriodicTaskScheduler):
                 execution_time_limit=False,
                 force_stop=True,
                 delete_after=False,
-                multiple_instances=not self.settings.LOCK_JOBS,
+                multiple_instances=["Parallel", "No New Instance"][self.settings.LOCK_JOBS],
                 action_type="Execute",
                 cmd=self.settings.PYTHON_EXECUTABLE,
                 arguments=(

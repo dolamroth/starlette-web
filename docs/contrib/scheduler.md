@@ -60,3 +60,9 @@ python command.py scheduler run d41d8cd98f00b204e9800998ecf8427e  # run by OS-sc
 - `PERIODIC_JOBS_USERNAME` (str, Windows only) - by default `"System"`
 - `PERIODIC_JOBS_PASSWORD` (str, Windows only) - by default `None`
 - `PERIODIC_JOBS_BACKEND` (str) - path to override default backend class - by default `None`
+
+#### Note about console popup on Windows
+
+If Windows scheduler task with default Python executable shows up console popup on each run, 
+you may want to substitute `python.exe` with `pythonw.exe` in `PERIODIC_JOBS_PYTHON_EXECUTABLE`. 
+Note, that it has its own [caveats](https://stackoverflow.com/a/30313091).
