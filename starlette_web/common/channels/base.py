@@ -79,8 +79,13 @@ class Channel:
         await self._channel_layer.publish(group, message, **kwargs)
 
     @asynccontextmanager
-    async def subscribe(self, group: str, **kwargs) -> AsyncGenerator["Subscriber", None]:
-        send_stream, receive_stream = anyio.create_memory_object_stream()
+    async def subscribe(
+        self,
+        group: str,
+        max_buffer_size: float = 0,
+        **kwargs,
+    ) -> AsyncGenerator["Subscriber", None]:
+        send_stream, receive_stream = anyio.create_memory_object_stream(max_buffer_size)
 
         try:
             async with self._manager_lock:
