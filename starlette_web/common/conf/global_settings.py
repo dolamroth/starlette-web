@@ -58,6 +58,10 @@ STORAGES = {
 
 EMAIL_SENDER = None
 
+# Contrib.apispec
+
+APISPEC_PERFORM_CHECKS_ON_STARTUP = True
+
 # Contrib.auth
 
 AUTH_PASSWORD_HASHERS = [

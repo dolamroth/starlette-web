@@ -70,6 +70,9 @@ inner registry by class name. If any 2 classes have same name, APIspec struggles
 schema class for introspection and gives up. This results in invalid OpenAPI, where schema is mentioned,
 but its definition is missing.
 
+**Note**: Validation is performed on each `app` startup, which includes uvicorn worker restarts.
+To disable validation in production, set `settings.APISPEC_PERFORM_CHECKS_ON_STARTUP` to `False`.
+
 ### Camel case support
 
 `contrib.camel_case` provides helper methods and classes to convert `snake_case` to `camelCase` and vice versa.
