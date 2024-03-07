@@ -45,6 +45,17 @@ Receipts:
 - for an example of simple chat, see `starlette_web.tests.views.websocket.ChatWebsocketTestEndpoint` and
   `starlette_web.tests.contrib.test_websocket_chat`
 
+### Authentication
+
+While generic WebSocket protocol does allow using headers, browsers' WebSocket API does not allow user
+to set request headers, such as "Authorization". 
+
+Instead, use advice from StackOverflow answer: 
+https://stackoverflow.com/questions/4361173/http-headers-in-websockets-client-api/77060459#77060459
+
+**TL;DR**: pass authentication credentials as custom protocol, which is internally changed to 
+"Sec-WebSocket-Protocol" header. This feature is supported by majority or modern browsers.  
+
 ## Synchronizing multiple tasks
 
 It is not recommended to run a highly-sophisticated logic with many infinite tasks,

@@ -71,6 +71,9 @@ class CancellationWebsocketTestEndpoint(BaseWebsocketTestEndpoint):
 
 
 class AuthenticationWebsocketTestEndpoint(BaseWebsocketTestEndpoint):
+    # Note, that authentication via "Authorization" header
+    # is not supported by web-browsers' WebSocket API.
+    # Instead, use custom schema, such as setting "Sec-WebSocket-Protocol" header.
     auth_backend = JWTAuthenticationBackend
     permission_classes = [IsAuthenticatedPermission]
     EXIT_MAX_DELAY = 5
