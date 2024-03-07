@@ -11,4 +11,4 @@ class BaseUserMixin:
 class AnonymousUser(BaseUserMixin):
     @property
     def is_authenticated(self) -> bool:
-        raise False
+        return False
