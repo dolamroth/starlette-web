@@ -61,9 +61,12 @@ class BaseWSEndpoint(WebSocketEndpoint):
         del websocket.state.db_session
 
         if permitted:
-            await websocket.accept()
+            await self.accept(websocket)
         else:
             raise WebSocketDisconnect(code=3000, reason=reason)
+
+    async def accept(self, websocket: WebSocket) -> None:
+        await websocket.accept()
 
     async def on_receive(self, websocket: WebSocket, data: Any) -> None:
         cleaned_data = self._validate(data)
