@@ -32,12 +32,11 @@ class WindowsTaskScheduler(BasePeriodicTaskScheduler):
         self._root_dir = "starlette_web"
 
     def __enter__(self):
-        if self.needs_write:
-            if ctypes.windll.shell32.IsUserAnAdmin() == 0:
-                warnings.warn(
-                    "You may have insufficient privileges to make "
-                    "changes to Task Scheduler as non-administrator"
-                )
+        if ctypes.windll.shell32.IsUserAnAdmin() == 0:
+            warnings.warn(
+                "You may have insufficient privileges to make or observe "
+                "changes to Task Scheduler as non-administrator"
+            )
 
         self._ensure_project_folder_exists()
         self._read_jobs()
@@ -89,7 +88,7 @@ class WindowsTaskScheduler(BasePeriodicTaskScheduler):
                     start_date=start_date,
                 )
 
-            created = create_task(
+            created, reason = create_task(
                 name=job_hash,
                 location=location,
                 description=f"Periodic job {job_hash}",
@@ -123,7 +122,7 @@ class WindowsTaskScheduler(BasePeriodicTaskScheduler):
                 **schedule_kwargs,
             )
             if not created:
-                raise CommandError(message=f"Could not create task {job}")
+                raise CommandError(message=f"Could not create task {job}. {reason}")
 
             logger.info(f"Created scheduled task {job}")
 
@@ -176,7 +175,7 @@ class WindowsTaskScheduler(BasePeriodicTaskScheduler):
             if task_name in self._current_jobs:
                 task_info = get_task_info(task_name, location=location)
                 logger.info("%s -> %s" % (job, location + task_name))
-                logger.info(json.dumps(task_info, indent=2))
+                logger.debug(json.dumps(task_info, indent=2))
 
     def remove_jobs(self):
         project_hash = self._get_project_level_hash()
