@@ -3,8 +3,8 @@ import hashlib
 import logging
 import os
 import tempfile
-from contextlib import nullcontext
-from typing import List, Dict, Tuple, Union
+from contextlib import ExitStack
+from typing import List, Dict, Tuple, Union, ContextManager
 
 import anyio
 from filelock import FileLock
@@ -103,11 +103,13 @@ class BasePeriodicTaskScheduler:
 
         raise CommandError(details=f"Periodic job with hash = {job_hash} not found.")
 
-    def _get_job_mutex(self, job_hash: str):
+    def _get_job_mutex(self, job_hash: str) -> ContextManager:
+        exit_stack = ExitStack()
+
         if self.settings.LOCK_JOBS:
             lock_file = os.path.join(
                 tempfile.gettempdir(), self._get_project_level_hash() + "_" + job_hash + ".lock"
             )
-            return FileLock(lock_file, timeout=self.settings.BLOCKING_TIMEOUT)
-        else:
-            return nullcontext()
+            exit_stack.enter_context(FileLock(lock_file, timeout=self.settings.BLOCKING_TIMEOUT))
+
+        return exit_stack

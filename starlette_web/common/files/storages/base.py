@@ -1,5 +1,5 @@
 import sys
-from contextlib import nullcontext
+from contextlib import AsyncExitStack
 from typing import Any, AnyStr, List, Literal, Optional
 from typing import AsyncContextManager, AsyncIterator
 
@@ -100,7 +100,7 @@ class BaseStorage(AsyncContextManager):
     def get_access_lock(self, path: str, mode="r") -> AsyncContextManager:
         # Mode parameter allows possible usage of RWLock,
         # should you find a working cross-process implementation
-        return nullcontext()
+        return AsyncExitStack()
 
 
 class _AsyncResourse(AsyncContextManager):
