@@ -1,5 +1,7 @@
 import logging
-from typing import Type, Union, Iterable, ClassVar, Optional, Mapping, List, Awaitable
+from typing import (
+    Type, Union, Iterable, ClassVar, Optional, Mapping, List, Awaitable, Dict,
+)
 
 from marshmallow import Schema, ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -116,7 +118,12 @@ class BaseHTTPEndpoint(HTTPEndpoint):
                 raise PermissionDeniedError from exc
 
     async def _validate(
-        self, request, schema: Type[Schema] = None, partial_: bool = False, location: str = None
+        self,
+        request,
+        schema: Type[Schema] = None,
+        partial_: bool = False,
+        location: str = None,
+        context: Optional[Dict] = None,
     ) -> Optional[Mapping]:
         """Simple validation, based on marshmallow's schemas"""
 
@@ -124,6 +131,8 @@ class BaseHTTPEndpoint(HTTPEndpoint):
         schema_kwargs = {}
         if partial_:
             schema_kwargs["partial"] = [field for field in schema_class().fields]
+        if context:
+            schema_kwargs["context"] = context
 
         schema_obj, cleaned_data = schema_class(**schema_kwargs), {}
         try:
@@ -148,6 +157,7 @@ class BaseHTTPEndpoint(HTTPEndpoint):
         status_code: int = status.HTTP_200_OK,
         headers: Mapping[str, str] = None,
         background: Optional[BackgroundTasks] = None,
+        context: Optional[Dict] = None,
     ) -> BaseRenderer:
         """
         A shorthand for response_renderer plus serializing data and passing text status.
@@ -157,6 +167,8 @@ class BaseHTTPEndpoint(HTTPEndpoint):
             schema_kwargs = {}
             if isinstance(data, Iterable) and not isinstance(data, dict):
                 schema_kwargs["many"] = True
+            if context is not None:
+                schema_kwargs["context"] = context
 
             payload = self.response_schema(**schema_kwargs).dump(data)
         else:

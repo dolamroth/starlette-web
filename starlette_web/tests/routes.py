@@ -17,6 +17,7 @@ from starlette_web.tests.views import (
     InfinitePeriodicTaskWebsocketTestEndpoint,
     ChatWebsocketTestEndpoint,
     EmptyResponseAPIView,
+    EndpointWithContextSchema,
 )
 from starlette_web.tests.views.middlewares import (
     SetResponseStatusCode201TestMiddleware,
@@ -33,6 +34,7 @@ routes = [
     Mount("/media", app=StaticFiles(directory=settings.MEDIA["ROOT_DIR"]), name="media"),
     Route("/health_check/", HealthCheckAPIView),
     Route("/empty/", EmptyResponseAPIView, include_in_schema=False),
+    Route("/context-schema/", EndpointWithContextSchema, include_in_schema=False),
     Route(
         "/reset-status-code/",
         EndpointWithStatusCodeMiddleware,

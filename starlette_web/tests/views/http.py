@@ -84,6 +84,34 @@ class EmptyResponseAPIView(BaseHTTPEndpoint):
         return self._response(status_code=204)
 
 
+class EndpointWithContextRequestSchema(Schema):
+    value = fields.Method(None, "get_value")
+
+    def get_value(self, value):
+        return value + self.context.get("add", 0)
+
+
+class EndpointWithContextResponseSchema(Schema):
+    value = fields.Method("get_value", None)
+
+    def get_value(self, obj):
+        return obj.get("value", 0) ** 2 + self.context.get("add", 0)
+
+
+class EndpointWithContextSchema(BaseHTTPEndpoint):
+    auth_backend = None
+    request_schema = EndpointWithContextRequestSchema
+    response_schema = EndpointWithContextResponseSchema
+
+    async def post(self, request):
+        data = await self._validate(request, context={"add": 1})
+        return self._response(
+            {"value": data.get("value", 0)},
+            status_code=204,
+            context={"add": 1},
+        )
+
+
 class EndpointWithStatusCodeMiddleware(BaseHTTPEndpoint):
     auth_backend = None
 

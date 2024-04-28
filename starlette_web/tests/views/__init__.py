@@ -5,6 +5,7 @@ from starlette_web.tests.views.http import (
     EmptyResponseAPIView,
     EndpointWithStatusCodeMiddleware,
     EndpointWithCacheMiddleware,
+    EndpointWithContextSchema,
 )
 from starlette_web.tests.views.websocket import (
     BaseWebsocketTestEndpoint,
