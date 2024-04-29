@@ -23,7 +23,7 @@ class TestWebsocketEndpoint:
             assert cache_keys == []
 
             websocket.send_json({"request_type": "test"})
-            time.sleep(1)
+            time.sleep(0.5)
             cache_keys = await_(locmem_cache.async_keys("*"))
             assert len(cache_keys) == 1
             task_id = cache_keys[0]
