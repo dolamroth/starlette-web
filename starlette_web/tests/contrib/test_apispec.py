@@ -403,6 +403,47 @@ REFERENCE_SCHEMA = {
                 ]
             }
         },
+        "/typed-schema/": {
+            "post": {
+                "description": "Endpoint with typed method field",
+                "requestBody": {
+                    "required": True,
+                    "description": "Method field",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TypedMethodFieldRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Test Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TypedMethodFieldResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Test"
+                ]
+            }
+        },
         "/{alias}/": {
             "get": {
                 "description": "Empty response for test",
@@ -412,7 +453,7 @@ REFERENCE_SCHEMA = {
                     }
                 },
                 "tags": [
-                    "Empty"
+                    "Test"
                 ],
                 "parameters": [
                     {
@@ -435,7 +476,7 @@ REFERENCE_SCHEMA = {
                     }
                 },
                 "tags": [
-                    "Empty"
+                    "Test"
                 ],
                 "parameters": [
                     {
@@ -694,6 +735,39 @@ REFERENCE_SCHEMA = {
                         "type": "array",
                         "items": {
                             "type": "string"
+                        }
+                    }
+                }
+            },
+            "SchemaForMethodField": {
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "TypedMethodFieldRequest": {
+                "type": "object",
+                "properties": {
+                    "method_value": {
+                        "writeOnly": True,
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SchemaForMethodField"
+                        }
+                    }
+                }
+            },
+            "TypedMethodFieldResponse": {
+                "type": "object",
+                "properties": {
+                    "method_value": {
+                        "readOnly": True,
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 }

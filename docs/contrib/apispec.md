@@ -82,8 +82,44 @@ Use its `CamelCaseStarletteParser` and `CamelCaseJSONRenderer` as drop-in replac
 
 Should you use it, also set `settings.APISPEC["CONVERT_TO_CAMEL_CASE"]` to `True`.
 
+### Typed method field
+
+Starlette-web provides decorator `apispec_method_decorator` for serialize- and deserialize methods of `marshmallow.fields.Method`,
+in the same way, as [`drf-yasg`](https://drf-yasg.readthedocs.io/en/stable/custom_spec.html#support-for-serializermethodfield).
+
+`apispec_method_decorator` accepts field/schema class/instance as its only attribute.
+
+Usage:
+```python
+import uuid
+from marshmallow import schema, fields
+from starlette_web.contrib.apispec.utils import apispec_method_decorator
+
+
+class SchemaForMethodField(schema.Schema):
+    value = fields.Integer()
+
+
+class TypedMethodFieldRequestSchema(schema.Schema):
+    method_value = fields.Method(None, "load_value")
+
+    @apispec_method_decorator(SchemaForMethodField(many=True))
+    def load_value(self, value: list):
+        return [_ * 2 for _ in value]
+
+
+class TypedMethodFieldResponseSchema(schema.Schema):
+    method_value = fields.Method("dump_value", None)
+
+    @apispec_method_decorator(fields.List(fields.UUID(), allow_none=False, required=True))
+    def dump_value(self, obj: dict):
+        return [uuid.UUID(int=_) for _ in obj["method_value"]]
+```
+
 ### Usage
 
-Please, see `starlette_web.contrib.auth` and `starlette_web.tests.contrib.test_apispec` for examples of usage.
+Please, see `starlette_web.contrib.auth`, 
+`starlette_web.tests.core.test_responses` and 
+`starlette_web.tests.contrib.test_apispec` for examples of usage.
 
 ### TODO: More features will be available in 0.2.

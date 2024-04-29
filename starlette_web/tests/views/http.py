@@ -3,23 +3,20 @@ import logging
 import anyio
 from sqlalchemy import select
 from starlette import status
-from marshmallow import Schema, fields
 
 from starlette_web.contrib.auth.models import User
 from starlette_web.common.http.base_endpoint import BaseHTTPEndpoint
 from starlette_web.common.authorization.permissions import AllowAnyPermission
+from starlette_web.tests.views.schemas import (
+    HealthCheckSchema,
+    TypedMethodFieldRequestSchema,
+    TypedMethodFieldResponseSchema,
+    EndpointWithContextRequestSchema,
+    EndpointWithContextResponseSchema,
+)
 
 
 logger = logging.getLogger(__name__)
-
-
-class ServicesCheckSchema(Schema):
-    postgres = fields.Str()
-
-
-class HealthCheckSchema(Schema):
-    services = fields.Nested(ServicesCheckSchema)
-    errors = fields.List(fields.Str)
 
 
 class HealthCheckAPIView(BaseHTTPEndpoint):
@@ -79,23 +76,9 @@ class EmptyResponseAPIView(BaseHTTPEndpoint):
         responses:
           204:
             description: Empty response for test
-        tags: ["Empty"]
+        tags: ["Test"]
         """
         return self._response(status_code=204)
-
-
-class EndpointWithContextRequestSchema(Schema):
-    value = fields.Method(None, "get_value")
-
-    def get_value(self, value):
-        return value + self.context.get("add", 0)
-
-
-class EndpointWithContextResponseSchema(Schema):
-    value = fields.Method("get_value", None)
-
-    def get_value(self, obj):
-        return obj.get("value", 0) ** 2 + self.context.get("add", 0)
 
 
 class EndpointWithContextSchema(BaseHTTPEndpoint):
@@ -107,9 +90,34 @@ class EndpointWithContextSchema(BaseHTTPEndpoint):
         data = await self._validate(request, context={"add": 1})
         return self._response(
             {"value": data.get("value", 0)},
-            status_code=204,
             context={"add": 1},
         )
+
+
+class EndpointWithTypedMethodSchema(BaseHTTPEndpoint):
+    auth_backend = None
+    request_schema = TypedMethodFieldRequestSchema
+    response_schema = TypedMethodFieldResponseSchema
+
+    async def post(self, request):
+        """
+        description: Endpoint with typed method field
+        requestBody:
+          required: true
+          description: Method field
+          content:
+            application/json:
+              schema: TypedMethodFieldRequestSchema
+        responses:
+          200:
+            description: Test Response
+            content:
+              application/json:
+                schema: TypedMethodFieldResponseSchema
+        tags: ["Test"]
+        """
+        data = await self._validate(request)
+        return self._response(data)
 
 
 class EndpointWithStatusCodeMiddleware(BaseHTTPEndpoint):

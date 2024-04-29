@@ -18,6 +18,7 @@ from starlette_web.tests.views import (
     ChatWebsocketTestEndpoint,
     EmptyResponseAPIView,
     EndpointWithContextSchema,
+    EndpointWithTypedMethodSchema,
 )
 from starlette_web.tests.views.middlewares import (
     SetResponseStatusCode201TestMiddleware,
@@ -35,6 +36,7 @@ routes = [
     Route("/health_check/", HealthCheckAPIView),
     Route("/empty/", EmptyResponseAPIView, include_in_schema=False),
     Route("/context-schema/", EndpointWithContextSchema, include_in_schema=False),
+    Route("/typed-schema/", EndpointWithTypedMethodSchema, include_in_schema=True),
     Route(
         "/reset-status-code/",
         EndpointWithStatusCodeMiddleware,

@@ -2,7 +2,7 @@ import json
 
 from apispec.ext.marshmallow import OpenAPIConverter
 from apispec.ext.marshmallow.field_converter import DEFAULT_FIELD_MAPPING
-import marshmallow
+from marshmallow import fields, schema
 
 from starlette_web.common.conf import settings
 from starlette_web.common.utils.json import StarletteJSONEncoder
@@ -16,7 +16,8 @@ class StarletteWebMarshmallowOpenAPIConverter(OpenAPIConverter):
     # https://github.com/axnsan12/drf-yasg/blob/b99306f71c6a5779b62189df7d9c1f5ea1c794ef/src/drf_yasg/openapi.py#L48  # noqa: E501
     field_mapping = {
         **DEFAULT_FIELD_MAPPING,
-        marshmallow.fields.Decimal: ("string", "decimal"),
+        fields.Decimal: ("string", "decimal"),
+        fields.Method: (None, None),
     }
 
     def field2choices(self, field, **kwargs):
@@ -34,3 +35,29 @@ class StarletteWebMarshmallowOpenAPIConverter(OpenAPIConverter):
             return camelize(res)
 
         return res
+
+    def method2properties(self, field: fields.Field, ret=None):
+        if isinstance(field, fields.Method):
+            if field._serialize_method is not None:
+                if hasattr(field._serialize_method, "_apispec_schema"):
+                    field_or_schema = field._serialize_method._apispec_schema
+                    if isinstance(field_or_schema, type):
+                        field_or_schema = field_or_schema()
+
+                    if isinstance(field_or_schema, fields.Field):
+                        ret = self.field2property(field_or_schema)
+                    elif isinstance(field_or_schema, schema.Schema):
+                        ret = self.resolve_nested_schema(field_or_schema)
+
+            if field._deserialize_method is not None:
+                if hasattr(field._deserialize_method, "_apispec_schema"):
+                    field_or_schema = field._deserialize_method._apispec_schema
+                    if isinstance(field_or_schema, type):
+                        field_or_schema = field_or_schema()
+
+                    if isinstance(field_or_schema, fields.Field):
+                        ret = self.field2property(field_or_schema)
+                    elif isinstance(field_or_schema, schema.Schema):
+                        ret = self.resolve_nested_schema(field_or_schema)
+
+        return ret
