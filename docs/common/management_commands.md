@@ -46,7 +46,7 @@ async with self.app.sessionmaker() as session:
 
 By default, sessionmaker in commands uses `NoPool`-strategy to manage connection pool, meaning that
 it will open new connection every time you call sessionmaker and close it immediately after usage.
-To vary this behavior, set `settings.DB_USE_CONNECTION_POOL_FOR_MANAGEMENT_COMMANDS`.
+To vary this behavior, add command line parameter `--use_pool`.
 
 Beware, that any `call_command` creates a new instance of application.
 

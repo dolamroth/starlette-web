@@ -64,7 +64,7 @@ class BaseStarletteApplication:
         Extra actions before app's initialization (can be overridden)
         """
         app_manager.initialize_apps()
-        if self.run_checks:
+        if self.run_checks and (settings.SKIP_CHECKS is not True):
             app_manager.run_apps_checks()
 
     def post_app_init(self, app: AppClass) -> None:

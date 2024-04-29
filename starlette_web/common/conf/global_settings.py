@@ -19,7 +19,7 @@ LANGUAGE_CODE = "en-us"
 # Database settings
 
 DB_ASYNC_SESSION_CLASS = "sqlalchemy.ext.asyncio.AsyncSession"
-DB_USE_CONNECTION_POOL_FOR_MANAGEMENT_COMMANDS = False
+SKIP_CHECKS = None
 DB_POOL_RECYCLE = 3600
 DB_ECHO = False
 
@@ -57,10 +57,6 @@ STORAGES = {
 # Common.email
 
 EMAIL_SENDER = None
-
-# Contrib.apispec
-
-APISPEC_PERFORM_CHECKS_ON_STARTUP = True
 
 # Contrib.auth
 

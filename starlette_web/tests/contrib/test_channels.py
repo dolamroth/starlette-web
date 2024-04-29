@@ -111,22 +111,22 @@ class TestChannelLayers:
                 task_group.start_soon(
                     run_command_in_process,
                     "test_channels_publisher",
-                    [f"--group={test_group_name}"],
+                    [f"--group={test_group_name}", "--skip_checks"],
                 )
                 task_group.start_soon(
                     run_command_in_process,
                     "test_channels_subscriber",
-                    [f"--group={test_group_name}", f"--subscriber={subscriber_1}"],
+                    [f"--group={test_group_name}", f"--subscriber={subscriber_1}", "--skip_checks"],
                 )
                 task_group.start_soon(
                     run_command_in_process,
                     "test_channels_subscriber",
-                    [f"--group={test_group_name}", f"--subscriber={subscriber_2}"],
+                    [f"--group={test_group_name}", f"--subscriber={subscriber_2}", "--skip_checks"],
                 )
                 task_group.start_soon(
                     run_command_in_process,
                     "test_channels_subscriber",
-                    [f"--group={test_group_name}", f"--subscriber={subscriber_3}"],
+                    [f"--group={test_group_name}", f"--subscriber={subscriber_3}", "--skip_checks"],
                 )
 
         await_(task_coroutine())

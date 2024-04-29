@@ -12,9 +12,6 @@ class AppConfig(BaseAppConfig):
     app_name = "apispec"
 
     def initialize(self):
-        if not settings.APISPEC_PERFORM_CHECKS_ON_STARTUP:
-            return
-
         try:
             __import__("openapi_spec_validator")
         except (SystemError, ImportError):
@@ -27,9 +24,6 @@ class AppConfig(BaseAppConfig):
             )
 
     def perform_checks(self):
-        if not settings.APISPEC_PERFORM_CHECKS_ON_STARTUP:
-            return
-
         from openapi_spec_validator import validate
         from openapi_spec_validator.validation.exceptions import (
             OpenAPIValidationError,

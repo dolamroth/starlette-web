@@ -1,22 +1,16 @@
 # flake8: noqa
 
-import argparse
 import os
 
+from starlette_web.common.conf.utils import parse_startapp_known_args
+args = parse_startapp_known_args()
 
-os.environ.setdefault("STARLETTE_SETTINGS_MODULE", "starlette_web.tests.settings")
+os.environ.setdefault("STARLETTE_SETTINGS_MODULE", args.settings or "starlette_web.tests.settings")
+
 from starlette_web.common.app import get_asgi_application
-
-app = get_asgi_application()
+app = get_asgi_application(run_checks_on_startup=not args.skip_checks)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--settings", required=False)
-    args, _ = parser.parse_known_args()
-    if args.settings:
-        os.environ.setdefault("STARLETTE_SETTINGS_MODULE", args.settings)
-
     import uvicorn
-
-    uvicorn.run(app, host="127.0.0.1", port=80)
+    uvicorn.run(app, host=args.host, port=args.port)
