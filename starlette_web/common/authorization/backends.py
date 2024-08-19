@@ -7,6 +7,7 @@ from starlette_web.common.authorization.base_user import BaseUserMixin, Anonymou
 class BaseAuthenticationBackend:
     openapi_spec = None
     openapi_name = "Base"
+    requires_database = False
 
     def __init__(self, request: HTTPConnection, scope: Scope):
         self.request: HTTPConnection = request

@@ -22,6 +22,7 @@ class JWTAuthenticationBackend(BaseAuthenticationBackend):
     keyword = "Bearer"
     openapi_spec = {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"}
     openapi_name = "JWTAuth"
+    requires_database = True
 
     async def authenticate(self, **kwargs) -> User:
         request = self.request

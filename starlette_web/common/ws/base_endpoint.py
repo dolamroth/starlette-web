@@ -1,6 +1,7 @@
 import logging
-from typing import ClassVar, Type, Any, Optional, List, Dict, Tuple
 import sys
+from contextlib import AsyncExitStack
+from typing import ClassVar, Type, Any, Optional, List, Dict, Tuple
 
 import anyio
 from anyio._core._tasks import TaskGroup
@@ -44,8 +45,30 @@ class BaseWSEndpoint(WebSocketEndpoint):
         async with anyio.create_task_group() as self.task_group:
             await super().dispatch()
 
+    def _auth_requires_database(self):
+        return (
+            self.auth_backend.requires_database
+            or any([
+                permission_class.requires_database
+                for permission_class in self.permission_classes
+            ])
+        )
+
+    async def _remove_auth_db_session(self, websocket: WebSocket):
+        del websocket.state.db_session
+
     async def on_connect(self, websocket: WebSocket) -> None:
         try:
+            auth_requires_db = self._auth_requires_database()
+            async with AsyncExitStack() as db_stack:
+                if auth_requires_db:
+                    db_session = await db_stack.enter_async_context(self.app.session_maker())
+                    websocket.state.db_session = db_session
+
+                    # Explicitly clear db_session,
+                    # so that user does not use it through lengthy websocket life-state
+                    db_stack.push_async_callback(self._remove_auth_db_session, websocket)
+
             async with self.app.session_maker() as db_session:
                 websocket.state.db_session = db_session
                 self.user = await self._authenticate(websocket)
@@ -55,10 +78,6 @@ class BaseWSEndpoint(WebSocketEndpoint):
             # Otherwise, websocket will hang out,
             # since accept()/close() have not been called
             raise WebSocketDisconnect(code=1006, reason=str(exc)) from exc
-
-        # Explicitly clear db_session,
-        # so that user does not use it through lengthy websocket life-state
-        del websocket.state.db_session
 
         if permitted:
             await self.accept(websocket)

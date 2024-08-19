@@ -34,6 +34,10 @@ class SingleOperandHolder(OperationHolderMixin):
         op1 = self.op1_class(*args, **kwargs)
         return self.operator_class(op1)
 
+    @property
+    def requires_database(self):
+        return self.op1_class.requires_database
+
 
 class OperandHolder(OperationHolderMixin):
     def __init__(self, operator_class, op1_class, op2_class):
@@ -46,6 +50,10 @@ class OperandHolder(OperationHolderMixin):
         op2 = self.op2_class(*args, **kwargs)
         return self.operator_class(op1, op2)
 
+    @property
+    def requires_database(self):
+        return self.op1_class.requires_database or self.op2_class.requires_database
+
 
 class AND:
     def __init__(self, op1, op2):
@@ -56,6 +64,10 @@ class AND:
         return (await self.op1.has_permission(request, scope)) and (
             await self.op2.has_permission(request, scope)
         )
+
+    @property
+    def requires_database(self):
+        return self.op1.requires_database or self.op2.requires_database
 
 
 class OR:
@@ -68,6 +80,10 @@ class OR:
             await self.op2.has_permission(request, scope)
         )
 
+    @property
+    def requires_database(self):
+        return self.op1.requires_database or self.op2.requires_database
+
 
 class NOT:
     def __init__(self, op1):
@@ -76,12 +92,18 @@ class NOT:
     async def has_permission(self, request: Request, scope: Scope):
         return not (await self.op1.has_permission(request, scope))
 
+    @property
+    def requires_database(self):
+        return self.op1.requires_database
+
 
 class BasePermissionMetaclass(OperationHolderMixin, type):
     pass
 
 
 class BasePermission(metaclass=BasePermissionMetaclass):
+    requires_database = False
+
     async def has_permission(self, request: Request, scope: Scope) -> bool:
         raise NotImplementedError
 

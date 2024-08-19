@@ -1,4 +1,5 @@
 import logging
+from contextlib import AsyncExitStack
 from typing import (
     Type, Union, Iterable, ClassVar, Optional, Mapping, List, Awaitable, Dict,
 )
@@ -51,6 +52,7 @@ class BaseHTTPEndpoint(HTTPEndpoint):
     response_renderer: ClassVar[Type[BaseRenderer]] = import_string(
         settings.DEFAULT_RESPONSE_RENDERER
     )
+    requires_database: ClassVar[bool] = True
 
     async def dispatch(self) -> None:
         """
@@ -65,18 +67,25 @@ class BaseHTTPEndpoint(HTTPEndpoint):
         handler: Awaitable[Response] = getattr(self, handler_name, self.method_not_allowed)
 
         try:
-            async with self.app.session_maker() as session:
-                try:
+            _requires_database = self._requires_database()
+
+            async with AsyncExitStack() as db_stack:
+                if _requires_database:
+                    session = await db_stack.enter_async_context(self.app.session_maker())
                     self.request.state.db_session = session
                     self.db_session = session
+
+                try:
                     await self._authenticate()
                     await self._check_permissions()
 
                     response: Response = await handler(self.request)  # noqa
-                    await session.commit()
 
+                    if _requires_database:
+                        await session.commit()
                 except Exception as err:
-                    await session.rollback()
+                    if _requires_database:
+                        await session.rollback()
                     raise err
 
         except (BaseApplicationError, WebargsHTTPException, HTTPException) as err:
@@ -179,4 +188,14 @@ class BaseHTTPEndpoint(HTTPEndpoint):
             status_code=status_code,
             headers=headers,
             background=background,
+        )
+
+    def _requires_database(self):
+        return (
+            self.requires_database
+            or self.auth_backend.requires_database
+            or any([
+                permission_class.requires_database
+                for permission_class in self.permission_classes
+            ])
         )
