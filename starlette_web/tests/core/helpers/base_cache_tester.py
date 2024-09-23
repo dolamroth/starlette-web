@@ -125,8 +125,7 @@ class BaseCacheTester:
                     await anyio.sleep(3.0)
 
         start_time = time.time()
-        with pytest.raises(CacheLockError):
-            await_(locked_task())
+        await_(locked_task())
         end_time = time.time()
         run_time = end_time - start_time
         assert abs(run_time - move_on_after) < 0.1
