@@ -6,7 +6,8 @@ from jwt import InvalidTokenError, ExpiredSignatureError
 
 from starlette_web.contrib.auth.models import User, UserSession
 from starlette_web.contrib.auth.utils import decode_jwt, TOKEN_TYPE_ACCESS
-from starlette_web.common.authorization.backends import BaseAuthenticationBackend
+from starlette_web.common.authorization.jwt_backend import \
+    JWTAuthenticationBackend as BaseJWTAuthenticationBackend
 from starlette_web.common.http.exceptions import (
     AuthenticationFailedError,
     AuthenticationRequiredError,
@@ -16,34 +17,8 @@ from starlette_web.common.http.exceptions import (
 logger = logging.getLogger(__name__)
 
 
-class JWTAuthenticationBackend(BaseAuthenticationBackend):
-    """Core of authenticate system, based on JWT auth approach"""
-
-    keyword = "Bearer"
-    openapi_spec = {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"}
-    openapi_name = "JWTAuth"
+class JWTAuthenticationBackend(BaseJWTAuthenticationBackend):
     requires_database = True
-
-    async def authenticate(self, **kwargs) -> User:
-        request = self.request
-
-        auth_header = request.headers.get("Authorization") or request.headers.get("authorization")
-        if not auth_header:
-            raise AuthenticationRequiredError("Invalid token header. No credentials provided.")
-
-        auth = auth_header.split()
-        if len(auth) != 2:
-            logger.warning("Trying to authenticate with header %s", auth_header)
-            raise AuthenticationFailedError("Invalid token header. Token should be format as JWT.")
-
-        if auth[0] != self.keyword:
-            raise AuthenticationFailedError("Invalid token header. Keyword mismatch.")
-
-        user, _, session_id = await self.authenticate_user(jwt_token=auth[1], **kwargs)
-
-        self.scope["user_session_id"] = session_id
-        self.scope["user"] = user
-        return user
 
     @staticmethod
     def _parse_jwt_payload(jwt_token: str, token_type: str) -> dict:
