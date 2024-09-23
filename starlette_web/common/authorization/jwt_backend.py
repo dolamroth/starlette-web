@@ -33,10 +33,13 @@ class JWTAuthenticationBackend(BaseAuthenticationBackend):
         return user
 
     def _get_auth_header(self):
-        # Note: JavaScript browser API does not allow sending headers when initializing WS connection.
+        # Note: JavaScript browser API does not allow sending headers
+        # when initializing WS connection.
         # You may want to use Sec-WebSocket-Protocol header instead.
-        auth_header = self.request.headers.get("Authorization") \
-                      or self.request.headers.get("authorization")
+        auth_header = (
+            self.request.headers.get("Authorization")
+            or self.request.headers.get("authorization")
+        )
         if not auth_header:
             raise AuthenticationRequiredError("Invalid token header. No credentials provided.")
 
