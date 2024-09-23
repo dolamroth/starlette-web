@@ -109,6 +109,7 @@ class SignInAPIView(JWTSessionMixin, BaseHTTPEndpoint):
 
     async def post(self, request):
         """
+        summary: Sign in
         description: Sign in
         requestBody:
           required: true
@@ -160,6 +161,7 @@ class SignUpAPIView(JWTSessionMixin, BaseHTTPEndpoint):
 
     async def post(self, request):
         """
+        summary: Sign up
         description: Sign up
         requestBody:
           required: true
@@ -239,6 +241,7 @@ class SignOutAPIView(BaseHTTPEndpoint):
 
     async def delete(self, request):
         """
+        summary: Sign out
         description: Sign out
         responses:
           200:
@@ -272,6 +275,7 @@ class RefreshTokenAPIView(JWTSessionMixin, BaseHTTPEndpoint):
 
     async def post(self, request):
         """
+        summary: Update refresh token
         description: Update refresh token
         requestBody:
           required: true
@@ -330,6 +334,7 @@ class InviteUserAPIView(BaseHTTPEndpoint):
 
     async def post(self, request):
         """
+        summary: Invite user
         description: Invite user
         requestBody:
           required: true
@@ -419,6 +424,7 @@ class ResetPasswordAPIView(BaseHTTPEndpoint):
 
     async def post(self, request):
         """
+        summary: Reset password
         description: Reset password
         requestBody:
           required: true
@@ -489,6 +495,7 @@ class ChangePasswordAPIView(JWTSessionMixin, BaseHTTPEndpoint):
 
     async def post(self, request):
         """
+        summary: Change password
         description: Change password
         requestBody:
           required: true
@@ -530,6 +537,7 @@ class ProfileApiView(BaseHTTPEndpoint):
 
     async def get(self, request):
         """
+        summary: Profile info
         description: Profile info
         responses:
           200:

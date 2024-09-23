@@ -27,6 +27,7 @@ class HealthCheckAPIView(BaseHTTPEndpoint):
 
     async def get(self, *_):
         """
+        summary: Health check
         description: Health check of services
         responses:
           200:
@@ -72,7 +73,8 @@ class EmptyResponseAPIView(BaseHTTPEndpoint):
 
     async def get(self, *_):
         """
-        description: Empty response for test
+        summary: Empty response
+        description: Empty response (204) for test
         responses:
           204:
             description: Empty response for test
@@ -101,6 +103,7 @@ class EndpointWithTypedMethodSchema(BaseHTTPEndpoint):
 
     async def post(self, request):
         """
+        summary: TypedMethodField
         description: Endpoint with typed method field
         requestBody:
           required: true

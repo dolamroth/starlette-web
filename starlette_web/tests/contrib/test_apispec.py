@@ -10,6 +10,7 @@ REFERENCE_SCHEMA = {
     "paths": {
         "/api/auth/me/": {
             "get": {
+                "summary": "Profile info",
                 "description": "Profile info",
                 "responses": {
                     "200": {
@@ -45,6 +46,7 @@ REFERENCE_SCHEMA = {
         },
         "/api/auth/sign-in/": {
             "post": {
+                "summary": "Sign in",
                 "description": "Sign in",
                 "requestBody": {
                     "required": True,
@@ -96,6 +98,7 @@ REFERENCE_SCHEMA = {
         },
         "/api/auth/sign-up/": {
             "post": {
+                "summary": "Sign up",
                 "description": "Sign up",
                 "requestBody": {
                     "required": True,
@@ -137,6 +140,7 @@ REFERENCE_SCHEMA = {
         },
         "/api/auth/sign-out/": {
             "delete": {
+                "summary": "Sign out",
                 "description": "Sign out",
                 "responses": {
                     "200": {
@@ -165,6 +169,7 @@ REFERENCE_SCHEMA = {
         },
         "/api/auth/refresh-token/": {
             "post": {
+                "summary": "Update refresh token",
                 "description": "Update refresh token",
                 "requestBody": {
                     "required": True,
@@ -216,6 +221,7 @@ REFERENCE_SCHEMA = {
         },
         "/api/auth/invite-user/": {
             "post": {
+                "summary": "Invite user",
                 "description": "Invite user",
                 "requestBody": {
                     "required": True,
@@ -272,6 +278,7 @@ REFERENCE_SCHEMA = {
         },
         "/api/auth/reset-password/": {
             "post": {
+                "summary": "Reset password",
                 "description": "Reset password",
                 "requestBody": {
                     "required": True,
@@ -338,6 +345,7 @@ REFERENCE_SCHEMA = {
         },
         "/api/auth/change-password/": {
             "post": {
+                "summary": "Change password",
                 "description": "Change password",
                 "requestBody": {
                     "required": True,
@@ -382,6 +390,7 @@ REFERENCE_SCHEMA = {
         },
         "/health_check/": {
             "get": {
+                "summary": "Health check",
                 "description": "Health check of services",
                 "responses": {
                     "200": {
@@ -405,6 +414,7 @@ REFERENCE_SCHEMA = {
         },
         "/typed-schema/": {
             "post": {
+                "summary": "TypedMethodField",
                 "description": "Endpoint with typed method field",
                 "requestBody": {
                     "required": True,
@@ -446,7 +456,8 @@ REFERENCE_SCHEMA = {
         },
         "/{alias}/": {
             "get": {
-                "description": "Empty response for test",
+                "summary": "Empty response",
+                "description": "Empty response (204) for test",
                 "responses": {
                     "204": {
                         "description": "Empty response for test"
@@ -469,7 +480,8 @@ REFERENCE_SCHEMA = {
         },
         "/{alias1}/{alias2}/": {
             "get": {
-                "description": "Empty response for test",
+                "summary": "Empty response",
+                "description": "Empty response (204) for test",
                 "responses": {
                     "204": {
                         "description": "Empty response for test"
